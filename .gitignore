@@ -1,5 +1,7 @@
-# Personal, per-developer notes.
-AGENTS.local.md
+# Personal, per-developer notes. Anchored to the root on purpose: this
+# repository ships project/core/templates/AGENTS.local.md, and an unanchored
+# rule would quietly keep that template out of every commit.
+/AGENTS.local.md
 
 # Editor and OS noise
 .vs/
