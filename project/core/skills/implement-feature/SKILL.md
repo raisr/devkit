@@ -1,17 +1,136 @@
 ---
 name: implement-feature
-description: PLACEHOLDER - written in step 3. Do not rely on this skill yet.
+description: Drive a change end to end - ticket, branch, implementation in small steps, the gates, commit, request and the review loop. Use when asked to "implement", "build a feature", "work on issue #N", "fix a bug", "start on the ticket", or "pick up" a piece of work.
 ---
 
 # implement-feature
 
-<!-- devkit: PLACEHOLDER. Written in step 3. -->
+The lifecycle of a code change in this repository. Nothing here is optional
+and the order matters.
 
-**Placeholder — this skill does nothing yet.**
+How much of it applies is decided by `DEVKIT_WORKFLOW` in `.devkit/config.sh`:
 
-It will be forge-neutral: everything that talks to GitHub or GitLab goes
-through `.devkit/forge.sh`, everything that builds or tests goes through
-`.devkit/gates.sh`, and the workflow depth comes from `DEVKIT_WORKFLOW`
-in `.devkit/config.sh`.
+- **`full`** — all nine steps.
+- **`light`** — steps 3, 5 and 6 only: implement, gates, commit. No ticket, no
+  request, no review loop.
 
-Managed file — change it in raisr/devkit, not in the repository that received it.
+Read it first:
+
+```bash
+. .devkit/config.sh && echo "${DEVKIT_WORKFLOW} / ${DEVKIT_FORGE} / ${DEVKIT_MAIN_BRANCH}"
+```
+
+Related skills: `create-issue` (step 1), `commit-message` (step 6).
+Paths are relative to the repository root.
+
+## 1. There must be a ticket — `full` only
+
+Every change needs one. If there is none, invoke `create-issue` and get it
+filed before writing code. If the user pointed at an existing ticket, read it
+in full now — the **Acceptance criteria / Definition of Done** is the contract
+being fulfilled.
+
+## 2. Branch — `full` only
+
+```bash
+git checkout "${DEVKIT_MAIN_BRANCH}" && git pull
+git checkout -b feature/<ticket>-<slug>     # fix/<ticket>-<slug> for a fix
+```
+
+Only `feature/` and `fix/`, so the tooling parses the number back out. See
+`forge.branches`.
+
+Under `light`, work on a branch anyway when the change is more than a moment,
+but nothing forces a name.
+
+## 3. Implement in small, reviewable steps
+
+- The rules bind in both modes. `AGENTS.core.md`, the stack rules, the forge
+  rules, and the project `AGENTS.md` on top — including its *Deviations* table.
+- **New or changed logic without a test counts as unfinished** (`core.tests`),
+  even under `light`, even when nobody asked.
+- Anything touching more than one file: agree the approach with the user before
+  diving in (`core.working-style`).
+- Keep the working tree reviewable — no stray files, no reformatted files you
+  never touched.
+- Documentation is part of the change (`core.docs`). A change that leaves
+  `docs/`, the `README.md` or `AGENTS.md` contradicting the code is not done.
+
+## 4. Changelog — `full` only
+
+See `forge.changelog`. A user-visible change needs an entry under
+`## [Unreleased]` in the right category. Purely internal work may skip it —
+and when it is skipped, one line in the request body says why.
+
+## 5. Gates — both modes
+
+```bash
+bash .devkit/gates.sh
+```
+
+All green before anything is committed. Not afterwards, not in CI only.
+
+Under `full`, then walk the Definition of Done yourself, box by box. The gates
+do not cover reference graphs, exposed APIs or documentation. Proceed only when
+every box is genuinely true — and where one is not, say which and why rather
+than quietly leaving it.
+
+## 6. Commit — both modes
+
+Invoke `commit-message`. It reads the workflow mode, parses the ticket out of
+the branch, drafts in the required format, and commits and pushes after an
+explicit yes. Repo commits carry no AI footer.
+
+## 7. Open the request — `full` only
+
+```bash
+. .devkit/config.sh && . .devkit/forge.sh
+forge_pr_create "${DEVKIT_MAIN_BRANCH}" "<branch>" \
+  "<type>: <summary> (#<issue>)" "<type>" "${DEVKIT_ASSIGNEE}" /path/to/body.md
+```
+
+The body follows `forge.requests`: what and why, an **Evidence** block with the
+gate output, a **Changelog** line naming the category or `n. a.` with the
+reason, any deviation from the Definition of Done, `Closes #<issue>`, and the
+signature from `core.signature`.
+
+Never call `gh` or `glab` directly.
+
+## 8. Review loop — `full` only
+
+The user reviews in the request and comments there, then says to look:
+
+```bash
+. .devkit/config.sh && . .devkit/forge.sh
+forge_pr_comments <n>
+forge_pr_line_comments <n>
+```
+
+Address **every** point, re-run the gates, commit through `commit-message`,
+push. Reply on the request naming the commit that resolved each point, signed
+with the same block. Nothing is waved away silently; where you disagree, say so
+in the reply.
+
+## 9. Done — `full` only
+
+The work is finished when **the user accepts or merges the request** — not when
+the gates pass. After the merge:
+
+```bash
+git checkout "${DEVKIT_MAIN_BRANCH}" && git pull && git branch -d <branch>
+```
+
+## Gotchas
+
+- Windows is case-insensitive: never `rm` a path that differs from another only
+  in case (`src/tests` vs `src/Tests`) — you will delete the wrong one. Use
+  `git mv` through a temporary name.
+- With `core.autocrlf`, `git` prints `LF will be replaced by CRLF` on staging.
+  Harmless; `.gitattributes` normalises to LF in the repository.
+- `gates.sh` runs the real build and test. A cold run takes tens of seconds.
+  That is expected, not a hang.
+- `forge_pr_view <branch>` only finds the request while the branch exists
+  locally and on the remote. After step 9, use the number.
+- Switching `DEVKIT_WORKFLOW` mid-change is not a way past a failing step.
+  Changing the mode is a decision about the repository, taken by the user, not
+  a workaround.

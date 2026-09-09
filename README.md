@@ -135,5 +135,13 @@ releases and no tags: `main` is the truth, and a lock file records the commit.
 
 ## Status
 
-Early. The scaffolding and the bootstrap work; the rule documents and the
-skills are placeholders being filled in.
+In use, not yet proven in anger.
+
+- Bootstrap, manifests and the block mechanism work and are tested against
+  throwaway repositories.
+- The core, dotnet and GitHub rule documents are written. `dotnet-legacy` is
+  planned and does not exist yet.
+- The four skills are written; `devkit-sync` has been exercised against a test
+  repository, the forge-facing ones have not been run against a live project.
+- The GitLab adapter is written from the `glab` command surface and has never
+  been executed. The first GitLab project that bootstraps verifies it.

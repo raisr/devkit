@@ -1,17 +1,81 @@
 ---
 name: commit-message
-description: PLACEHOLDER - written in step 3. Do not rely on this skill yet.
+description: Draft a commit message in this repository's required format, then commit and push after approval. Use when asked to "commit", "write a commit message", "commit and push", or "draft a commit".
 ---
 
 # commit-message
 
-<!-- devkit: PLACEHOLDER. Written in step 3. -->
+Drafts a commit message, waits for the user, then commits and pushes. It never
+commits without an explicit yes.
 
-**Placeholder — this skill does nothing yet.**
+The format is defined by the forge rules in `AGENTS.<forge>.md`, section
+`forge.commits`. Read that file — this skill drives the process, the rules
+define the text.
 
-It will be forge-neutral: everything that talks to GitHub or GitLab goes
-through `.devkit/forge.sh`, everything that builds or tests goes through
-`.devkit/gates.sh`, and the workflow depth comes from `DEVKIT_WORKFLOW`
-in `.devkit/config.sh`.
+Paths below are relative to the repository root.
 
-Managed file — change it in raisr/devkit, not in the repository that received it.
+## 1. Collect the change set
+
+```bash
+bash .claude/skills/commit-message/collect.sh
+```
+
+You get: the workflow mode, the branch, the ticket number parsed out of it, the
+scope of the diff shown, the file list and the diff itself.
+
+If `SCOPE` is `working tree (nothing staged)`, decide with the user which files
+belong in the commit before staging anything.
+
+## 2. Check the workflow mode
+
+- `WORKFLOW: full` and no ticket → **stop**. Under `full`, a commit belongs to
+  a ticket, on a `feature/<n>-…` or `fix/<n>-…` branch. Say so and ask what the
+  user wants: create the ticket and rename the branch, or drop to `light` for
+  this repository. Committing anyway is not one of the options.
+- `WORKFLOW: light` → carry on. No ticket is expected.
+- On the default branch, in either mode, say so before drafting: a commit
+  straight to the default branch is usually not what was intended.
+
+## 3. Draft
+
+Follow `forge.commits`. In short:
+
+```
+<type>: <summary>[ (#<ticket>)]
+
+- <change one>
+- <change two>
+```
+
+First line at most 50 characters including the ticket suffix; one bullet per
+logical change; English; nothing else in the message. No attribution footer and
+no session link — inside the repository the Git history is the provenance.
+
+## 4. Present and wait
+
+Show the drafted message. Do not proceed on anything less than a clear yes. If
+the user wants changes, redraft and show again.
+
+## 5. Commit and push
+
+```bash
+git commit -F - <<'EOF'
+<the approved message>
+EOF
+git push
+```
+
+Report the short hash and the result of the push.
+
+## Gotchas
+
+- With `core.autocrlf` set, `git` prints `LF will be replaced by CRLF` when
+  staging text files. Harmless — not an error, and not something to fix.
+- `collect.sh` shows `git diff HEAD` in the unstaged case, which covers staged
+  and unstaged changes together. It does **not** show the content of untracked
+  files — only their paths appear in the file list. Read those yourself if they
+  belong in the commit.
+- The ticket pattern accepts a bare number (`42`) or a prefixed key
+  (`PROJ-42`), and requires a `-` and a description after it.
+- A first commit into an empty repository has no `HEAD`; `git diff HEAD` fails
+  there. Use `git status --short` and read the files.
