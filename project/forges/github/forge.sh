@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# GitHub implementation of the forge contract. Managed by devkit-sync -
+# edit it upstream in raisr/devkit, not here.
+#
+# Every forge pack defines the same function names, so the skills never
+# mention gh or glab. Sourced, not executed.
+
+forge_name()      { echo "github"; }
+forge_pr_term()   { echo "pull request"; }
+forge_pr_short()  { echo "PR"; }
+
+# Is the CLI there and authenticated, and which repository does it point at?
+forge_check() {
+  gh auth status >/dev/null 2>&1 || { echo "gh is not authenticated" >&2; return 1; }
+  gh repo view --json nameWithOwner -q .nameWithOwner
+}
+
+# forge_labels_list -> one label name per line
+forge_labels_list() {
+  gh label list --json name -q '.[].name'
+}
+
+# forge_label_create <name> <hex colour> <description>
+forge_label_create() {
+  gh label create "$1" --color "$2" --description "$3"
+}
+
+# forge_issue_list_open -> "<number>|<labels, comma separated>|<title>"
+forge_issue_list_open() {
+  gh issue list --state open --json number,title,labels \
+    -q '.[] | "\(.number)|\(.labels | map(.name) | join(","))|\(.title)"'
+}
+
+# forge_issue_create <title> <label> <body file> -> issue URL
+forge_issue_create() {
+  gh issue create --title "$1" --label "$2" --body-file "$3"
+}
+
+# forge_issue_view <number> -> "#<n> [<state>] <title>   labels=<a,b>"
+forge_issue_view() {
+  gh issue view "$1" --json number,title,state,labels \
+    -q '"#\(.number) [\(.state)] \(.title)   labels=\(.labels|map(.name)|join(","))"'
+}
+
+# forge_issue_body <number> -> raw body
+forge_issue_body() {
+  gh issue view "$1" --json body -q .body
+}
+
+# forge_pr_create <base> <head> <title> <label> <assignee> <body file> -> URL
+forge_pr_create() {
+  gh pr create --base "$1" --head "$2" --title "$3" \
+    --label "$4" --assignee "$5" --body-file "$6"
+}
+
+# forge_pr_view <branch or number> -> "#<n> state=<s> draft=<b> review=<r>\n<url>"
+forge_pr_view() {
+  gh pr view "$1" --json number,state,isDraft,reviewDecision,url \
+    -q '"#\(.number) state=\(.state) draft=\(.isDraft) review=\(.reviewDecision)\n\(.url)"'
+}
+
+# forge_pr_comments <number> -> review and issue comments, one block each
+forge_pr_comments() {
+  gh pr view "$1" --json comments,reviews \
+    -q '.comments[].body, (.reviews[] | "\(.state): \(.body)")'
+}
+
+# forge_pr_line_comments <number> -> "<path>:<line>  <body>"
+forge_pr_line_comments() {
+  local repo
+  repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+  gh api "repos/${repo}/pulls/$1/comments" -q '.[] | "\(.path):\(.line)  \(.body)"'
+}
+
+# forge_pr_assign <number> <assignee>
+forge_pr_assign() {
+  gh pr edit "$1" --add-assignee "$2"
+}

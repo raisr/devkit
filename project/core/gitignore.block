@@ -1,0 +1,5 @@
+# Personal, per-developer notes. Never committed.
+AGENTS.local.md
+
+# Personal, per-machine devkit overrides.
+.devkit/local.sh

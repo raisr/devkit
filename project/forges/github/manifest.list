@@ -1,0 +1,5 @@
+# What the github forge pack puts into a repository.
+# See core/manifest.list for the format and the modes.
+
+AGENTS.github.md|AGENTS.github.md|managed
+forge.sh|.devkit/forge.sh|managed

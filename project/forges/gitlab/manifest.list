@@ -1,0 +1,5 @@
+# What the gitlab forge pack puts into a repository.
+# See core/manifest.list for the format and the modes.
+
+AGENTS.gitlab.md|AGENTS.gitlab.md|managed
+forge.sh|.devkit/forge.sh|managed

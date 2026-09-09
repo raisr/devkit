@@ -1,0 +1,9 @@
+# What the dotnet stack pack puts into a repository.
+# See core/manifest.list for the format and the modes.
+
+AGENTS.dotnet.md|AGENTS.dotnet.md|managed
+editorconfig.block|.editorconfig|block:devkit:stack/dotnet
+gitignore.block|.gitignore|block:devkit:stack/dotnet
+
+templates/gates.sh|.devkit/gates.sh|template
+templates/Directory.Build.props|src/Directory.Build.props|template

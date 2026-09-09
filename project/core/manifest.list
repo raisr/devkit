@@ -1,0 +1,20 @@
+# What the core pack puts into a repository.
+# Format:  <source, relative to this directory>|<target, relative to repo root>|<mode>
+#
+# managed   replaced by devkit-sync; hash recorded in devkit.lock.json
+# block:ID  content injected into the target between the ID markers
+# template  written only when the target does not exist
+# dir       whole directory copied; every file tracked as managed
+
+AGENTS.core.md|AGENTS.core.md|managed
+.gitattributes|.gitattributes|managed
+editorconfig.block|.editorconfig|block:devkit:core
+gitignore.block|.gitignore|block:devkit:core
+skills|.claude/skills|dir
+
+templates/AGENTS.md|AGENTS.md|template
+templates/AGENTS.local.md|AGENTS.local.md|template
+templates/CHANGELOG.md|CHANGELOG.md|template
+templates/ROADMAP.md|ROADMAP.md|template
+templates/docs/README.md|docs/README.md|template
+templates/config.sh|.devkit/config.sh|template

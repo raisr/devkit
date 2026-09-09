@@ -1,0 +1,5 @@
+# Everything in project/ is copied verbatim into other repositories, so line
+# endings must not depend on who cloned this.
+* text=auto eol=lf
+*.sh text eol=lf
+*.awk text eol=lf

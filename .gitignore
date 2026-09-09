@@ -1,0 +1,12 @@
+# Personal, per-developer notes.
+AGENTS.local.md
+
+# Editor and OS noise
+.vs/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Scratch
+*.devkit-tmp
