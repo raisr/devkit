@@ -133,6 +133,12 @@ This is an ordinary repository. Clone it, change the rule, commit, push.
 Repositories pick the change up at their next `/devkit-sync`. There are no
 releases and no tags: `main` is the truth, and a lock file records the commit.
 
+## Documentation
+
+[docs/README.md](docs/README.md) lists what is written down and where. Start
+with [docs/handover.md](docs/handover.md) — it carries the decisions behind
+the design and the open work.
+
 ## Status
 
 In use, not yet proven in anger.
