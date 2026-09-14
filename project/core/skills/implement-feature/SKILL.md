@@ -23,6 +23,13 @@ Read it first:
 Related skills: `create-issue` (step 1), `commit-message` (step 6).
 Paths are relative to the repository root.
 
+**The instruction that started this covers the whole run** (`core.git`): the
+branch, the request, the replies in the review round and deleting the branch
+afterwards happen without asking again. The one step that still stops is the
+commit message in step 6, and only while `DEVKIT_COMMIT_APPROVAL` is `ask`.
+Stopping anywhere else means something is genuinely unclear — say what, rather
+than asking for permission to carry on.
+
 ## 1. There must be a ticket — `full` only
 
 Every change needs one. If there is none, invoke `create-issue` and get it
@@ -77,9 +84,10 @@ than quietly leaving it.
 
 ## 6. Commit — both modes
 
-Invoke `commit-message`. It reads the workflow mode, parses the ticket out of
-the branch, drafts in the required format, and commits and pushes after an
-explicit yes. Repo commits carry no AI footer.
+Invoke `commit-message`. It reads the workflow and approval modes, parses the
+ticket out of the branch, drafts in the required format, and commits and
+pushes. Under `DEVKIT_COMMIT_APPROVAL=ask` it stops for a yes first — the only
+stop in this lifecycle. Repo commits carry no AI footer.
 
 ## 7. Open the request — `full` only
 

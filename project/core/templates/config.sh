@@ -19,3 +19,12 @@ DEVKIT_WORKFLOW={{WORKFLOW}}
 # Default branch, and who gets assigned to a pull or merge request.
 DEVKIT_MAIN_BRANCH={{MAIN_BRANCH}}
 DEVKIT_ASSIGNEE={{ASSIGNEE}}
+
+# ask   the drafted commit message is shown and approved before committing
+# auto  it is committed as drafted, without asking
+#
+# The commit message is the only text an agent produces that goes out under a
+# human name without saying so - core.signature exempts commit messages - and
+# published history is never rewritten. Start on `ask`; move to `auto` once the
+# messages this repository produces have earned it.
+DEVKIT_COMMIT_APPROVAL=ask

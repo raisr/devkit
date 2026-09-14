@@ -15,6 +15,9 @@ cd "$(git rev-parse --show-toplevel)"
 
 DEVKIT_WORKFLOW="light"
 DEVKIT_MAIN_BRANCH="main"
+# A repository bootstrapped before this key existed has no value for it. Asking
+# is the safe default, so that is what a missing key means.
+DEVKIT_COMMIT_APPROVAL="ask"
 if [ -f .devkit/config.sh ]; then
   # shellcheck source=/dev/null
   . .devkit/config.sh
@@ -23,6 +26,7 @@ if [ -f .devkit/config.sh ]; then
 fi
 
 echo "WORKFLOW: ${DEVKIT_WORKFLOW}"
+echo "COMMIT_APPROVAL: ${DEVKIT_COMMIT_APPROVAL}"
 
 branch="$(git rev-parse --abbrev-ref HEAD)"
 echo "BRANCH: ${branch}"

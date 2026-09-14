@@ -5,8 +5,9 @@ description: Draft a commit message in this repository's required format, then c
 
 # commit-message
 
-Drafts a commit message, waits for the user, then commits and pushes. It never
-commits without an explicit yes.
+Drafts a commit message, then commits and pushes. Whether it waits for a yes
+first is `DEVKIT_COMMIT_APPROVAL` in `.devkit/config.sh`; it defaults to `ask`
+and to asking when the key is absent.
 
 The format is defined by the forge rules in `AGENTS.<forge>.md`, section
 `forge.commits`. Read that file — this skill drives the process, the rules
@@ -20,8 +21,9 @@ Paths below are relative to the repository root.
 bash .claude/skills/commit-message/collect.sh
 ```
 
-You get: the workflow mode, the branch, the ticket number parsed out of it, the
-scope of the diff shown, the file list and the diff itself.
+You get: the workflow mode, the approval mode, the branch, the ticket number
+parsed out of it, the scope of the diff shown, the file list and the diff
+itself.
 
 If `SCOPE` is `working tree (nothing staged)`, decide with the user which files
 belong in the commit before staging anything.
@@ -51,10 +53,16 @@ First line at most 50 characters including the ticket suffix; one bullet per
 logical change; English; nothing else in the message. No attribution footer and
 no session link — inside the repository the Git history is the provenance.
 
-## 4. Present and wait
+## 4. Present, as `COMMIT_APPROVAL` says
 
-Show the drafted message. Do not proceed on anything less than a clear yes. If
-the user wants changes, redraft and show again.
+- `ask` — show the drafted message and wait. Do not proceed on anything less
+  than a clear yes; if the user wants changes, redraft and show again.
+- `auto` — show the message and carry straight on to step 5. It is still
+  printed, so the user reads what went out, but nothing waits.
+
+This is the one step in the lifecycle that still asks (`core.git`): the commit
+message is the only text that reaches others under a human name without the
+agent marking, and published history is never rewritten.
 
 ## 5. Commit and push
 

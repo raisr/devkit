@@ -66,9 +66,20 @@ Conversely: no documentation is written for something that does not exist yet.
   other project that reaches for infrastructure is a design error.
 - **Nothing outside the centre decides what is valid.** Guard clauses belong in
   the model, not in the controller.
-- A second external source is a **new** project next to the existing one, not a
-  change to the existing implementation. A heavy dependency stays contained in
-  the one project that needs it.
+- **Two questions decide where a dependency belongs, and who published it is
+  neither of them.** First: does it run in a unit test without touching
+  anything outside the process? If it does, it is ordinary code and may be
+  referenced where it is used. If it does not — network, database, file system,
+  clock, randomness, environment, another service — it belongs outside the
+  centre. Second: who calls whom? Your code calls the library, so the inner
+  layer declares an interface and infrastructure implements it. The library
+  calls your code — a web framework, a CLI, a scheduler, a message consumer —
+  so it belongs to the presentation or host layer and gets no interface. A
+  framework is not injected.
+- Whether the infrastructure layer is one unit of code or several is a decision
+  the repository takes and writes into its own `AGENTS.md`. Where nothing is
+  written there, it is one. The centre references a framework in neither
+  direction.
 - Where the rules can be asserted by a test, assert them. A reference-graph
   rule that only lives in prose is a rule that gets broken.
 - **Do not weaken a layer rule to make something compile.** If the dependency
@@ -95,14 +106,11 @@ Conversely: no documentation is written for something that does not exist yet.
 
 - **New or changed logic without a test counts as unfinished**, even when
   nobody asked for one.
-- A test project belongs to exactly one production project. A project gets a
-  test project once it actually has tests — no empty projects on stock.
-- Test files mirror the source path inside their project, so a reader finds the
-  test from the source and back.
-- One class under test per test class, one behaviour per test. Arrange, act,
-  assert. No logic in the test itself.
-- A test name says what happens and what is expected, not which method is being
+- One behaviour per test. Arrange, act, assert. No logic in the test itself.
+- A test name says what happens and what is expected, not which unit is being
   called — the structure already says that.
+- A reader finds the test from the source and the source from the test without
+  searching. How that is laid out is a stack concern, not a rule here.
 - Integration tests run against a throwaway database created for the run, never
   against a shared one.
 
@@ -129,10 +137,17 @@ delete it; do not learn to ignore it.
 
 ## Git {#core.git}
 
-- **Agents change files only.** No commit, no push, no branch, no request
-  unless the maintainer asks for it.
-- Where a change is large, say how it would be sliced into commits. Do not make
-  them.
+- An agent acts on instruction, never on its own initiative. The instruction
+  that starts a change covers the lifecycle that follows from it: the branch,
+  the request, the replies in the review round, and deleting the branch
+  afterwards. It is not asked for again step by step.
+- **The commit message is the exception.** `core.signature` exempts commit
+  messages from the agent marking, so it is the one text that goes out under a
+  human name without saying an agent drafted it — and published history is
+  never rewritten, so a bad one stays. It is shown and approved before the
+  commit, unless `DEVKIT_COMMIT_APPROVAL` in `.devkit/config.sh` says `auto`.
+- Where a change is large, say how it would be sliced into commits before
+  making them.
 - Never rewrite published history.
 
 ## Boundaries {#core.boundaries}
