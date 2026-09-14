@@ -127,6 +127,33 @@ outside_blocks .editorconfig '[*.fixture]' \
   && pass "project .editorconfig lines are outside the devkit blocks" \
   || fail "project .editorconfig lines ended up inside a devkit block"
 
+# ...and below them. Both formats let the later line win - an .editorconfig
+# section overrides an earlier one, a .gitignore negation re-includes - so a
+# block sitting underneath the project's own lines would quietly override them.
+blocks_come_first() {   # <file> <literal project line>
+  local blk prj
+  blk="$(grep -n '^# >>> devkit:' "${REPO}/$1" | head -1 | cut -d: -f1)"
+  prj="$(grep -nF -- "$2" "${REPO}/$1" | head -1 | cut -d: -f1)"
+  [ -n "${blk}" ] && [ -n "${prj}" ] && [ "${blk}" -lt "${prj}" ]
+}
+blocks_come_first .gitignore '/sample-data/' \
+  && pass "devkit blocks come before the project's .gitignore lines" \
+  || fail "devkit blocks sit below the project's .gitignore lines"
+blocks_come_first .editorconfig '[*.fixture]' \
+  && pass "devkit blocks come before the project's .editorconfig lines" \
+  || fail "devkit blocks sit below the project's .editorconfig lines"
+
+# root = true only means anything in the preamble, before the first section.
+if [ -f "${REPO}/.editorconfig" ]; then
+  first_section="$(grep -n '^\[' "${REPO}/.editorconfig" | head -1 | cut -d: -f1)"
+  first_root="$(grep -n '^root[[:space:]]*=' "${REPO}/.editorconfig" | head -1 | cut -d: -f1)"
+  if [ -n "${first_root}" ] && { [ -z "${first_section}" ] || [ "${first_root}" -lt "${first_section}" ]; }; then
+    pass ".editorconfig declares root before the first section"
+  else
+    fail ".editorconfig has no root declaration in its preamble"
+  fi
+fi
+
 # --- templates the project already had must not be rewritten -----------------
 
 head2 "templates left alone"
