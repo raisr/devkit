@@ -170,7 +170,18 @@ and what the fixture cannot prove.
 
 ## Status
 
-In use. One project has been converted with it end to end.
+In use. One project has been converted with it end to end, and this repository
+runs its own workflow.
+
+**devkit is its own first consumer** — of the rules and the skills, not of the
+vendoring. It does not bootstrap itself: `AGENTS.md` imports the rule documents
+straight from their packs, `.claude/skills` holds generated pointers at
+`project/core/skills` rather than copies, and `.devkit/forge.sh` sources the
+adapter where it is maintained. Nothing here is a second copy that can fall
+behind the original, and `.devkit/gates.sh` fails when a generated pointer, a
+manifest entry or the forge contract has gone out of step. What that
+deliberately does not exercise is `bootstrap.sh` and `/devkit-sync` against this
+repository — that still needs a real consumer.
 
 - Bootstrap, manifests and the block mechanism work, and are checked by the
   fixture in [test/](test/README.md).
@@ -193,10 +204,14 @@ Not yet proven:
   block marker, which must stop the sync rather than be repaired. Then check
   that a recorded deviation silences the repeat question, and that changing that
   rule upstream brings it back.
-- **Multi-stack is supported but untried.** `.editorconfig` and `.gitignore` are
-  blocks partly so two stacks can coexist. A stack pack pulling in a shared one
-  exercises half of it; two independent stacks in one repository is untested.
+- **Multi-stack is installed by the fixture, but never used.** The sample repo
+  ends up with `dotnet-core` and `dotnet-legacy` side by side, so the install
+  path is checked. What nobody has seen is two stacks whose `.editorconfig`
+  blocks actually disagree about the same file type, which is the case the block
+  mechanism exists for.
 - **A config key added here reaches existing repositories only through
-  `/devkit-sync`.** `.devkit/config.sh` is a template and is never overwritten,
-  so a repository bootstrapped earlier will not have it. The skills default
-  safely when a key is absent, and sync reports that the template moved on.
+  `/devkit-sync`.** `.devkit/config.sh` is a template and is never overwritten —
+  apart from `DEVKIT_FORGE` and `DEVKIT_STACKS`, which bootstrap keeps current.
+  A repository bootstrapped earlier will not have a newer key. The skills
+  default safely when one is absent, and sync reports that the template moved
+  on.

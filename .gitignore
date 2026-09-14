@@ -3,6 +3,9 @@
 # rule would quietly keep that template out of every commit.
 /AGENTS.local.md
 
+# Personal, per-machine devkit overrides, sourced after .devkit/config.sh.
+.devkit/local.sh
+
 # Editor and OS noise
 .vs/
 .vscode/
