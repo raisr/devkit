@@ -53,7 +53,7 @@ backslashes that `bash` does not resolve.
 | `--stack <name>` | repeat it for a repository with more than one stack |
 | `--workflow full\|light` | default `light`; see *Workflow* below |
 | `--assignee <name>` | who gets assigned to a pull or merge request; defaults to `git config user.name` |
-| `--main-branch <name>` | defaults to the current branch |
+| `--main-branch <name>` | defaults to the default branch `origin` points at; only a repository without a remote falls back to the current branch, with a warning when that is not `main`/`master` |
 | `--repo <path>` | set up a different repository than the current one |
 | `--dry-run` | print what would happen, write nothing |
 

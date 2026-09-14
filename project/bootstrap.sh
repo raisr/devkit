@@ -34,7 +34,7 @@ Usage: bootstrap.sh --forge <github|gitlab> [options]
   --stack <name>       stack pack to install; repeat for more than one
   --workflow <mode>    full | light   (default: light)
   --assignee <name>    who gets assigned to a pull or merge request
-  --main-branch <name> default branch (default: the current HEAD of the repo)
+  --main-branch <name> default branch (default: what origin says, else HEAD)
   --repo <path>        repository to write into (default: the current one)
   --dry-run            print what would happen, write nothing
   -h, --help           this text
@@ -71,7 +71,29 @@ else
 fi
 
 PROJECT_NAME="$(basename "${REPO}")"
-[ -n "${MAIN_BRANCH}" ] || MAIN_BRANCH="$(git -C "${REPO}" symbolic-ref --quiet --short HEAD || echo main)"
+
+# The repository's default branch, not whatever happens to be checked out:
+# bootstrapping an existing repository happens on a feature branch, and that
+# name must never end up in DEVKIT_MAIN_BRANCH. Everything here is offline -
+# `git remote show origin` would go to the network and hang without access.
+default_branch() {
+  local b
+  b="$(git -C "${REPO}" symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null)" \
+    && { echo "${b#origin/}"; return; }
+  for b in main master; do
+    git -C "${REPO}" show-ref --verify --quiet "refs/remotes/origin/${b}" \
+      && { echo "${b}"; return; }
+  done
+  # No remote at all - the greenfield case, where the current branch is right.
+  b="$(git -C "${REPO}" symbolic-ref --quiet --short HEAD 2>/dev/null || echo main)"
+  case "${b}" in
+    main|master|trunk) ;;
+    *) echo "devkit: no default branch on a remote; falling back to the current branch '${b}'." >&2
+       echo "devkit: pass --main-branch if that is not the default branch." >&2 ;;
+  esac
+  echo "${b}"
+}
+[ -n "${MAIN_BRANCH}" ] || MAIN_BRANCH="$(default_branch)"
 [ -n "${ASSIGNEE}" ] || ASSIGNEE="$(git -C "${REPO}" config user.name || echo "")"
 
 DEVKIT_COMMIT="$(git -C "${DEVKIT_ROOT}" rev-parse --short HEAD 2>/dev/null || echo unknown)"
