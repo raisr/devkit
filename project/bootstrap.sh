@@ -153,6 +153,7 @@ hash_of() { git hash-object "$1"; }
 # template it is the upstream version the project started from, so sync can say
 # that the template moved on without ever touching the file.
 LOCK_FILES=""
+KEPT_CHAIN=""
 record() {   # <target> <pack/source> <mode> <source hash> [marker]
   LOCK_FILES="${LOCK_FILES}$1|$2|$3|$4|${5-}
 "
@@ -176,6 +177,10 @@ apply_template() {   # <src> <target> <origin>
   # so a later sync can tell that the upstream template has moved on.
   if [ -e "${target}" ]; then
     record "$2" "${origin}" template "$(hash_of "${src}")"
+    # Two of these carry the import chain. Keeping them is right, but it leaves
+    # the rule files on disk with nothing reading them, so it is reported at
+    # the end rather than in this one line.
+    case "$2" in AGENTS.md|CLAUDE.md) KEPT_CHAIN="${KEPT_CHAIN}$2 " ;; esac
     say kept "$2"
     return
   fi
@@ -268,5 +273,45 @@ fi
 echo "Done. Nothing was staged or committed - review with: git -C ${REPO} status"
 if [ "${SOLUTION}" = "TODO-set-the-solution-path" ]; then
   echo "Note: no .sln/.slnx found - set SLN in .devkit/gates.sh yourself."
+fi
+
+# The import chain is what makes the rule files reachable. Where the project
+# already owned one of the two files it runs through, the chain now has a gap
+# that only a human can close - and a gap here is silent: the files are on
+# disk, everything looks installed, and no session reads a single rule.
+actual_name() {   # <canonical name> - the file as it is really spelled on disk
+  ( cd "${REPO}" && ls -1 | grep -ix "$(printf '%s' "$1" | sed 's/\./\\./g')" | head -1 )
+}
+if [ -n "${KEPT_CHAIN}" ]; then
+  rules_name="$(actual_name AGENTS.md)"; rules_name="${rules_name:-AGENTS.md}"
+  echo
+  echo "NEXT STEPS - bootstrap kept files the project already owned:"
+  case " ${KEPT_CHAIN} " in
+    *" AGENTS.md "*)
+      echo
+      echo "  ${rules_name} is yours, so these imports were not added. Put them in it:"
+      echo
+      rule_imports | sed 's/^/      /'
+      [ "${rules_name}" = "AGENTS.md" ] || {
+        echo
+        echo "  Rename it to AGENTS.md as well. Windows matches the name whatever its"
+        echo "  case, so nothing here complains - but the repository is read on other"
+        echo "  machines too. Go through a temporary name so git records the rename:"
+        echo "      git mv ${rules_name} tmp.md && git mv tmp.md AGENTS.md"
+      }
+      ;;
+  esac
+  case " ${KEPT_CHAIN} " in
+    *" CLAUDE.md "*)
+      claude_name="$(actual_name CLAUDE.md)"; claude_name="${claude_name:-CLAUDE.md}"
+      echo
+      echo "  ${claude_name} is yours. It is the one file a session reads by itself,"
+      echo "  so it has to import the rules file and nothing else:  @AGENTS.md"
+      [ "${claude_name}" = "CLAUDE.md" ] || \
+        echo "      git mv ${claude_name} tmp.md && git mv tmp.md CLAUDE.md"
+      ;;
+  esac
+  echo
+  echo "  Until that is done the rule files sit on disk and no session reads them."
 fi
 exit 0

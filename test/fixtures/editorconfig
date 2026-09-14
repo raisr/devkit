@@ -1,0 +1,6 @@
+# Settings this project owns. The devkit blocks are added around them, and a
+# bootstrap run must never rewrite or drop these.
+root = true
+
+[*.fixture]
+indent_size = 7

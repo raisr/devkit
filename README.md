@@ -8,15 +8,16 @@ carries **real files**: the rule documents, the skills, the config. Clone that
 repository without this one and everything is still there, readable by anyone,
 with or without an agent.
 
-## Two areas
+## The areas
 
 | Area | What it is | Who reads it |
 |---|---|---|
 | `project/` | Everything that gets copied **into a repository**: rules, skills, editor and ignore settings, templates | `bootstrap.sh` and the `devkit-sync` skill |
 | `machine/` | Everything that sets up a **development machine**: tools, git configuration, folder layout | you, by hand |
+| `test/` | A sample consumer repository and the assertions a bootstrap run has to satisfy | you, before changing anything in `project/` |
 
-The sync tooling only ever looks below `project/`. `machine/` can grow to any
-size without a chance of it leaking into a project repository.
+The sync tooling only ever looks below `project/`. The other two can grow to
+any size without a chance of them leaking into a project repository.
 
 ## Packs
 
@@ -159,11 +160,14 @@ the design and the open work.
 
 In use, not yet proven in anger.
 
-- Bootstrap, manifests and the block mechanism work and are tested against
-  throwaway repositories.
-- The core, dotnet and GitHub rule documents are written. `dotnet-legacy` is
-  planned and does not exist yet.
+- Bootstrap, manifests and the block mechanism work. `test/build-sample-repo.sh`
+  builds a fixture that looks like a real consumer and
+  `test/check-sample-repo.sh` asserts the result; see *Testing a change here*
+  in [docs/handover.md](docs/handover.md).
+- The core, shared .NET, `dotnet-core` and GitHub rule documents are written and
+  in use.
 - The four skills are written; `devkit-sync` has been exercised against a test
   repository, the forge-facing ones have not been run against a live project.
-- The GitLab adapter is written from the `glab` command surface and has never
-  been executed. The first GitLab project that bootstraps verifies it.
+- **Written but never executed:** the GitLab adapter (from the `glab` command
+  surface) and the `dotnet-legacy` pack (from the MSBuild, NuGet and VSTest
+  command surface). The first project that uses either is what verifies it.

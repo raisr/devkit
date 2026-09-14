@@ -1,0 +1,5 @@
+# Lines this project owns. The devkit blocks are added above and below them,
+# and a bootstrap run must never rewrite, reorder or drop these.
+/sample-data/
+*.local.env
+!keep-me.local.env

@@ -1,0 +1,4 @@
+<Solution>
+  <!-- Only here so bootstrap.sh has a solution file to find; it is never built. -->
+  <Project Path="Sample.Shell/Sample.Shell.csproj" />
+</Solution>
