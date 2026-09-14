@@ -152,22 +152,44 @@ releases and no tags: `main` is the truth, and a lock file records the commit.
 
 ## Documentation
 
-[docs/README.md](docs/README.md) lists what is written down and where. Start
-with [docs/handover.md](docs/handover.md) — it carries the decisions behind
-the design and the open work.
+[docs/README.md](docs/README.md) lists what is written down and where.
+
+The reasoning lives next to what it governs rather than in one document that
+goes stale: [AGENTS.md](AGENTS.md) for how this repository is organised and why
+a pack is shaped the way it is, each rule document for its own rules, and the
+comments in `bootstrap.sh`, `block.awk` and `manifest.sh` for the decisions
+inside the tooling. [test/README.md](test/README.md) says how to check a change
+and what the fixture cannot prove.
 
 ## Status
 
-In use, not yet proven in anger.
+In use. One project has been converted with it end to end.
 
-- Bootstrap, manifests and the block mechanism work. `test/build-sample-repo.sh`
-  builds a fixture that looks like a real consumer and
-  `test/check-sample-repo.sh` asserts the result; see *Testing a change here*
-  in [docs/handover.md](docs/handover.md).
+- Bootstrap, manifests and the block mechanism work, and are checked by the
+  fixture in [test/](test/README.md).
 - The core, shared .NET, `dotnet-core` and GitHub rule documents are written and
   in use.
-- The four skills are written; `devkit-sync` has been exercised against a test
-  repository, the forge-facing ones have not been run against a live project.
-- **Written but never executed:** the GitLab adapter (from the `glab` command
-  surface) and the `dotnet-legacy` pack (from the MSBuild, NuGet and VSTest
-  command surface). The first project that uses either is what verifies it.
+- The four skills have run against a live project — ticket, branch, bootstrap,
+  gates, commit and pull request, through `.devkit/forge.sh` rather than around
+  it.
+
+Not yet proven:
+
+- **The GitLab adapter and the `dotnet-legacy` pack have never been executed.**
+  Both were written from a command surface — `glab`, and MSBuild/NuGet/VSTest.
+  The first project that uses either is what verifies it, and a failure there is
+  a bug in the pack rather than in the caller.
+- **`/devkit-sync` has never met a real conflict.** Worth provoking on purpose
+  once: a wording-only change, which must apply without a question; a changed
+  rule, which must be presented; a locally edited managed file; a new core rule
+  that contradicts a project rule, the case no hash can find; and a destroyed
+  block marker, which must stop the sync rather than be repaired. Then check
+  that a recorded deviation silences the repeat question, and that changing that
+  rule upstream brings it back.
+- **Multi-stack is supported but untried.** `.editorconfig` and `.gitignore` are
+  blocks partly so two stacks can coexist. A stack pack pulling in a shared one
+  exercises half of it; two independent stacks in one repository is untested.
+- **A config key added here reaches existing repositories only through
+  `/devkit-sync`.** `.devkit/config.sh` is a template and is never overwritten,
+  so a repository bootstrapped earlier will not have it. The skills default
+  safely when a key is absent, and sync reports that the template moved on.

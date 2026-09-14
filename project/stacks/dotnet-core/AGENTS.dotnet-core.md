@@ -7,6 +7,12 @@ everything that is true of .NET whatever the runtime, and through it to
 
 For .NET Framework, see the `dotnet-legacy` pack. The two never ship together.
 
+> **On the name.** ".NET Core" is a retired product name — it ended at 3.1, and
+> net5 and later are officially just ".NET", so this pack names a platform its
+> users do not run. That was argued and the maintainer chose the name anyway.
+> Renaming it is a breaking change for every recorded deviation pointing at a
+> `dotnet-core.` slug, so do not change it back without asking.
+
 Managed by [raisr/devkit](https://github.com/raisr/devkit) — change them there,
 not here. Deviations go in the *Deviations* table of the project `AGENTS.md`.
 
