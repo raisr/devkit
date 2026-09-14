@@ -223,6 +223,16 @@ for s in commit-message create-issue devkit-sync implement-feature; do
     && pass "skill ${s} installed" || fail "skill ${s} missing"
 done
 
+# A dir target is copied into, never emptied. Bootstrap reports what the devkit
+# no longer ships, but deleting is the project's decision - so both of these
+# have to survive, whatever the report says about them.
+[ -f "${REPO}/.claude/skills/implement-feature/preflight.sh" ] \
+  && pass "a dropped devkit file is left in place, not deleted" \
+  || fail "bootstrap deleted a file the devkit no longer ships"
+[ -f "${REPO}/.claude/skills/house-style/SKILL.md" ] \
+  && pass "the project's own skill survives" \
+  || fail "bootstrap deleted a skill the project wrote itself"
+
 # --- a second run changes nothing -------------------------------------------
 
 head2 "idempotency"

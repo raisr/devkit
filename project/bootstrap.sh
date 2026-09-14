@@ -158,6 +158,8 @@ hash_of() { git hash-object "$1"; }
 # that the template moved on without ever touching the file.
 LOCK_FILES=""
 KEPT_CHAIN=""
+INSTALLED=""     # every repo-relative path this run wrote
+DIR_TARGETS=""   # the target directories of dir-mode entries
 record() {   # <target> <pack/source> <mode> <source hash> [marker]
   LOCK_FILES="${LOCK_FILES}$1|$2|$3|$4|${5-}
 "
@@ -171,6 +173,8 @@ apply_managed() {   # <src> <target> <origin>
   mkdir -p "$(dirname "${target}")"
   cp "${src}" "${target}"
   record "$2" "${origin}" managed "$(hash_of "${src}")"
+  INSTALLED="${INSTALLED}$2
+"
   say managed "$2"
 }
 
@@ -214,6 +218,8 @@ apply_block() {   # <src> <target> <marker id> <origin>
 
 apply_dir() {   # <src dir> <target dir> <origin>
   local src="$1" target="$2" origin="$3" f rel
+  DIR_TARGETS="${DIR_TARGETS}${target}
+"
   while IFS= read -r f; do
     rel="${f#"${src}/"}"
     apply_managed "${f}" "${target}/${rel}" "${origin}/${rel}"
@@ -277,6 +283,33 @@ fi
 echo "Done. Nothing was staged or committed - review with: git -C ${REPO} status"
 if [ "${SOLUTION}" = "TODO-set-the-solution-path" ]; then
   echo "Note: no .sln/.slnx found - set SLN in .devkit/gates.sh yourself."
+fi
+
+# A dir target is copied into, never emptied first, so a file the devkit used to
+# ship stays behind forever and goes on looking official. Only files inside a
+# directory the devkit does install are reported: a project may keep skills of
+# its own next to them, and those are not leftovers. Reported, never deleted -
+# which of the two it is, is not this script's call.
+dir_leftovers() {
+  local d f rel sub
+  printf '%s' "${DIR_TARGETS}" | while IFS= read -r d; do
+    [ -n "${d}" ] && [ -d "${REPO}/${d}" ] || continue
+    find "${REPO}/${d}" -type f 2>/dev/null | sort | while IFS= read -r f; do
+      rel="${f#"${REPO}/"}"
+      printf '%s' "${INSTALLED}" | grep -Fxq -- "${rel}" && continue
+      sub="${rel#"${d}/"}"; sub="${sub%%/*}"
+      case "${INSTALLED}" in *"${d}/${sub}/"*) printf '%s\n' "${rel}" ;; esac
+    done
+  done
+}
+leftovers="$(dir_leftovers)"
+if [ -n "${leftovers}" ]; then
+  echo
+  echo "LEFTOVERS - the devkit no longer ships these, and nothing references them:"
+  echo
+  printf '%s\n' "${leftovers}" | sed 's/^/      /'
+  echo
+  echo "  They were not touched. Delete them, or keep them as your own."
 fi
 
 # The import chain is what makes the rule files reachable. Where the project

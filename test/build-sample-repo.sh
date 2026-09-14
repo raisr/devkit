@@ -62,6 +62,15 @@ cp "${FIXTURES}/Sample.slnx" "${REPO}/.vs/Sample.slnx"
 printf 'namespace Sample.Shell\n{\n    public static class Program\n    {\n        public static void Main() { }\n    }\n}\n' \
   > "${REPO}/src/Sample.Shell/Program.cs"
 
+# Two files bootstrap must leave alone for opposite reasons: one the devkit
+# used to ship and dropped, one the project wrote itself. Neither may be
+# deleted; only the first is a leftover worth reporting.
+mkdir -p "${REPO}/.claude/skills/implement-feature" "${REPO}/.claude/skills/house-style"
+printf '# Dropped upstream, still on disk here.\n' \
+  > "${REPO}/.claude/skills/implement-feature/preflight.sh"
+printf '# A skill this project wrote. Not the devkit us.\n' \
+  > "${REPO}/.claude/skills/house-style/SKILL.md"
+
 git -C "${REPO}" add -A
 git -C "${REPO}" commit -q -m "chore: the state before the devkit"
 git -C "${REPO}" push -q origin main
