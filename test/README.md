@@ -39,6 +39,10 @@ rule file with no Markdown link among them, the four skills, that neither the
 dropped file nor the project's own skill was deleted, and that a second
 bootstrap run changes nothing.
 
+Last, and only because it leaves the fixture on two stacks: a re-run with an
+added stack has to bring `DEVKIT_STACKS` in `.devkit/config.sh` with it, while
+leaving `DEVKIT_WORKFLOW` — a project decision — where the project put it.
+
 ## What it cannot prove
 
 **Whether the rules reach a session.** The assertions prove the import lines are

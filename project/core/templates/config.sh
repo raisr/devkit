@@ -5,6 +5,11 @@
 # Personal overrides go in .devkit/local.sh, which is git-ignored and sourced
 # after this file if it exists.
 
+# Which packs are installed. These two are the only lines in this file that
+# bootstrap.sh keeps up to date on a re-run - they describe what was installed,
+# not what the project decided, and /devkit-sync reads them to know which files
+# to compare. Change a pack by re-running bootstrap.sh, not by editing here.
+#
 # Which forge this repository lives on: github | gitlab
 DEVKIT_FORGE={{FORGE}}
 

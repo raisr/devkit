@@ -46,6 +46,12 @@ Every manifest entry declares one:
 - `template` — written once when the target does not exist, then owned by the
   receiving project forever. Anything carrying a version, a path or a project
   decision is a template, not managed.
+
+  The one carve-out: `DEVKIT_FORGE` and `DEVKIT_STACKS` in `.devkit/config.sh`
+  name the packs that are installed, which is the bootstrap's own argument and
+  not a decision. `bootstrap.sh` rewrites those two lines on a re-run and
+  nothing else in the file. Adding a third such key needs the same test as the
+  first two: would a stale value make the tooling quietly do the wrong thing?
 - `dir` — a whole directory, every file tracked as managed.
 
 Choosing `managed` for something a project legitimately needs to adapt is the

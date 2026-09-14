@@ -255,6 +255,39 @@ else
   fail "a second bootstrap run failed outright"
 fi
 
+# --- adding a stack later ----------------------------------------------------
+#
+# .devkit/config.sh is a template and is never overwritten, but DEVKIT_STACKS is
+# not a project decision: collect.sh reads it to work out which files
+# /devkit-sync compares, so a stale value does not merely misinform - it makes
+# the new stack invisible to the sync. The re-run below therefore also passes
+# --workflow light, to prove the carve-out stops at the two pack keys and leaves
+# the fixture's `full` alone.
+#
+# This is last because it leaves the sample repository on two stacks.
+
+head2 "adding a stack later"
+if bash "${DEVKIT_ROOT}/project/bootstrap.sh" --repo "${REPO}" \
+     --forge "${DEVKIT_FORGE}" --stack dotnet-core --stack dotnet-legacy \
+     --workflow light > /dev/null 2>&1; then
+  stacks="$(sed -n 's/^DEVKIT_STACKS=//p' "${REPO}/.devkit/config.sh" | tr -d '"')"
+  both=1
+  case " ${stacks} " in *" dotnet-core "*) ;; *) both=0 ;; esac
+  case " ${stacks} " in *" dotnet-legacy "*) ;; *) both=0 ;; esac
+  [ "${both}" -eq 1 ] \
+    && pass "DEVKIT_STACKS lists both stacks (${stacks})" \
+    || fail "DEVKIT_STACKS is '${stacks}', expected both stacks"
+  [ -f "${REPO}/AGENTS.dotnet-legacy.md" ] \
+    && pass "the added stack's rule file is installed" \
+    || fail "AGENTS.dotnet-legacy.md missing after adding the stack"
+  assert_grep 'DEVKIT_WORKFLOW=full' .devkit/config.sh \
+    "a project decision (workflow) survives the re-run"
+  assert_grep 'DEVKIT_COMMIT_APPROVAL' .devkit/config.sh \
+    "the rest of config.sh survives the key update"
+else
+  fail "a re-run with a second stack failed outright"
+fi
+
 # --- verdict -----------------------------------------------------------------
 
 echo

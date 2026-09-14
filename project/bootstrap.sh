@@ -9,7 +9,9 @@
 #     && bash "$d/devkit/project/bootstrap.sh" --forge github --stack dotnet-core
 #
 # Re-running is safe: managed files are rewritten, blocks are replaced between
-# their markers, and templates are left alone once they exist.
+# their markers, and templates are left alone once they exist - except the two
+# keys in .devkit/config.sh that name the installed packs, which this script
+# owns and keeps in step with the flags it was given.
 set -euo pipefail
 
 DEVKIT_PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -216,6 +218,48 @@ apply_block() {   # <src> <target> <marker id> <origin>
   say block "$2  [${id}]"
 }
 
+# DEVKIT_FORGE and DEVKIT_STACKS are the only two keys in the config template
+# that are not a project decision: they name the packs this script installed,
+# and the devkit-sync collect script reads exactly them to work out which files
+# to compare. Left behind on a second run, a repository that picked up another
+# stack goes on syncing against the old pack set and never sees the new files -
+# silently, because everything else about the run looks right.
+#
+# So these two lines are rewritten in place, and nothing else in the file is
+# touched. Workflow, default branch, assignee and commit approval stay the
+# project's: they carry a decision, and --workflow even has a default that would
+# quietly undo a deliberate `full`.
+update_key() {   # <file> <key> <whole new line> - true when it changed
+  local file="$1" key="$2" line="$3"
+  if grep -q "^${key}=" "${file}"; then
+    grep -qxF -- "${line}" "${file}" && return 1
+    would && return 0
+    KEY="${key}" LINE="${line}" awk '
+      BEGIN { key = ENVIRON["KEY"] "="; n = length(key) }
+      substr($0, 1, n) == key { print ENVIRON["LINE"]; next }
+      { print }
+    ' "${file}" > "${file}.devkit-tmp"
+    mv "${file}.devkit-tmp" "${file}"
+  else
+    # An older config, written before the key existed. Appending is right for a
+    # shell file, and the last assignment is the one that counts.
+    would || printf '%s\n' "${line}" >> "${file}"
+  fi
+  return 0
+}
+
+sync_pack_keys() {
+  local cfg="${REPO}/.devkit/config.sh" changed=""
+  [ -f "${cfg}" ] || return 0
+  update_key "${cfg}" DEVKIT_FORGE "DEVKIT_FORGE=${FORGE}" \
+    && changed="${changed}DEVKIT_FORGE "
+  update_key "${cfg}" DEVKIT_STACKS "DEVKIT_STACKS=\"${STACKS[*]-}\"" \
+    && changed="${changed}DEVKIT_STACKS "
+  [ -n "${changed}" ] || return 0
+  say updated ".devkit/config.sh  [${changed% }]"
+  echo
+}
+
 apply_dir() {   # <src dir> <target dir> <origin>
   local src="$1" target="$2" origin="$3" f rel
   DIR_TARGETS="${DIR_TARGETS}${target}
@@ -251,6 +295,8 @@ while IFS= read -r pack; do
   done < <(manifest_lines "${pack}")
   echo
 done < <(manifest_packs "${FORGE}" ${STACKS[@]+"${STACKS[@]}"})
+
+sync_pack_keys
 
 if ! would; then
   {

@@ -5,11 +5,10 @@ live in [`AGENTS.md`](../AGENTS.md), not here.
 
 | Document | About |
 |---|---|
-| — | nothing yet |
+| [`using-devkit.md`](using-devkit.md) | adopting the devkit in a project: bootstrap, the first ten minutes, daily work, and `/devkit-sync` |
 
-Developer documentation is still to be written. Until it is, the reasoning sits
-next to what it governs: [`../AGENTS.md`](../AGENTS.md) for how this repository
-is organised, each rule document for its own rules, the comments in
-`project/bootstrap.sh`, `project/block.awk` and `project/manifest.sh` for the
-tooling, and [`../test/README.md`](../test/README.md) for how a change is
-checked.
+Everything else sits next to what it governs: [`../AGENTS.md`](../AGENTS.md) for
+how this repository is organised, each rule document for its own rules, the
+comments in `project/bootstrap.sh`, `project/block.awk` and
+`project/manifest.sh` for the tooling, and
+[`../test/README.md`](../test/README.md) for how a change is checked.

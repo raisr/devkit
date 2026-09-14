@@ -71,7 +71,9 @@ with `git status` and commit it yourself.
 
 Running it again is safe, and is how a repository picks up a second stack:
 managed files are rewritten, blocks are replaced between their markers, and
-anything the project owns is left alone.
+anything the project owns is left alone. Pass every stack the repository uses,
+not just the new one — `DEVKIT_STACKS` in `.devkit/config.sh` is rewritten to
+match, and it is what `/devkit-sync` reads.
 
 ## Workflow
 
@@ -112,12 +114,14 @@ has to agree, not what is allowed.
 | `CLAUDE.md` | template | one line, `@AGENTS.md` — the entry point Claude Code actually reads |
 | `AGENTS.md` | template | **the project owns it**; `@`-imports the managed rules, records deviations |
 | `AGENTS.local.md` | template | personal, git-ignored; seeded from `~/.claude/AGENTS.local.md` if you keep one |
-| `.devkit/config.sh`, `.devkit/gates.sh` | template | project owns them: forge, workflow, build commands |
+| `.devkit/config.sh`, `.devkit/gates.sh` | template | project owns them: workflow, assignee, build commands |
 | `CHANGELOG.md`, `ROADMAP.md`, `docs/README.md` | template | written once if missing |
 | `devkit.lock.json` | — | where the files came from, at which commit, plus the deviations |
 
 *managed* is replaced on sync, *block* is replaced between its markers, and
-*template* is written once and never touched again.
+*template* is written once and never touched again — except `DEVKIT_FORGE` and
+`DEVKIT_STACKS` in `.devkit/config.sh`, which name the installed packs and are
+therefore bootstrap's to keep current.
 
 The rules reach a session through one chain of `@`-imports: `CLAUDE.md` →
 `AGENTS.md` → `AGENTS.core.md`, the stack file, the forge file and
@@ -152,7 +156,10 @@ releases and no tags: `main` is the truth, and a lock file records the commit.
 
 ## Documentation
 
-[docs/README.md](docs/README.md) lists what is written down and where.
+[docs/using-devkit.md](docs/using-devkit.md) is the guide for a project adopting
+the devkit: bootstrap with worked examples, what to settle in the first ten
+minutes, daily work, and `/devkit-sync`.
+[docs/README.md](docs/README.md) lists what else is written down and where.
 
 The reasoning lives next to what it governs rather than in one document that
 goes stale: [AGENTS.md](AGENTS.md) for how this repository is organised and why
