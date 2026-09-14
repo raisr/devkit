@@ -146,10 +146,10 @@ delete it; do not learn to ignore it.
 
 ## Personal notes {#core.local}
 
-If `AGENTS.local.md` exists next to the project `AGENTS.md`, read it as well
-and let it win on conflicts. It carries personal and machine-specific settings,
-is git-ignored, and is never required for anyone else to work on the
-repository.
+`AGENTS.local.md` next to the project `AGENTS.md` is imported from there and
+wins on conflicts. It carries personal and machine-specific settings, is
+git-ignored, and is never required for anyone else to work on the repository —
+where it does not exist, the import is simply ignored.
 
 ## Signing AI-generated content {#core.signature}
 

@@ -100,7 +100,8 @@ has to agree, not what is allowed.
 | `.devkit/forge.sh` | managed | `gh` or `glab` behind one set of function names |
 | `.gitattributes` | managed | line endings |
 | `.editorconfig`, `.gitignore` | block | devkit content between markers, project content below |
-| `AGENTS.md` | template | **the project owns it**; links the managed rules, records deviations |
+| `CLAUDE.md` | template | one line, `@AGENTS.md` — the entry point Claude Code actually reads |
+| `AGENTS.md` | template | **the project owns it**; `@`-imports the managed rules, records deviations |
 | `AGENTS.local.md` | template | personal, git-ignored; seeded from `~/.claude/AGENTS.local.md` if you keep one |
 | `.devkit/config.sh`, `.devkit/gates.sh` | template | project owns them: forge, workflow, build commands |
 | `CHANGELOG.md`, `ROADMAP.md`, `docs/README.md` | template | written once if missing |
@@ -108,6 +109,13 @@ has to agree, not what is allowed.
 
 *managed* is replaced on sync, *block* is replaced between its markers, and
 *template* is written once and never touched again.
+
+The rules reach a session through one chain of `@`-imports: `CLAUDE.md` →
+`AGENTS.md` → `AGENTS.core.md`, the stack file, the forge file and
+`AGENTS.local.md`. Those are imports, not Markdown links. A link is never
+followed into context, so turning one of them into a link switches the rules
+off with nothing to see. An import whose file is missing is ignored, which is
+why `AGENTS.local.md` can stay git-ignored.
 
 ## Updating a repository
 

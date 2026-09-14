@@ -12,6 +12,7 @@ editorconfig.block|.editorconfig|block:devkit:core
 gitignore.block|.gitignore|block:devkit:core
 skills|.claude/skills|dir
 
+templates/CLAUDE.md|CLAUDE.md|template
 templates/AGENTS.md|AGENTS.md|template
 templates/AGENTS.local.md|AGENTS.local.md|template
 templates/CHANGELOG.md|CHANGELOG.md|template

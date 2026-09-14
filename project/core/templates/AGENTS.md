@@ -9,12 +9,14 @@ and this file links to it.
 These files come from [raisr/devkit](https://github.com/raisr/devkit) and are
 updated by `/devkit-sync`. Do not edit them here; change them upstream.
 
-- [`AGENTS.core.md`](AGENTS.core.md) — rules that hold in every repository
-{{STACK_RULE_LINKS}}
-{{FORGE_RULE_LINKS}}
+The `@` lines below are imports, not links: they pull the file into the
+session. Turning one into a Markdown link silently switches the rules off.
 
-`AGENTS.local.md`, if present next to this file, is read as well and wins on
-conflicts. It is personal, machine-specific and git-ignored.
+{{RULE_IMPORTS}}
+
+@AGENTS.local.md — personal, machine-specific, git-ignored; wins on conflicts.
+It is imported the same way, and the import is simply ignored where the file
+does not exist.
 
 ## Overview
 

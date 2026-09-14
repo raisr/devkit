@@ -105,14 +105,29 @@ SOLUTION="$(cd "${REPO}" && find . -maxdepth 3 \( -name "*.slnx" -o -name "*.sln
   -not -path "./.git/*" 2>/dev/null | sed "s#^\./##" | sort | head -1)"
 [ -n "${SOLUTION}" ] || SOLUTION="TODO-set-the-solution-path"
 
-# Markdown links to the rule files this repository actually received.
-STACK_RULE_LINKS=""
-for s in ${STACKS[@]+"${STACKS[@]}"}; do
-  STACK_RULE_LINKS="${STACK_RULE_LINKS}- [\`AGENTS.${s}.md\`](AGENTS.${s}.md) — rules for the ${s} stack\\n"
-done
-STACK_RULE_LINKS="${STACK_RULE_LINKS%\\n}"
-[ -n "${STACK_RULE_LINKS}" ] || STACK_RULE_LINKS="<!-- no stack pack installed -->"
-FORGE_RULE_LINKS="- [\`AGENTS.${FORGE}.md\`](AGENTS.${FORGE}.md) — conventions for ${FORGE}"
+# Imports of the rule files this repository actually receives. These have to be
+# `@`-imports: Claude Code follows those into context, a Markdown link never.
+#
+# The list is read out of the manifests rather than built from the --stack
+# flags, because a stack pack can pull in rules shared with another pack, and
+# those have to be imported too.
+rule_imports() {
+  local pack p src target mode stem
+  while IFS= read -r pack; do
+    while IFS="|" read -r p src target mode; do
+      case "${target}" in AGENTS.local.md) continue ;; AGENTS.*.md) ;; *) continue ;; esac
+      stem="${target#AGENTS.}"; stem="${stem%.md}"
+      case "${p}" in
+        core)     printf '@%s — rules that hold in every repository\n' "${target}" ;;
+        forges/*) printf '@%s — conventions for %s\n' "${target}" "${FORGE}" ;;
+        *)        printf '@%s — rules for %s\n' "${target}" "${stem}" ;;
+      esac
+    done < <(manifest_lines "${pack}")
+  done < <(manifest_packs "${FORGE}" ${STACKS[@]+"${STACKS[@]}"})
+}
+# Joined with a literal \n, which sed expands back into newlines on the right
+# hand side of the substitution below.
+RULE_IMPORTS="$(rule_imports | awk 'NR>1 { printf "\\n" } { printf "%s", $0 }')"
 
 say()   { printf "  %-9s %s\n" "$1" "$2"; }
 would() { [ "${DRY_RUN}" -eq 1 ]; }
@@ -126,8 +141,7 @@ substitute() {
       -e "s|{{ASSIGNEE}}|${ASSIGNEE}|g" \
       -e "s|{{SOLUTION}}|${SOLUTION}|g" \
       -e "s|{{DATE}}|${TODAY}|g" \
-      -e "s|{{STACK_RULE_LINKS}}|${STACK_RULE_LINKS}|g" \
-      -e "s|{{FORGE_RULE_LINKS}}|${FORGE_RULE_LINKS}|g"
+      -e "s|{{RULE_IMPORTS}}|${RULE_IMPORTS}|g"
 }
 
 hash_of() { git hash-object "$1"; }
