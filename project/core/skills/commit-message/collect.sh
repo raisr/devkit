@@ -47,6 +47,19 @@ else
 fi
 echo "SCOPE: ${scope}"
 
+# `git mv` and `git rm` stage themselves, so a tree that is only partly staged
+# is easy to end up with by accident - and then the diff below is a fraction of
+# the change, with nothing saying so.
+if [ "${scope}" = "staged" ]; then
+  outside=""
+  git diff --quiet || outside="unstaged"
+  if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+    outside="${outside:+${outside} and }untracked"
+  fi
+  [ -z "${outside}" ] \
+    || echo "OUTSIDE THE COMMIT: ${outside} changes exist as well - the diff below is not the whole change."
+fi
+
 echo
 echo "=== files ==="
 if [ "${scope}" = "staged" ]; then

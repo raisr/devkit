@@ -28,6 +28,10 @@ itself.
 If `SCOPE` is `working tree (nothing staged)`, decide with the user which files
 belong in the commit before staging anything.
 
+An `OUTSIDE THE COMMIT` line means the tree is only partly staged, so the diff
+you were given is not the whole change. That is usually an accident — `git mv`
+and `git rm` stage themselves — so ask before drafting against half of it.
+
 ## 2. Check the workflow mode
 
 - `WORKFLOW: full` and no ticket → **stop**. Under `full`, a commit belongs to
