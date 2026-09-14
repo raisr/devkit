@@ -283,38 +283,64 @@ fi
 # already owned one of the two files it runs through, the chain now has a gap
 # that only a human can close - and a gap here is silent: the files are on
 # disk, everything looks installed, and no session reads a single rule.
+#
+# Only what is genuinely still missing is reported. A converted repository keeps
+# these files on every later run too, and a notice that fires when there is
+# nothing to do is one nobody reads the third time.
 actual_name() {   # <canonical name> - the file as it is really spelled on disk
   ( cd "${REPO}" && ls -1 | grep -ix "$(printf '%s' "$1" | sed 's/\./\\./g')" | head -1 )
 }
-if [ -n "${KEPT_CHAIN}" ]; then
-  rules_name="$(actual_name AGENTS.md)"; rules_name="${rules_name:-AGENTS.md}"
+missing_imports() {   # the @-imports the kept rules file does not have
+  local f="${REPO}/$1" target
+  while IFS= read -r target; do
+    grep -qF "${target%% *}" "${f}" 2>/dev/null || printf '%s\n' "${target}"
+  done < <(rule_imports)
+}
+
+rules_name=""; claude_name=""; missing=""
+case " ${KEPT_CHAIN} " in
+  *" AGENTS.md "*)
+    rules_name="$(actual_name AGENTS.md)"; rules_name="${rules_name:-AGENTS.md}"
+    missing="$(missing_imports "${rules_name}")"
+    [ -n "${missing}" ] || [ "${rules_name}" != "AGENTS.md" ] || rules_name=""
+    ;;
+esac
+case " ${KEPT_CHAIN} " in
+  *" CLAUDE.md "*)
+    claude_name="$(actual_name CLAUDE.md)"; claude_name="${claude_name:-CLAUDE.md}"
+    # In order already: correctly cased, and importing the rules file.
+    if [ "${claude_name}" = "CLAUDE.md" ] \
+       && grep -q '^@AGENTS\.md[[:space:]]*$' "${REPO}/${claude_name}" 2>/dev/null; then
+      claude_name=""
+    fi
+    ;;
+esac
+
+if [ -n "${rules_name}${claude_name}" ]; then
   echo
   echo "NEXT STEPS - bootstrap kept files the project already owned:"
-  case " ${KEPT_CHAIN} " in
-    *" AGENTS.md "*)
+  if [ -n "${rules_name}" ]; then
+    if [ -n "${missing}" ]; then
       echo
       echo "  ${rules_name} is yours, so these imports were not added. Put them in it:"
       echo
-      rule_imports | sed 's/^/      /'
-      [ "${rules_name}" = "AGENTS.md" ] || {
-        echo
-        echo "  Rename it to AGENTS.md as well. Windows matches the name whatever its"
-        echo "  case, so nothing here complains - but the repository is read on other"
-        echo "  machines too. Go through a temporary name so git records the rename:"
-        echo "      git mv ${rules_name} tmp.md && git mv tmp.md AGENTS.md"
-      }
-      ;;
-  esac
-  case " ${KEPT_CHAIN} " in
-    *" CLAUDE.md "*)
-      claude_name="$(actual_name CLAUDE.md)"; claude_name="${claude_name:-CLAUDE.md}"
+      printf '%s\n' "${missing}" | sed 's/^/      /'
+    fi
+    [ "${rules_name}" = "AGENTS.md" ] || {
       echo
-      echo "  ${claude_name} is yours. It is the one file a session reads by itself,"
-      echo "  so it has to import the rules file and nothing else:  @AGENTS.md"
-      [ "${claude_name}" = "CLAUDE.md" ] || \
-        echo "      git mv ${claude_name} tmp.md && git mv tmp.md CLAUDE.md"
-      ;;
-  esac
+      echo "  Rename it to AGENTS.md as well. Windows matches the name whatever its"
+      echo "  case, so nothing here complains - but the repository is read on other"
+      echo "  machines too. Go through a temporary name so git records the rename:"
+      echo "      git mv ${rules_name} tmp.md && git mv tmp.md AGENTS.md"
+    }
+  fi
+  if [ -n "${claude_name}" ]; then
+    echo
+    echo "  ${claude_name} is yours. It is the one file a session reads by itself,"
+    echo "  so it has to import the rules file and nothing else:  @AGENTS.md"
+    [ "${claude_name}" = "CLAUDE.md" ] || \
+      echo "      git mv ${claude_name} tmp.md && git mv tmp.md CLAUDE.md"
+  fi
   echo
   echo "  Until that is done the rule files sit on disk and no session reads them."
 fi
