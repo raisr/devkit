@@ -6,7 +6,7 @@
 #
 #   d="$(mktemp -d)" \
 #     && git clone --depth 1 https://github.com/raisr/devkit "$d/devkit" \
-#     && bash "$d/devkit/project/bootstrap.sh" --forge github --stack dotnet
+#     && bash "$d/devkit/project/bootstrap.sh" --forge github --stack dotnet-core
 #
 # Re-running is safe: managed files are rewritten, blocks are replaced between
 # their markers, and templates are left alone once they exist.

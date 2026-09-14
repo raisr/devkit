@@ -14,9 +14,26 @@ does **not** vendor them itself — there is no `AGENTS.core.md` here, and
   belong here.
 - `machine/` is executed on a development machine and never copied anywhere.
   The sync tooling does not look at it.
+- `test/` builds and checks a sample consumer repository. It is not copied
+  anywhere either, and nothing in `project/` may depend on it.
 
 Adding a file to `project/` without adding it to the pack's `manifest.list`
 means it is never installed anywhere. The manifest is what makes a file real.
+
+## Packs and shared packs
+
+`project/core/`, `project/stacks/*` and `project/forges/*` are pickable: a
+repository chooses one forge and any number of stacks.
+
+`project/shared/*` is not. A shared pack holds what two stack packs have in
+common, and a stack pack pulls it in with a `+shared/<name>` line at the top of
+its own `manifest.list`. It is kept out of `--stack` on purpose: on its own it
+would install rules without the gates and templates that make them
+enforceable — a repository that looks configured and is not.
+
+A shared pack keeps its own slug prefix (`dotnet.`), and each stack pack on top
+of it uses its own (`dotnet-core.`, `dotnet-legacy.`). A rule that moves
+between the two is a slug change, and therefore a breaking change.
 
 ## Modes
 
@@ -40,9 +57,10 @@ mistake that makes the sync annoying. When in doubt, template.
   A project records a deviation against that slug, so the slug must survive
   rewording of the text beneath it. Renaming a slug breaks every recorded
   decision that points at it — treat it as a breaking change.
-- Slug prefixes: `core.` for `AGENTS.core.md`, the stack name for a stack pack
-  (`dotnet.`), and `forge.` for **both** forge packs — a repository that moves
-  from GitHub to GitLab keeps its deviations pointing at the same rules.
+- Slug prefixes: `core.` for `AGENTS.core.md`, the pack name for a stack or
+  shared pack (`dotnet.`, `dotnet-core.`), and `forge.` for **both** forge
+  packs — a repository that moves from GitHub to GitLab keeps its deviations
+  pointing at the same rules.
 - Prescriptive voice. A rule says what must happen, not what is nice.
 - No project may be named in a rule document.
 

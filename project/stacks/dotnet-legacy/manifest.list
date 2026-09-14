@@ -1,0 +1,12 @@
+# What the dotnet-legacy stack pack puts into a repository.
+# See core/manifest.list for the format and the modes.
+#
+# A `+<pack>` line pulls another pack in first. The shared .NET rules are not
+# selectable with --stack; this is how they arrive.
+
++shared/dotnet
+
+AGENTS.dotnet-legacy.md|AGENTS.dotnet-legacy.md|managed
+
+templates/gates.sh|.devkit/gates.sh|template
+templates/Directory.Build.props|src/Directory.Build.props|template

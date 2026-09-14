@@ -3,7 +3,6 @@ indent_size = 2
 
 [*.cs]
 # Namespaces and usings
-csharp_style_namespace_declarations = file_scoped:warning
 dotnet_style_namespace_match_folder = true:warning
 dotnet_diagnostic.IDE0130.severity = warning
 dotnet_sort_system_directives_first = true
@@ -30,10 +29,8 @@ csharp_style_expression_bodied_constructors = false:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 csharp_style_expression_bodied_accessors = true:suggestion
 
-# Modern language features
-csharp_style_prefer_primary_constructors = true:suggestion
+# Braces and conditionals
 csharp_prefer_braces = true:warning
-csharp_style_prefer_switch_expression = true:suggestion
 dotnet_style_prefer_conditional_expression_over_assignment = false:suggestion
 
 # New line preferences

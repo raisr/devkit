@@ -1,0 +1,10 @@
+# What the shared .NET rules put into a repository.
+# See core/manifest.list for the format and the modes.
+#
+# This is not a stack pack. It cannot be picked with --stack; the dotnet-core
+# and dotnet-legacy packs pull it in through a `+shared/dotnet` line in their
+# own manifest.list.
+
+AGENTS.dotnet.md|AGENTS.dotnet.md|managed
+editorconfig.block|.editorconfig|block:devkit:shared/dotnet
+gitignore.block|.gitignore|block:devkit:shared/dotnet

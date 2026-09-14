@@ -1,0 +1,6 @@
+[*.cs]
+# Language features that need C# 10 or later, so they are not in the shared
+# block: .NET Framework targets cannot rely on them.
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_prefer_switch_expression = true:suggestion

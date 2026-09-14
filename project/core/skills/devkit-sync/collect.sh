@@ -53,6 +53,9 @@ echo
 echo "=== packs available upstream ==="
 echo "stacks: $(cd "${DEVKIT_PROJECT_DIR}/stacks" && ls -1 | tr '\n' ' ')"
 echo "forges: $(cd "${DEVKIT_PROJECT_DIR}/forges" && ls -1 | tr '\n' ' ')"
+# Not pickable with --stack; a stack pack pulls one in. Listed so the skill can
+# report a shared pack that is new or gone, the same as any other.
+echo "shared: $(cd "${DEVKIT_PROJECT_DIR}/shared" 2>/dev/null && ls -1 | tr '\n' ' ')"
 
 # Content of one marked block, or nothing when the markers are absent.
 extract_block() {   # <file> <marker id>

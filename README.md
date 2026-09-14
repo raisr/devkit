@@ -24,14 +24,22 @@ size without a chance of it leaking into a project repository.
 
 ```
 project/
-  core/            rules that hold everywhere, the skills, the templates
-  stacks/dotnet/   .NET rules, .editorconfig and .gitignore blocks, gates
-  forges/github/   branch, commit, issue and pull request conventions + gh adapter
-  forges/gitlab/   the same, for GitLab + glab adapter
+  core/                  rules that hold everywhere, the skills, the templates
+  shared/dotnet/         .NET rules that hold whatever the runtime
+  stacks/dotnet-core/    net5+: compiler, style, logging, config, dotnet gates
+  stacks/dotnet-legacy/  .NET Framework: MSBuild gates, C# 7.3 language rules
+  forges/github/         branch, commit, issue and pull request conventions + gh adapter
+  forges/gitlab/         the same, for GitLab + glab adapter
 ```
 
 A repository picks one forge and any number of stacks. Each pack declares what
 it installs in its own `manifest.list`; `project/manifest.sh` reads them.
+
+`shared/` is not pickable. It holds what two stack packs have in common, and a
+stack pack pulls it in with a `+shared/<name>` line at the top of its manifest
+— `--stack dotnet-core` installs `shared/dotnet` with it. On its own a shared
+pack would deliver rules without the gates that enforce them, so `--stack
+dotnet` is refused rather than half-installed.
 
 ## Bootstrapping a repository
 
@@ -41,7 +49,7 @@ nothing else — no agent, no account, no `jq`:
 ```bash
 d="$(mktemp -d)" \
   && git clone --depth 1 https://github.com/raisr/devkit "$d/devkit" \
-  && bash "$d/devkit/project/bootstrap.sh" --forge github --stack dotnet
+  && bash "$d/devkit/project/bootstrap.sh" --forge github --stack dotnet-core
 ```
 
 Under Git Bash on Windows, use `mktemp -d` as shown — `$TEMP` holds a path with

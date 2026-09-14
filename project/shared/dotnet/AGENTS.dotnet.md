@@ -1,39 +1,24 @@
 # AGENTS.dotnet.md
 
-Rules for a .NET repository. They add to [`AGENTS.core.md`](AGENTS.core.md) and
-never contradict it — where this file is silent, the core rule applies
-unchanged.
+Rules that hold for any .NET repository, whichever runtime it targets. They add
+to [`AGENTS.core.md`](AGENTS.core.md) and never contradict it — where this file
+is silent, the core rule applies unchanged.
 
-Managed by [raisr/devkit](https://github.com/raisr/devkit) — change them there,
-not here. Deviations go in the *Deviations* table of the project `AGENTS.md`.
+This file is **shared**: it is not a stack pack of its own and cannot be picked
+with `--stack`. Both `dotnet-core` (net5 and later) and `dotnet-legacy` (.NET
+Framework) install it, and each adds the rules that only hold for its runtime
+in `AGENTS.dotnet-core.md` or `AGENTS.dotnet-legacy.md`.
 
-For .NET Framework and other legacy targets, see the `dotnet-legacy` pack: much
-of what follows does not apply there.
-
-## Compiler settings {#dotnet.compiler}
-
-Keep `<Nullable>enable</Nullable>` and `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`
-switched on. A warning that is worth suppressing is worth suppressing
-explicitly, at the narrowest scope, with a reason.
-
-Target framework, language version and version number are set once in
-`Directory.Build.props`, not per project file.
-
-## Language style {#dotnet.style}
-
-- File-scoped namespaces.
-- Primary constructors for injected dependencies.
-- Records for DTOs and commands.
-- `var` where the type is obvious from the right-hand side, the explicit type
-  where it is not.
-- Braces always, even around a single statement.
+Managed by [raisr/devkit](https://github.com/raisr/devkit) — change the rules
+there, not here. Deviations go in the *Deviations* table of the project
+`AGENTS.md`.
 
 ## Namespaces {#dotnet.namespaces}
 
 **The namespace always follows the directory structure.** A file in
 `src/Acme.Web/Configuration/` is in `Acme.Web.Configuration`, with no exception
-for extension classes or anything else. `dotnet format` enforces it
-(`IDE0130`), so a mismatch fails the gate rather than surviving in review.
+for extension classes or anything else. The analyser enforces it (`IDE0130`),
+so a mismatch fails the gate rather than surviving in review.
 
 ## Entry point {#dotnet.entry-point}
 
@@ -53,28 +38,12 @@ framework demands.
 Constructor injection only. No service locator, no `new` on a service, no
 static mutable state.
 
-## Logging {#dotnet.logging}
-
-Log through `ILogger<T>` with structured templates:
-
-```csharp
-logger.LogInformation("Order {OrderId} shipped", id);
-```
-
-No `Console.WriteLine`, and no string interpolation inside a log template — it
-destroys the structure the template exists for. User-facing console output,
-such as a startup banner, is not logging and is the one exception.
-
-## Configuration {#dotnet.configuration}
-
-Configuration through `IOptions<T>`. No magic strings scattered around, no
-`IConfiguration` reached into from the middle of a use case.
-
 ## Persistence {#dotnet.persistence}
 
-The domain layer contains no attributes from EF Core or ASP.NET. Persistence
-details live in configurations under the infrastructure project, mapped onto
-plain models. The rules must be readable, and testable, without a database.
+The domain layer contains no attributes from the ORM or the web framework.
+Persistence details live in configurations under the infrastructure project,
+mapped onto plain models. The rules must be readable, and testable, without a
+database.
 
 ## Web {#dotnet.web}
 
@@ -93,7 +62,8 @@ In addition to the ones in `AGENTS.core.md`:
 **A test project belongs to exactly one production project and is named
 `<Project>.Tests.Unit` or `<Project>.Tests.Integration`.** It lives under
 `src/Tests/`, and folder, `.csproj`, assembly name and root namespace all carry
-that same name.
+that same name. A project gets a test project once it actually has tests — no
+empty projects on stock.
 
 Tests that assert solution-wide rules — such as which project may reference
 which — belong to no single project and carry no `.Unit`/`.Integration`
@@ -125,25 +95,10 @@ public sealed class OrderServiceTests            // class under test
 - The method name reads `Scenario_ExpectedResult`. The method under test is
   already the nested class — do not repeat it.
 
-## Gates {#dotnet.gates}
-
-Three, all green before a commit, all runnable by hand:
-
-| Gate | Command | Expected |
-|---|---|---|
-| build | `dotnet build <solution>` | 0 warnings, 0 errors |
-| test | `dotnet test <solution>` | green |
-| format | `dotnet format <solution> --verify-no-changes` | clean |
-
-They live in `.devkit/gates.sh`, which the project owns and adapts.
-
-`dotnet test` exits non-zero when a test project contains **no** tests. A new
-test project needs at least one real test, not a placeholder.
-
 ## Dependencies {#dotnet.dependencies}
 
 Check the BCL first. A NuGet package needs a reason that survives being said
 out loud. No major-version upgrade without asking.
 
-Package versions belong in the `.csproj` files, which cannot go stale — not in
+Package versions belong in the project files, which cannot go stale — not in
 documentation.

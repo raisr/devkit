@@ -10,7 +10,12 @@ cd "$(git rev-parse --show-toplevel)"
 
 SLN="{{SOLUTION}}"
 
-gate_build()  { dotnet build  "${SLN}" --nologo; }
+# -warnaserror so the gate itself enforces "0 warnings", rather than relying on
+# TreatWarningsAsErrors in a Directory.Build.props the project owns and may
+# change. It also promotes the NuGet audit warnings (NU1901-NU1904), so a newly
+# published advisory can turn this red without a code change. That is the
+# intent: a known-vulnerable package is a reason not to commit.
+gate_build()  { dotnet build  "${SLN}" --nologo -warnaserror; }
 gate_test()   { dotnet test   "${SLN}" --nologo; }
 gate_format() { dotnet format "${SLN}" --verify-no-changes; }
 
