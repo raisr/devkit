@@ -73,7 +73,10 @@ head2 "config"
 [ -n "${DEVKIT_COMMIT_APPROVAL}" ] \
   && pass "DEVKIT_COMMIT_APPROVAL present (${DEVKIT_COMMIT_APPROVAL})" \
   || fail "DEVKIT_COMMIT_APPROVAL missing from .devkit/config.sh"
-assert_grep 'SLN="src/Sample.slnx"' .devkit/gates.sh "gates.sh found the solution"
+# Not just "a solution": the right one. The fixture plants a decoy under .vs/,
+# which is what a Windows machine really looks like and sorts first.
+assert_grep 'SLN="src/Sample.slnx"' .devkit/gates.sh \
+  "gates.sh points at src/Sample.slnx, not the .vs/ copy"
 
 # --- blocks ------------------------------------------------------------------
 

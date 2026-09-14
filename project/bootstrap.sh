@@ -100,9 +100,13 @@ DEVKIT_COMMIT="$(git -C "${DEVKIT_ROOT}" rev-parse --short HEAD 2>/dev/null || e
 DEVKIT_DATE="$(git -C "${DEVKIT_ROOT}" log -1 --format=%cs 2>/dev/null || echo unknown)"
 TODAY="$(date +%F)"
 
-# The solution or workspace file the dotnet gates run against.
+# The solution or workspace file the dotnet gates run against. Tool directories
+# are skipped, not just .git: Visual Studio keeps a copy of the solution in
+# .vs/, and a dot directory sorts before src/, so without this the gates end up
+# pointing at a cache that is not even in the repository.
 SOLUTION="$(cd "${REPO}" && find . -maxdepth 3 \( -name "*.slnx" -o -name "*.sln" \) \
-  -not -path "./.git/*" 2>/dev/null | sed "s#^\./##" | sort | head -1)"
+  -not -path "./.*/*" -not -path "*/bin/*" -not -path "*/obj/*" \
+  2>/dev/null | sed "s#^\./##" | sort | head -1)"
 [ -n "${SOLUTION}" ] || SOLUTION="TODO-set-the-solution-path"
 
 # Imports of the rule files this repository actually receives. These have to be
