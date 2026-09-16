@@ -42,6 +42,13 @@ forge_issue_view() {
   glab issue view "$1"
 }
 
+# forge_issue_reply <number> <body file> - where a finding made while working
+# the ticket goes (forge.issues), rather than into the description. A file, not
+# a string: the note names files and rules, so it is full of backticks.
+forge_issue_reply() {
+  glab issue note "$1" --message "$(cat "$2")"
+}
+
 forge_issue_body() {
   glab issue view "$1" | sed -n '/^$/,$p'
 }

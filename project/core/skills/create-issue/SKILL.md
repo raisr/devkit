@@ -38,7 +38,11 @@ The three that get skipped and should not be:
 
 - **English**, even when the conversation is in another language.
 - **Only up-front knowledge.** What you find out while working the ticket goes
-  in a comment or a follow-up ticket, never back into the description.
+  in a comment or a follow-up ticket, never back into the description:
+
+  ```bash
+  forge_issue_reply <n> /path/to/note.md
+  ```
 - **Verifiable acceptance criteria.** A concrete command and its expected
   result beats a sentence about things being set up correctly.
 
