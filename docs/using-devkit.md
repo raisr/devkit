@@ -332,7 +332,7 @@ Pass a path to sync against a local checkout — useful while developing the
 devkit itself:
 
 ```bash
-bash .claude/skills/devkit-sync/collect.sh /d/Dev/raisr/DevKit
+bash .claude/skills/devkit-sync/collect.sh /path/to/devkit
 ```
 
 ### How a file is judged
