@@ -8,13 +8,20 @@ Everything the devkit installs is a real file in the consumer repository. There
 is no runtime dependency: clone that repository without this one and the rules,
 the skills and the gates are all still there.
 
+**One worked example runs through this guide**: a GitHub repository on the
+`dotnet-core` stack. It is an example, not a recommendation and not a statement
+about what is supported. On GitLab, pass `--forge gitlab` and read
+`AGENTS.gitlab.md` wherever the text says `AGENTS.github.md`; with another
+stack, substitute its name the same way. Nothing else differs — that is what
+the forge adapter and the pack layout are for.
+
 ## What lands in a repository
 
 ```
 AGENTS.core.md          rules that hold everywhere          managed
 AGENTS.dotnet.md        shared .NET rules                   managed
-AGENTS.dotnet-core.md   stack rules                         managed
-AGENTS.github.md        forge conventions                   managed
+AGENTS.dotnet-core.md   stack rules, one per stack          managed
+AGENTS.<forge>.md       forge conventions, github or gitlab managed
 .claude/skills/**       the four skills                     managed
 .devkit/forge.sh        gh or glab behind one contract      managed
 .gitattributes          line endings                        managed
@@ -40,9 +47,9 @@ devkit.lock.json        where each file came from           —
 
 ```
 CLAUDE.md → @AGENTS.md → @AGENTS.core.md
-                       → @AGENTS.dotnet.md, @AGENTS.dotnet-core.md
-                       → @AGENTS.github.md
-                       → @AGENTS.local.md   (git-ignored, ignored when absent)
+                       → @AGENTS.<stack>.md   one line per stack installed
+                       → @AGENTS.<forge>.md   the one forge, github or gitlab
+                       → @AGENTS.local.md     (git-ignored, ignored when absent)
 ```
 
 These are `@`-imports, not Markdown links. A link is never followed into a
@@ -332,7 +339,7 @@ Pass a path to sync against a local checkout — useful while developing the
 devkit itself:
 
 ```bash
-bash .claude/skills/devkit-sync/collect.sh /d/Dev/raisr/DevKit
+bash .claude/skills/devkit-sync/collect.sh /path/to/devkit
 ```
 
 ### How a file is judged

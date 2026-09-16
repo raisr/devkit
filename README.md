@@ -42,7 +42,7 @@ stack pack pulls it in with a `+shared/<name>` line at the top of its manifest
 pack would deliver rules without the gates that enforce them, so `--stack
 dotnet` is refused rather than half-installed.
 
-## Bootstrapping a repository
+## Getting it into a repository
 
 Run this **inside the repository you want to set up**. It needs `git` and
 nothing else — no agent, no account, no `jq`:
@@ -53,120 +53,26 @@ d="$(mktemp -d)" \
   && bash "$d/devkit/project/bootstrap.sh" --forge github --stack dotnet-core
 ```
 
-Under Git Bash on Windows, use `mktemp -d` as shown — `$TEMP` holds a path with
-backslashes that `bash` does not resolve.
-
-| Flag | |
-|---|---|
-| `--forge github\|gitlab` | required |
-| `--stack <name>` | repeat it for a repository with more than one stack |
-| `--workflow full\|light` | default `light`; see *Workflow* below |
-| `--assignee <name>` | who gets assigned to a pull or merge request; defaults to `git config user.name` |
-| `--main-branch <name>` | defaults to the default branch `origin` points at; only a repository without a remote falls back to the current branch, with a warning when that is not `main`/`master` |
-| `--repo <path>` | set up a different repository than the current one |
-| `--dry-run` | print what would happen, write nothing |
-
-The script writes files and nothing else. No staging, no commit — review it
-with `git status` and commit it yourself.
-
-Running it again is safe, and is how a repository picks up a second stack:
-managed files are rewritten, blocks are replaced between their markers, and
-anything the project owns is left alone. Pass every stack the repository uses,
-not just the new one — `DEVKIT_STACKS` in `.devkit/config.sh` is rewritten to
-match, and it is what `/devkit-sync` reads.
-
-## Workflow
-
-`DEVKIT_WORKFLOW` in `.devkit/config.sh` decides how much ceremony a change
-carries. The skills read it; changing it is one line, and a deliberate one.
-
-**`full`** — for a repository with a team, or one that is past its opening
-phase:
-
-1. A ticket exists. No ticket, no code.
-2. Branch from an up-to-date default branch: `feature/<ticket>-<slug>`, or
-   `fix/<ticket>-<slug>`.
-3. Implement in small, reviewable steps. New or changed logic without a test
-   counts as unfinished.
-4. A user-visible change gets a `CHANGELOG.md` entry under `[Unreleased]`.
-5. `bash .devkit/gates.sh` — all green.
-6. Commit, with the ticket number parsed out of the branch name.
-7. Open a pull or merge request: what changed, why, and the gate output.
-8. Review round: address every point, re-run the gates, push, reply.
-9. Done when the request is merged — not when the gates pass.
-
-**`light`** — for a greenfield repository, a spike, or a solo phase: branch,
-gates, commit. No ticket, no request, no review round. Everything else still
-applies: the rules bind, the tests bind, the gates bind.
-
-Both modes run the same gates and obey the same rules. The mode changes who
-has to agree, not what is allowed.
-
-## What lands in a repository
-
-| File | Mode | Meaning |
-|---|---|---|
-| `AGENTS.core.md`, `AGENTS.<stack>.md`, `AGENTS.<forge>.md` | managed | replaced by `devkit-sync`; edit them here, not there |
-| `.claude/skills/**` | managed | the skills, forge-neutral |
-| `.devkit/forge.sh` | managed | `gh` or `glab` behind one set of function names |
-| `.gitattributes` | managed | line endings |
-| `.editorconfig`, `.gitignore` | block | devkit content between markers, project content below |
-| `CLAUDE.md` | template | one line, `@AGENTS.md` — the entry point Claude Code actually reads |
-| `AGENTS.md` | template | **the project owns it**; `@`-imports the managed rules, records deviations |
-| `AGENTS.local.md` | template | personal, git-ignored; seeded from `~/.claude/AGENTS.local.md` if you keep one |
-| `.devkit/config.sh`, `.devkit/gates.sh` | template | project owns them: workflow, assignee, build commands |
-| `CHANGELOG.md`, `ROADMAP.md`, `docs/README.md` | template | written once if missing |
-| `devkit.lock.json` | — | where the files came from, at which commit, plus the deviations |
-
-*managed* is replaced on sync, *block* is replaced between its markers, and
-*template* is written once and never touched again — except `DEVKIT_FORGE` and
-`DEVKIT_STACKS` in `.devkit/config.sh`, which name the installed packs and are
-therefore bootstrap's to keep current.
-
-The rules reach a session through one chain of `@`-imports: `CLAUDE.md` →
-`AGENTS.md` → `AGENTS.core.md`, the stack file, the forge file and
-`AGENTS.local.md`. Those are imports, not Markdown links. A link is never
-followed into context, so turning one of them into a link switches the rules
-off with nothing to see. An import whose file is missing is ignored, which is
-why `AGENTS.local.md` can stay git-ignored.
-
-## Updating a repository
-
-`/devkit-sync` in that repository. It clones this repo, compares what it finds
-against the vendored files **and** against the project rules in `AGENTS.md`,
-then splits the result:
-
-- text-only changes to files nobody touched locally are applied and shown in
-  one diff
-- a changed rule, a locally edited file, or a new rule that contradicts the
-  project is put to you as a question, one at a time, with a recommendation
-
-Decisions are recorded twice: readable in the *Deviations* table of the
-project `AGENTS.md`, machine-readable in `devkit.lock.json` together with the
-devkit commit they were decided against. The same question is asked again only
-when that rule changes upstream.
-
-Nothing is committed. You review the diff.
-
-## Changing a rule
-
-This is an ordinary repository. Clone it, change the rule, commit, push.
-Repositories pick the change up at their next `/devkit-sync`. There are no
-releases and no tags: `main` is the truth, and a lock file records the commit.
+It writes files and nothing else: no staging, no commit — review it with
+`git status` and commit it yourself. The flags, what lands in the repository
+and in which mode, the two workflow modes, and how a repository picks up later
+changes with `/devkit-sync` are all in
+[docs/using-devkit.md](docs/using-devkit.md).
 
 ## Documentation
 
-[docs/using-devkit.md](docs/using-devkit.md) is the guide for a project adopting
-the devkit: bootstrap with worked examples, what to settle in the first ten
-minutes, daily work, and `/devkit-sync`.
-[docs/README.md](docs/README.md) lists what else is written down and where.
+| Where | For whom |
+|---|---|
+| [docs/using-devkit.md](docs/using-devkit.md) | a project adopting the devkit |
+| [docs/extending-devkit.md](docs/extending-devkit.md) | someone changing the devkit itself |
+| [AGENTS.md](AGENTS.md) | the binding rules for working in this repository |
+| [CHANGELOG.md](CHANGELOG.md) | what changed, for the people who vendor it |
 
-The reasoning lives next to what it governs rather than in one document that
-goes stale: [AGENTS.md](AGENTS.md) for how this repository is organised and why
-a pack is shaped the way it is, each rule document for its own rules, and the
-comments in `bootstrap.sh`, `block.awk` and `manifest.sh` for the decisions
-inside the tooling. [test/README.md](test/README.md) says how to check a change
-and what the fixture cannot prove.
+Beyond those, the reasoning lives next to what it governs rather than in one
+document that goes stale: each rule document states its own rules, and the
+comments in `bootstrap.sh`, `block.awk` and `manifest.sh` carry the decisions
+inside the tooling. [test/README.md](test/README.md) says how a change is
+checked and what the fixture cannot prove.
 
 ## Status
 
@@ -179,9 +85,7 @@ straight from their packs, `.claude/skills` holds generated pointers at
 `project/core/skills` rather than copies, and `.devkit/forge.sh` sources the
 adapter where it is maintained. Nothing here is a second copy that can fall
 behind the original, and `.devkit/gates.sh` fails when a generated pointer, a
-manifest entry or the forge contract has gone out of step. What that
-deliberately does not exercise is `bootstrap.sh` and `/devkit-sync` against this
-repository — that still needs a real consumer.
+manifest entry or the forge contract has gone out of step.
 
 - Bootstrap, manifests and the block mechanism work, and are checked by the
   fixture in [test/](test/README.md).
@@ -191,27 +95,5 @@ repository — that still needs a real consumer.
   gates, commit and pull request, through `.devkit/forge.sh` rather than around
   it.
 
-Not yet proven:
-
-- **The GitLab adapter and the `dotnet-legacy` pack have never been executed.**
-  Both were written from a command surface — `glab`, and MSBuild/NuGet/VSTest.
-  The first project that uses either is what verifies it, and a failure there is
-  a bug in the pack rather than in the caller.
-- **`/devkit-sync` has never met a real conflict.** Worth provoking on purpose
-  once: a wording-only change, which must apply without a question; a changed
-  rule, which must be presented; a locally edited managed file; a new core rule
-  that contradicts a project rule, the case no hash can find; and a destroyed
-  block marker, which must stop the sync rather than be repaired. Then check
-  that a recorded deviation silences the repeat question, and that changing that
-  rule upstream brings it back.
-- **Multi-stack is installed by the fixture, but never used.** The sample repo
-  ends up with `dotnet-core` and `dotnet-legacy` side by side, so the install
-  path is checked. What nobody has seen is two stacks whose `.editorconfig`
-  blocks actually disagree about the same file type, which is the case the block
-  mechanism exists for.
-- **A config key added here reaches existing repositories only through
-  `/devkit-sync`.** `.devkit/config.sh` is a template and is never overwritten —
-  apart from `DEVKIT_FORGE` and `DEVKIT_STACKS`, which bootstrap keeps current.
-  A repository bootstrapped earlier will not have a newer key. The skills
-  default safely when one is absent, and sync reports that the template moved
-  on.
+What is not yet proven, and what is being worked on, is on the forge:
+[open issues](https://github.com/raisr/devkit/issues).
