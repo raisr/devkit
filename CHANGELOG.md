@@ -21,6 +21,11 @@ that is in the git history.
 
 ### Added
 
+- `forge_issue_reply` in both forge adapters. `forge.issues` has always sent a
+  finding made while working a ticket into a comment rather than into the
+  description, but the contract could only read issues and create them — so the
+  one place the rule points at was unreachable through it. The same gap
+  `forge_pr_reply` closed for requests, one level up.
 - A **Documentation** line in the request body, required by `forge.requests` in
   both forge packs: which document was updated, or `n. a.` with the reason none
   needed it. `core.docs` already made documentation part of the change, but
