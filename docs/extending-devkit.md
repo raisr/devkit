@@ -12,7 +12,7 @@ stale.
 ## The gates
 
 ```bash
-bash .devkit/gates.sh              # all five
+bash .devkit/gates.sh              # all six
 bash .devkit/gates.sh manifest     # one of them
 ```
 
@@ -26,9 +26,15 @@ They run before a commit, not after it and not in CI only
 | `forge` | both forge adapters expose the same `forge_*` function names |
 | `stubs` | `.claude/skills` still matches `project/core/skills` |
 | `fixture` | the sample repository bootstraps and every assertion holds |
+| `sync` | `collect.sh` reports the right thing in every situation `/devkit-sync` has to judge |
 
 `fixture` builds a repository from scratch and runs `bootstrap.sh` against it
-three times. Tens of seconds is normal, not a hang.
+three times, and `sync` builds a second world of its own. Tens of seconds each
+is normal, not a hang.
+
+`sync` covers the half of `/devkit-sync` a script can reach. The other half is
+a judgement made by reading a diff, and two of its cases have no mechanical
+signature at all — `test/README.md` says which, and what a human walks instead.
 
 The gates check what a script can check. For the couplings that need a diff or
 a judgement, see [What no gate sees](#what-no-gate-sees) at the end.
