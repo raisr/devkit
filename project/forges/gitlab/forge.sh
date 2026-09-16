@@ -68,3 +68,15 @@ forge_pr_line_comments() {
 forge_pr_assign() {
   glab mr update "$1" --assignee "$2"
 }
+
+# forge_pr_edit <number> <body file> - replaces the whole description
+forge_pr_edit() {
+  glab mr update "$1" --description "$(cat "$2")"
+}
+
+# forge_pr_reply <number> <body file> - a comment on the request itself, which
+# is what forge.review asks a review round to end with. A file, not a string:
+# the reply names commits and rules, so it is full of backticks.
+forge_pr_reply() {
+  glab mr note "$1" --message "$(cat "$2")"
+}
