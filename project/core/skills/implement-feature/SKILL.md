@@ -115,9 +115,24 @@ forge_pr_line_comments <n>
 ```
 
 Address **every** point, re-run the gates, commit through `commit-message`,
-push. Reply on the request naming the commit that resolved each point, signed
-with the same block. Nothing is waved away silently; where you disagree, say so
-in the reply.
+push. Then reply on the request, naming the commit that resolved each point and
+signed with the same block:
+
+```bash
+forge_pr_reply <n> /path/to/reply.md
+```
+
+Nothing is waved away silently; where you disagree, say so in the reply. Where
+a point makes the request body itself wrong — a changed Evidence block, a
+Definition of Done that now reads differently — replace it rather than
+correcting it in a comment:
+
+```bash
+forge_pr_edit <n> /path/to/body.md
+```
+
+Both take a file, like every other body in these skills: the text is full of
+backticks and does not survive being passed as a string.
 
 ## 9. Done — `full` only
 

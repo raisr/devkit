@@ -76,3 +76,15 @@ forge_pr_line_comments() {
 forge_pr_assign() {
   gh pr edit "$1" --add-assignee "$2"
 }
+
+# forge_pr_edit <number> <body file> - replaces the whole body
+forge_pr_edit() {
+  gh pr edit "$1" --body-file "$2"
+}
+
+# forge_pr_reply <number> <body file> - a comment on the request itself, which
+# is what forge.review asks a review round to end with. A file, not a string:
+# the reply names commits and rules, so it is full of backticks.
+forge_pr_reply() {
+  gh pr comment "$1" --body-file "$2"
+}

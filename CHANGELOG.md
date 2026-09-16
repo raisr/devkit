@@ -19,6 +19,15 @@ that is in the git history.
 
 ## 2026-09-16
 
+### Added
+
+- `forge_pr_reply` and `forge_pr_edit` in both forge adapters. `forge.review`
+  has always required a review round to end with a reply on the request, but
+  the contract had no function that writes one, and none that corrects a
+  request body — so the prescribed loop could only be walked by calling `gh` or
+  `glab` directly, which the rules call a bug. Both take a body file, for the
+  same reason `forge_issue_create` does.
+
 ### Changed
 
 - `test` is now a ticket type and a label, not only a commit type. `forge.commits`
