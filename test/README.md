@@ -12,6 +12,8 @@ bash -n project/bootstrap.sh                 # and every other .sh
 r="$(bash test/build-sample-repo.sh)"
 bash project/bootstrap.sh --repo "$r" --forge github --stack dotnet-core --workflow full
 bash test/check-sample-repo.sh "$r"
+
+bash test/check-sync.sh                      # builds its own world, see below
 ```
 
 ## What the fixture is
@@ -43,6 +45,27 @@ Last, and only because it leaves the fixture on two stacks: a re-run with an
 added stack has to bring `DEVKIT_STACKS` in `.devkit/config.sh` with it, while
 leaving `DEVKIT_WORKFLOW` — a project decision — where the project put it.
 
+## What the sync check asserts
+
+`check-sync.sh` covers the other script, `collect.sh`, and builds its own world
+to do it: a clone of this repository as a mutable *upstream*, and a sample
+repository bootstrapped **from that clone**. Both sides have to start from the
+same content or the three hashes never line up.
+
+It then provokes one situation at a time and compares the columns `collect.sh`
+prints: an untouched file; a change upstream with the repository clean; a local
+edit with upstream clean; both sides changed; a block target whose marker was
+deleted; a template that moved on upstream; a template that is gone; and the two
+kinds of orphan.
+
+Every special value is asserted against its own baseline first — that an intact
+block reports a hash and not `no-marker`, that a present template reports
+`owned` and not `missing`. Without that, the interesting assertions would pass
+just as happily against a `collect.sh` that printed those words for everything.
+
+The clone is of committed state, so an uncommitted change in the working tree is
+invisible to it. That is deliberate: a consumer syncs against what was pushed.
+
 ## What it cannot prove
 
 **Whether the rules reach a session.** The assertions prove the import lines are
@@ -51,3 +74,27 @@ only answerable by opening a session in the bootstrapped repository and asking
 for something that is written nowhere but `AGENTS.core.md`. Do that by hand
 after the script is green — it is the one check that matters most and the one
 no script can make.
+
+**Whether `/devkit-sync` judges right.** `collect.sh` decides nothing by
+design: it prints `upstream` and `installed`, and the agent reads
+`devkit.lock.json` alongside and decides. `check-sync.sh` asserts the input to
+that judgement, never the judgement. Two of the cases have no mechanical
+signature at all and are walked by hand:
+
+1. **A wording change against a changed rule.** Both produce the identical
+   signature — *changed upstream, clean here*. What separates them is the
+   content of the diff, which is where `devkit-sync/SKILL.md` says *"read the
+   actual diff"*. Provoke it by editing a rule document in a local devkit
+   checkout twice: once fixing a typo, once adding a sentence that binds. Run
+   `/devkit-sync` in a bootstrapped repository against that checkout. The first
+   must be applied silently and shown in the collected diff; the second must be
+   put to you as a question.
+2. **A new core rule that contradicts a project rule.** Every hash matches, so
+   nothing in the report points at it. Add a rule to `AGENTS.core.md` that the
+   sample repository's own `AGENTS.md` already decides differently, and run the
+   sync: it has to notice by reading the two documents against each other, and
+   present the conflict.
+
+Both also cover the deviations machinery: record one, run the sync again and the
+question must not come back; then change that rule upstream and it must, saying
+why.

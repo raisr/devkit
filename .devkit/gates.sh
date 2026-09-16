@@ -8,7 +8,7 @@
 # adapters still offer the same functions, and that the generated skill stubs
 # have not fallen behind their source.
 #
-# Usage:  bash .devkit/gates.sh [syntax|fixture|manifest|forge|stubs|all]
+# Usage:  bash .devkit/gates.sh [syntax|fixture|sync|manifest|forge|stubs|all]
 #         (no argument means all)
 set -uo pipefail
 
@@ -112,10 +112,25 @@ gate_stubs() {
   bash .devkit/stubs.sh --verify
 }
 
+# The situations /devkit-sync has to judge, asserted where a script can: what
+# collect.sh reports. It builds its own world - a clone of this repository as
+# the mutable upstream, and a sample repo bootstrapped from that clone - because
+# the three hashes only line up when both sides start from the same content.
+# What is deliberately out of reach is the judgement itself; the header of
+# test/check-sync.sh says which two cases that leaves to a human.
+gate_sync() {
+  local out rc=0
+  out="$(mktemp -d)"
+  bash test/check-sync.sh --out "${out}" || rc=1
+  rm -rf "${out}"
+  return "${rc}"
+}
+
 gate_expectation() {
   case "$1" in
     syntax)   echo "every .sh parses, block.awk is valid awk" ;;
     fixture)  echo "the sample repo bootstraps and every assertion holds" ;;
+    sync)     echo "collect.sh reports the right thing in every sync situation" ;;
     manifest) echo "every file in a pack is installed by its manifest.list" ;;
     forge)    echo "github and gitlab expose the same forge_* functions" ;;
     stubs)    echo ".claude/skills matches project/core/skills" ;;
@@ -124,7 +139,7 @@ gate_expectation() {
 
 # --- runner, do not edit below unless you know why ---------------------------
 
-GATES="syntax manifest forge stubs fixture"
+GATES="syntax manifest forge stubs fixture sync"
 
 run_one() {
   local name="$1" log

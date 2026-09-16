@@ -21,6 +21,14 @@ that is in the git history.
 
 ### Added
 
+- A `sync` gate. `collect.sh` is what every `/devkit-sync` decision is made
+  from, and nothing checked that it reported the truth. It now has a test that
+  builds its own upstream, provokes each situation — changed upstream, edited
+  locally, changed on both sides, a block that lost its marker, a template that
+  moved on, a template that is gone, an orphan — and asserts the columns. The
+  judgement itself stays out of reach of a script; `test/README.md` says which
+  two cases a human still walks.
+
 - `forge_issue_reply` in both forge adapters. `forge.issues` has always sent a
   finding made while working a ticket into a comment rather than into the
   description, but the contract could only read issues and create them — so the

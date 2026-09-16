@@ -31,7 +31,7 @@ the fix, and do not re-derive it by hand:
 | `stubs` | `bash .devkit/stubs.sh`, or add the new skill to `SKILLS`/`EXCLUDED` in `.devkit/stubs.sh` first |
 | `manifest` | add the file to its pack's `manifest.list` — or decide it is tooling and belongs in the allowlist in `gate_manifest` |
 | `forge` | add the missing function to the other adapter, in this same change (`AGENTS.md`, *Forge adapters*) |
-| `syntax`, `fixture` | an ordinary defect; fix it |
+| `syntax`, `fixture`, `sync` | an ordinary defect; fix it |
 
 ## 2. Renamed or dropped rule slugs
 
