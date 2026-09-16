@@ -55,7 +55,8 @@ Conventional commit types: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`,
 Every change under `full` needs an issue first, in this schema:
 
 **Title:** `<type>: <short imperative>`, with `<type>` one of `feat` `fix`
-`refactor` `docs` `chore` — the same word as the label.
+`refactor` `test` `docs` `chore` — the same word as the label, and the same
+word the commit will carry.
 
 **Body:**
 
@@ -94,10 +95,11 @@ before writing code, and walk it box by box before calling the work done.
 
 ## Labels {#forge.labels}
 
-The five type labels `feat` `fix` `refactor` `docs` `chore` carry the
-conventional-commit meaning and are created per repository. GitHub's stock
-`enhancement` / `bug` / `documentation` labels are not used for the type — they
-carry no such meaning here.
+The six type labels `feat` `fix` `refactor` `test` `docs` `chore` carry the
+conventional-commit meaning and are created per repository. They are the same
+six words `forge.commits` allows, so a ticket, its commits and its label never
+disagree. GitHub's stock `enhancement` / `bug` / `documentation` labels are not
+used for the type — they carry no such meaning here.
 
 ## Pull requests {#forge.requests}
 

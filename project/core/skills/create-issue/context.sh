@@ -30,7 +30,7 @@ echo
 echo "=== type labels (one is both the --label and the title prefix) ==="
 existing="$(forge_labels_list || true)"
 missing=""
-for t in feat fix refactor docs chore; do
+for t in feat fix refactor test docs chore; do
   if printf '%s\n' "${existing}" | grep -qx "${t}"; then
     echo "  ${t}"
   else

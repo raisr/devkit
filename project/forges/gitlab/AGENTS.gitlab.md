@@ -55,7 +55,8 @@ Conventional commit types: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`,
 Every change under `full` needs an issue first, in this schema:
 
 **Title:** `<type>: <short imperative>`, with `<type>` one of `feat` `fix`
-`refactor` `docs` `chore` — the same word as the label.
+`refactor` `test` `docs` `chore` — the same word as the label, and the same
+word the commit will carry.
 
 **Description:**
 
@@ -97,9 +98,10 @@ issue id.
 
 ## Labels {#forge.labels}
 
-The five type labels `feat` `fix` `refactor` `docs` `chore` carry the
-conventional-commit meaning and are created per project. Group labels that
-happen to be inherited are not used for the type.
+The six type labels `feat` `fix` `refactor` `test` `docs` `chore` carry the
+conventional-commit meaning and are created per project. They are the same six
+words `forge.commits` allows, so a ticket, its commits and its label never
+disagree. Group labels that happen to be inherited are not used for the type.
 
 ## Merge requests {#forge.requests}
 
