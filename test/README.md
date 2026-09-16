@@ -41,9 +41,27 @@ rule file with no Markdown link among them, the four skills, that neither the
 dropped file nor the project's own skill was deleted, and that a second
 bootstrap run changes nothing.
 
-Last, and only because it leaves the fixture on two stacks: a re-run with an
-added stack has to bring `DEVKIT_STACKS` in `.devkit/config.sh` with it, while
-leaving `DEVKIT_WORKFLOW` — a project decision — where the project put it.
+Then, because it leaves the fixture on two stacks: a re-run with an added stack
+has to bring `DEVKIT_STACKS` in `.devkit/config.sh` with it, while leaving
+`DEVKIT_WORKFLOW` — a project decision — where the project put it.
+
+Last, the case the block mechanism exists for: **two stacks that set the same
+key for the same file type**. No shipped pack can produce it — `shared/dotnet`
+and `dotnet-core` both write into `[*.cs]` but share no key, and
+`dotnet-legacy` has no `.editorconfig` block at all — so the script copies
+`project/` to a temporary directory and adds a stack pack that lives only
+inside the test.
+
+It then bootstraps the collision **both ways round** and asserts that the winner
+flips: with `--stack dotnet-core --stack zz-collide` the synthetic pack wins,
+with the flags reversed `dotnet-core` does. One direction alone would pass
+without ever testing the claim — which is how the first version of this
+assertion was wrong, and how the mutation run caught it.
+
+That chain is the design end to end: `manifest_packs` orders the packs, `block.awk`
+appends each new block after the last devkit one, and `.editorconfig` resolves
+a conflict by taking the later section. So a stack beats the shared pack it
+builds on, and with two stacks **the one named last on the command line wins**.
 
 ## What the sync check asserts
 

@@ -21,6 +21,14 @@ that is in the git history.
 
 ### Added
 
+- The fixture now proves what happens when two stacks set the **same**
+  `.editorconfig` key: the stack named last on the `--stack` line wins, because
+  blocks land in pack order and a later section overrides an earlier one. It was
+  the case the block mechanism exists for and the one nothing had ever
+  exercised, since no two shipped packs disagree about a key. If you install two
+  stacks that overlap, the flag order is the decision — it is not arbitrary and
+  it is now asserted in both directions.
+
 - A `sync` gate. `collect.sh` is what every `/devkit-sync` decision is made
   from, and nothing checked that it reported the truth. It now has a test that
   builds its own upstream, provokes each situation — changed upstream, edited

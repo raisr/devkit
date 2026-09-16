@@ -288,6 +288,100 @@ else
   fail "a re-run with a second stack failed outright"
 fi
 
+# --- two stacks that disagree ------------------------------------------------
+#
+# The case the block mechanism exists for, and the one nothing had ever seen:
+# two devkit blocks setting the SAME key for the same file type. The packs that
+# ship cannot produce it - shared/dotnet and dotnet-core write into [*.cs] but
+# share no key, and dotnet-legacy has no .editorconfig block at all - so the
+# collision is staged in a copy of project/, never in a shipped pack.
+#
+# What must hold: blocks land in manifest_packs order (core, shared, stacks in
+# the order of the --stack flags, forge), block.awk appends each new one after
+# the last devkit block, and .editorconfig resolves a conflict by taking the
+# later section. So the stack beats the shared pack it builds on, and with two
+# stacks the one named last on the command line wins. That chain is the design;
+# this asserts it end to end rather than in prose.
+
+head2 "two stacks that disagree about the same key"
+
+# The key has to be one dotnet-core itself sets, or the collision is only ever
+# between the synthetic pack and shared/dotnet - and the order of those two does
+# not change when the --stack flags are swapped, so the assertion would pass
+# without ever testing what it claims.
+KEY="csharp_style_namespace_declarations"
+CORE_VALUE="file_scoped:warning"
+COLLIDE_VALUE="block_scoped:error"
+
+COLLIDE="$(mktemp -d)"
+cp -r "${DEVKIT_ROOT}/project" "${COLLIDE}/project"
+mkdir -p "${COLLIDE}/project/stacks/zz-collide"
+printf '[*.cs]\n%s = %s\n' "${KEY}" "${COLLIDE_VALUE}" \
+  > "${COLLIDE}/project/stacks/zz-collide/editorconfig.block"
+printf '# A stack pack that exists only inside this test.\n\n+shared/dotnet\n\neditorconfig.block|.editorconfig|block:devkit:stack/zz-collide\n' \
+  > "${COLLIDE}/project/stacks/zz-collide/manifest.list"
+
+# bootstrap_collide <name> <stack> <stack> -> repo path, or nothing on failure
+bootstrap_collide() {
+  local name="$1" first="$2" second="$3" r
+  r="$(bash "${TEST_DIR}/build-sample-repo.sh" --out "${COLLIDE}/${name}" 2>/dev/null)" || return 1
+  bash "${COLLIDE}/project/bootstrap.sh" --repo "${r}" --forge "${DEVKIT_FORGE}" \
+    --stack "${first}" --stack "${second}" --workflow light > /dev/null 2>&1 || return 1
+  printf '%s\n' "${r}"
+}
+# The effective setting: .editorconfig resolves a conflict by taking the later
+# section, so the last occurrence is the one that counts.
+effective() { grep "^${KEY} = " "$1/.editorconfig" | tail -1; }
+
+A="$(bootstrap_collide a dotnet-core zz-collide)"
+B="$(bootstrap_collide b zz-collide dotnet-core)"
+
+if [ -n "${A}" ] && [ -n "${B}" ]; then
+  hits="$(grep -c "^${KEY} = " "${A}/.editorconfig")"
+  [ "${hits}" = 2 ] \
+    && pass "the key really is set twice, by two different stacks" \
+    || fail "expected the key set exactly twice, found ${hits}"
+
+  # The whole point: the same two packs, the same key, opposite flag order.
+  [ "$(effective "${A}")" = "${KEY} = ${COLLIDE_VALUE}" ] \
+    && pass "--stack dotnet-core --stack zz-collide: the second one wins" \
+    || fail "wanted '${KEY} = ${COLLIDE_VALUE}', got '$(effective "${A}")'"
+  [ "$(effective "${B}")" = "${KEY} = ${CORE_VALUE}" ] \
+    && pass "--stack zz-collide --stack dotnet-core: the winner flips" \
+    || fail "wanted '${KEY} = ${CORE_VALUE}', got '$(effective "${B}")'"
+
+  # And it wins because of where its block sits, not by luck.
+  shared_at="$(grep -n '^# >>> devkit:shared/dotnet >>>$'     "${A}/.editorconfig" | cut -d: -f1)"
+  core_at="$(grep -n   '^# >>> devkit:stack/dotnet-core >>>$' "${A}/.editorconfig" | cut -d: -f1)"
+  last_at="$(grep -n   '^# >>> devkit:stack/zz-collide >>>$'  "${A}/.editorconfig" | cut -d: -f1)"
+  if [ -n "${shared_at}" ] && [ -n "${core_at}" ] && [ -n "${last_at}" ] \
+     && [ "${shared_at}" -lt "${core_at}" ] && [ "${core_at}" -lt "${last_at}" ]; then
+    pass "blocks sit in manifest_packs order: shared, then each stack as flagged"
+  else
+    fail "block order is shared=${shared_at} core=${core_at} last=${last_at}"
+  fi
+
+  o="$(grep -c '^# >>> devkit:' "${A}/.editorconfig")"
+  c="$(grep -c '^# <<< devkit:' "${A}/.editorconfig")"
+  [ "${o}" = "${c}" ] \
+    && pass "markers stay balanced with three blocks (${o} pairs)" \
+    || fail "markers unbalanced: ${o} opening, ${c} closing"
+
+  if bash "${COLLIDE}/project/bootstrap.sh" --repo "${A}" \
+       --forge "${DEVKIT_FORGE}" --stack dotnet-core --stack zz-collide \
+       --workflow light > /dev/null 2>&1; then
+    again="$(grep -c "^${KEY} = " "${A}/.editorconfig")"
+    [ "${again}" = "${hits}" ] && [ "$(effective "${A}")" = "${KEY} = ${COLLIDE_VALUE}" ] \
+      && pass "a second run changes neither the count nor the winner" \
+      || fail "after a re-run: ${again} occurrences, winner '$(effective "${A}")'"
+  else
+    fail "a second bootstrap run with the colliding stack failed outright"
+  fi
+else
+  fail "could not bootstrap the colliding fixture"
+fi
+rm -rf "${COLLIDE}"
+
 # --- verdict -----------------------------------------------------------------
 
 echo
