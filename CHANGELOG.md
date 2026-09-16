@@ -17,6 +17,17 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-09-16
+
+### Changed
+
+- `test` is now a ticket type and a label, not only a commit type. `forge.commits`
+  had always allowed six conventional-commit types while `forge.issues` and
+  `forge.labels` named five, so a test-only change could be committed but not
+  ticketed. Both forge packs now list the same six words. A repository that
+  already ran this workflow needs the `test` label created once — the
+  `create-issue` skill reports it as missing until then.
+
 ## 2026-09-14
 
 ### Added

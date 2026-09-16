@@ -21,7 +21,7 @@ bash .claude/skills/create-issue/context.sh
 ```
 
 You get the forge and workflow mode, that the CLI is authenticated and against
-which project, which of the five type labels exist, and the open tickets so a
+which project, which of the six type labels exist, and the open tickets so a
 near-duplicate can be spotted before filing.
 
 Under `WORKFLOW: light` a ticket is not required. Say so once, and ask whether
@@ -80,7 +80,7 @@ out of the branch name. A `chore`, `docs` or `refactor` ticket still gets a
 ## Gotchas
 
 - `context.sh` needs a network round-trip. It is not offline-safe.
-- The five type labels are created for this workflow. A forge's stock labels
+- The six type labels are created for this workflow. A forge's stock labels
   (`enhancement`, `bug`, `documentation`) carry no conventional-commit meaning
   here — do not use them for the type.
 - Passing a body on stdin is fragile once the Markdown contains backticks.
