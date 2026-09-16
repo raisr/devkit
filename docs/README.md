@@ -6,6 +6,7 @@ live in [`AGENTS.md`](../AGENTS.md), not here.
 | Document | About |
 |---|---|
 | [`using-devkit.md`](using-devkit.md) | adopting the devkit in a project: bootstrap, the first ten minutes, daily work, and `/devkit-sync` |
+| [`extending-devkit.md`](extending-devkit.md) | changing the devkit itself: the gates, and the order for a rule, a pack, a skill or the tooling |
 
 Everything else sits next to what it governs: [`../AGENTS.md`](../AGENTS.md) for
 how this repository is organised, each rule document for its own rules, the
