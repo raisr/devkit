@@ -98,9 +98,15 @@ forge_pr_create "${DEVKIT_MAIN_BRANCH}" "<branch>" \
 ```
 
 The body follows `forge.requests`: what and why, an **Evidence** block with the
-gate output, a **Changelog** line naming the category or `n. a.` with the
-reason, any deviation from the Definition of Done, `Closes #<issue>`, and the
-signature from `core.signature`.
+gate output, the **Definition of Done** copied from the issue as checkboxes and
+ticked box by box, a **Changelog** line naming the category or `n. a.` with the
+reason, a **Documentation** line naming the document that was updated or `n. a.`
+with the reason none needed it, `Closes #<issue>`, and the signature from
+`core.signature`.
+
+The documentation line is where step 3 is answered for. `core.docs` is not
+satisfied by intending to update a document, and `n. a.` is a claim the
+maintainer reads — so write the reason, not the abbreviation alone.
 
 Never call `gh` or `glab` directly.
 

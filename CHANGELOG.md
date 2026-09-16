@@ -21,6 +21,15 @@ that is in the git history.
 
 ### Added
 
+- A **Documentation** line in the request body, required by `forge.requests` in
+  both forge packs: which document was updated, or `n. a.` with the reason none
+  needed it. `core.docs` already made documentation part of the change, but
+  nothing ever asked for evidence that it happened, so failing it was invisible
+  at review time. The changelog line has worked this way from the start; this is
+  the same mechanism for the other half.
+- The **Definition of Done** is now copied into the request body as checkboxes
+  and ticked box by box, rather than only its deviations being mentioned. A
+  fulfilled contract should read as one.
 - `forge_pr_reply` and `forge_pr_edit` in both forge adapters. `forge.review`
   has always required a review round to end with a reply on the request, but
   the contract had no function that writes one, and none that corrects a

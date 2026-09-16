@@ -110,11 +110,19 @@ The body carries:
 
 - **what** changed and **why**
 - an **Evidence** block with the gate output
+- the **Definition of Done** copied from the issue as checkboxes, ticked where
+  it holds and left unticked with the reason where it does not — a deviation is
+  called out, never hidden
 - a **Changelog** line naming the category the entry went under, or `n. a.`
   with the reason it was skipped
-- any **deviation from the Definition of Done**, called out rather than hidden
+- a **Documentation** line naming the document that was updated, or `n. a.`
+  with the reason none needed it
 - `Closes #<issue>`
 - the external-system signature from `core.signature`
+
+The **Documentation** line exists for the reason the changelog one does.
+`core.docs` binds whether or not anyone asks, and a rule nobody ever has to
+answer for is a rule that quietly stops being kept.
 
 ## Changelog {#forge.changelog}
 
