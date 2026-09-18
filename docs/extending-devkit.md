@@ -79,7 +79,13 @@ project/stacks/<name>/
 4. Add the pack to the tree in [`../README.md`](../README.md) and to the
    `--stack` row in [`using-devkit.md`](using-devkit.md) — nothing reads those
    tables back, so they go stale silently.
-5. `bash .devkit/gates.sh`.
+5. Where the pack ships gates of its own, assert them. They are logic this
+   repository never runs on itself, because it installs no stack, so
+   `gate_syntax` proving they parse is all that stands behind them otherwise.
+   Put the assertions in a script under [`../test/`](../test/README.md) and
+   wire it into `.devkit/gates.sh` — `stacks/markdown` does it with
+   `check-markdown-gates.sh`, driving every gate both red and green.
+6. `bash .devkit/gates.sh`.
 
 What two stack packs have in common goes into `project/shared/<name>/` instead,
 and is pulled in by a `+shared/<name>` line. A shared pack is deliberately not
