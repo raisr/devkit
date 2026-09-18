@@ -29,12 +29,15 @@ project/
   shared/dotnet/         .NET rules that hold whatever the runtime
   stacks/dotnet-core/    net5+: compiler, style, logging, config, dotnet gates
   stacks/dotnet-legacy/  .NET Framework: MSBuild gates, C# 7.3 language rules
+  stacks/markdown/       a repository whose product is prose: link and index gates
   forges/github/         branch, commit, issue and pull request conventions + gh adapter
   forges/gitlab/         the same, for GitLab + glab adapter
 ```
 
-A repository picks one forge and any number of stacks. Each pack declares what
-it installs in its own `manifest.list`; `project/manifest.sh` reads them.
+A repository picks one forge and any number of stacks — or no stack at all,
+which is what a repository built on something devkit has no pack for does.
+Each pack declares what it installs in its own `manifest.list`;
+`project/manifest.sh` reads them.
 
 `shared/` is not pickable. It holds what two stack packs have in common, and a
 stack pack pulls it in with a `+shared/<name>` line at the top of its manifest
@@ -90,7 +93,8 @@ manifest entry or the forge contract has gone out of step.
 - Bootstrap, manifests and the block mechanism work, and are checked by the
   fixture in [test/](test/README.md).
 - The core, shared .NET, `dotnet-core` and GitHub rule documents are written and
-  in use.
+  in use. The `markdown` pack is written and its gates are asserted, but no
+  repository has been converted with it yet.
 - The four skills have run against a live project — ticket, branch, bootstrap,
   gates, commit and pull request, through `.devkit/forge.sh` rather than around
   it.

@@ -109,7 +109,8 @@ TODAY="$(date +%F)"
 SOLUTION="$(cd "${REPO}" && find . -maxdepth 3 \( -name "*.slnx" -o -name "*.sln" \) \
   -not -path "./.*/*" -not -path "*/bin/*" -not -path "*/obj/*" \
   2>/dev/null | sed "s#^\./##" | sort | head -1)"
-[ -n "${SOLUTION}" ] || SOLUTION="TODO-set-the-solution-path"
+SOLUTION_TODO="TODO-set-the-solution-path"
+[ -n "${SOLUTION}" ] || SOLUTION="${SOLUTION_TODO}"
 
 # Imports of the rule files this repository actually receives. These have to be
 # `@`-imports: Claude Code follows those into context, a Markdown link never.
@@ -327,8 +328,30 @@ if ! would; then
 fi
 
 echo "Done. Nothing was staged or committed - review with: git -C ${REPO} status"
-if [ "${SOLUTION}" = "TODO-set-the-solution-path" ]; then
-  echo "Note: no .sln/.slnx found - set SLN in .devkit/gates.sh yourself."
+
+# No solution was found, so the placeholder went into every template that asks
+# for one. Which templates those are is a pack's business, not this script's:
+# a repository on a stack that has no solution - or on no stack at all - must
+# not be sent off to edit a file that never had the key. So the files are asked
+# rather than the flags, and where none carries the placeholder nothing is said.
+#
+# A template the project already owned is asked too. It keeps the placeholder
+# only if nobody ever filled it in, and then the note is still the right one.
+placeholder_files() {
+  local target rest
+  while IFS="|" read -r target rest; do
+    [ -n "${target}" ] && [ -f "${REPO}/${target}" ] || continue
+    grep -Fq -- "${SOLUTION_TODO}" "${REPO}/${target}" && printf '%s\n' "${target}"
+  done <<< "${LOCK_FILES}"
+}
+if ! would; then
+  pending="$(placeholder_files | sort -u)"
+  if [ -n "${pending}" ]; then
+    echo
+    echo "Note: no .sln/.slnx found. Set the solution path yourself in:"
+    echo
+    printf '%s\n' "${pending}" | sed 's/^/      /'
+  fi
 fi
 
 # A dir target is copied into, never emptied first, so a file the devkit used to

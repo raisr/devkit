@@ -382,6 +382,47 @@ else
 fi
 rm -rf "${COLLIDE}"
 
+# --- the closing note about the solution path --------------------------------
+#
+# The note tells the reader to go and set SLN by hand. It is right only when a
+# template that asks for a solution path was actually installed with the
+# placeholder still in it - so it is driven by the files, not by the --stack
+# flags. A stack with no solution to name, or no stack at all, must be sent
+# nowhere.
+#
+# The fixture itself cannot show this: it owns a solution, so the placeholder
+# never appears in it. Two throwaway repositories without one are built here
+# instead, and the assertion runs in both directions - a note that is never
+# printed would pass the silent half on its own.
+
+head2 "the note about the solution path"
+
+note_run() {   # <stack> - the bootstrap output for a repo with no solution
+  local stack="$1" r
+  r="$(mktemp -d)"
+  git -C "${r}" init -q -b main 2>/dev/null
+  bash "${DEVKIT_ROOT}/project/bootstrap.sh" --repo "${r}" \
+    --forge "${DEVKIT_FORGE}" --stack "${stack}" --workflow light 2>&1
+  rm -rf "${r}"
+}
+
+out="$(note_run dotnet-core)"
+if printf '%s' "${out}" | grep -qF -- "no .sln/.slnx found"; then
+  pass "a stack that needs a solution gets the note"
+  printf '%s' "${out}" | grep -qF -- ".devkit/gates.sh" \
+    && pass "and the note names the file carrying the placeholder" \
+    || fail "the note does not name .devkit/gates.sh"
+else
+  fail "a stack that needs a solution did not get the note"
+fi
+
+out="$(note_run markdown)"
+if printf '%s' "${out}" | grep -qF -- "no .sln/.slnx found"; then
+  fail "a stack with no solution to name was sent to set SLN anyway"
+else
+  pass "a stack with no solution to name stays silent"
+fi
+
 # --- verdict -----------------------------------------------------------------
 
 echo

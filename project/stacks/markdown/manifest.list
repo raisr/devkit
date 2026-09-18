@@ -1,0 +1,11 @@
+# What the markdown stack pack puts into a repository.
+# See core/manifest.list for the format and the modes.
+#
+# No `+shared/<pack>` line: there is no second Markdown stack to share with.
+# No editorconfig.block either - the core pack already sets [*.md], and its
+# trim_trailing_whitespace = false is deliberate, because two trailing spaces
+# are a line break in Markdown.
+
+AGENTS.markdown.md|AGENTS.markdown.md|managed
+
+templates/gates.sh|.devkit/gates.sh|template

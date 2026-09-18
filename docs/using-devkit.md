@@ -200,7 +200,7 @@ rule file and its `.editorconfig` block stay on disk. Delete those yourself.
 | Flag | |
 |---|---|
 | `--forge github\|gitlab` | required |
-| `--stack <name>` | `dotnet-core`, `dotnet-legacy`; repeat for more than one |
+| `--stack <name>` | `dotnet-core`, `dotnet-legacy`, `markdown`; repeat for more than one, and leave it off entirely where none fits |
 | `--workflow full\|light` | default `light`; see *Daily work* |
 | `--assignee <name>` | assignee for pull or merge requests; defaults to `git config user.name` |
 | `--main-branch <name>` | defaults to what `origin/HEAD` points at; only a repository without a remote falls back to the current branch |
@@ -317,7 +317,7 @@ STACKS: dotnet-core
 WORKFLOW: light
 
 === packs available upstream ===
-stacks: dotnet-core dotnet-legacy
+stacks: dotnet-core dotnet-legacy markdown
 forges: github gitlab
 shared: dotnet
 

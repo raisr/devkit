@@ -17,6 +17,37 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-09-18
+
+### Added
+
+- A **`markdown` stack pack**, for a repository whose product is prose rather
+  than code — documentation, a handbook, a specification. Install it with
+  `--stack markdown`. It brings `AGENTS.markdown.md` (one topic per file, how
+  documents are indexed, relative links, ATX headings) and a `.devkit/gates.sh`
+  with three gates: every relative link resolves to a file that exists, every
+  document under `docs/` has a row in the index next to it, and every document
+  has exactly one H1 with no level skipped under it.
+
+  The gates need `git`, `find`, `awk` and `sed` and nothing else. A
+  documentation repository is cloned by people who have no toolchain installed,
+  and a gate they cannot run is a gate that does not bind them.
+
+  Until now such a repository had to bootstrap without a stack, which works but
+  leaves it with no `.devkit/gates.sh` at all — while `core.gates` requires one
+  and `implement-feature` calls it. Leaving `--stack` off is still right for a
+  repository built on something with no pack; it is no longer what a Markdown
+  repository has to settle for.
+
+### Fixed
+
+- Bootstrap no longer ends with *"no .sln/.slnx found — set SLN in
+  `.devkit/gates.sh` yourself"* when nothing it installed asks for a solution
+  path. The note now follows the files rather than the flags: it appears only
+  where an installed template really carries the placeholder, and it names that
+  file. A repository on `--stack markdown`, or on no stack at all, is no longer
+  sent to edit a key that was never there.
+
 ## 2026-09-16
 
 ### Added

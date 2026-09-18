@@ -8,7 +8,7 @@
 # adapters still offer the same functions, and that the generated skill stubs
 # have not fallen behind their source.
 #
-# Usage:  bash .devkit/gates.sh [syntax|fixture|sync|manifest|forge|stubs|all]
+# Usage:  bash .devkit/gates.sh [syntax|fixture|markdown|sync|manifest|forge|stubs|all]
 #         (no argument means all)
 set -uo pipefail
 
@@ -126,10 +126,24 @@ gate_sync() {
   return "${rc}"
 }
 
+# The markdown pack ships gates of its own, and this repository installs none
+# of them - it has no stack. So they are checked where they can be: in a
+# throwaway repository bootstrapped with --stack markdown, each gate driven both
+# red and green. Without this, the only thing standing behind three awk programs
+# shipped into other repositories would be that they parse.
+gate_markdown() {
+  local out rc=0
+  out="$(mktemp -d)"
+  bash test/check-markdown-gates.sh --out "${out}" || rc=1
+  rm -rf "${out}"
+  return "${rc}"
+}
+
 gate_expectation() {
   case "$1" in
     syntax)   echo "every .sh parses, block.awk is valid awk" ;;
     fixture)  echo "the sample repo bootstraps and every assertion holds" ;;
+    markdown) echo "each markdown gate reports red and green when it should" ;;
     sync)     echo "collect.sh reports the right thing in every sync situation" ;;
     manifest) echo "every file in a pack is installed by its manifest.list" ;;
     forge)    echo "github and gitlab expose the same forge_* functions" ;;
@@ -139,7 +153,7 @@ gate_expectation() {
 
 # --- runner, do not edit below unless you know why ---------------------------
 
-GATES="syntax manifest forge stubs fixture sync"
+GATES="syntax manifest forge stubs fixture markdown sync"
 
 run_one() {
   local name="$1" log

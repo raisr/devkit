@@ -14,6 +14,7 @@ bash project/bootstrap.sh --repo "$r" --forge github --stack dotnet-core --workf
 bash test/check-sample-repo.sh "$r"
 
 bash test/check-sync.sh                      # builds its own world, see below
+bash test/check-markdown-gates.sh            # so does this one
 ```
 
 ## What the fixture is
@@ -40,6 +41,13 @@ lines with `root = true` still in the preamble, an `@`-import for every managed
 rule file with no Markdown link among them, the four skills, that neither the
 dropped file nor the project's own skill was deleted, and that a second
 bootstrap run changes nothing.
+
+It also asserts the closing note about the solution path, in both directions: a
+stack that needs one and has none gets the note, naming the file that carries
+the placeholder, and a stack that never asked for one stays silent. The fixture
+owns a solution and so can never show either, and a note that is simply never
+printed would pass the silent half on its own — so two throwaway repositories
+without a solution are built for it.
 
 Then, because it leaves the fixture on two stacks: a re-run with an added stack
 has to bring `DEVKIT_STACKS` in `.devkit/config.sh` with it, while leaving
@@ -83,6 +91,27 @@ just as happily against a `collect.sh` that printed those words for everything.
 
 The clone is of committed state, so an uncommitted change in the working tree is
 invisible to it. That is deliberate: a consumer syncs against what was pushed.
+
+## What the markdown check asserts
+
+`check-markdown-gates.sh` covers the three gates the `markdown` pack ships.
+They are the one piece of shipped logic this repository does not run on itself
+— it has no stack — so the script bootstraps a throwaway repository with
+`--stack markdown` and drives each gate **both red and green**: a broken link,
+a document missing from the index, a subdirectory the parent index does not
+reach, a second H1, a skipped heading level.
+
+Bootstrapping rather than copying the template into place is the point. A
+manifest entry that never arrives would leave every assertion below it testing
+a file that is not there.
+
+Three of the assertions are about what the gates must *not* report, and they
+carry as much weight as the red ones: an external URL that is dead is none of
+the gate's business, a hash inside a fenced code block is not a heading, and a
+file with no heading at all is a fragment — `CLAUDE.md` is one line long and
+has no H1, so a gate that demanded one would turn every freshly bootstrapped
+repository red on the day it was created. That happened, and the first
+assertion in the script is the one that caught it.
 
 ## What it cannot prove
 
