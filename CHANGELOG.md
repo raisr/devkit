@@ -17,7 +17,7 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
-## 2026-09-17
+## 2026-09-18
 
 ### Added
 
@@ -38,6 +38,15 @@ that is in the git history.
   and `implement-feature` calls it. Leaving `--stack` off is still right for a
   repository built on something with no pack; it is no longer what a Markdown
   repository has to settle for.
+
+### Fixed
+
+- Bootstrap no longer ends with *"no .sln/.slnx found — set SLN in
+  `.devkit/gates.sh` yourself"* when nothing it installed asks for a solution
+  path. The note now follows the files rather than the flags: it appears only
+  where an installed template really carries the placeholder, and it names that
+  file. A repository on `--stack markdown`, or on no stack at all, is no longer
+  sent to edit a key that was never there.
 
 ## 2026-09-16
 

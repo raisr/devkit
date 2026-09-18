@@ -42,6 +42,13 @@ rule file with no Markdown link among them, the four skills, that neither the
 dropped file nor the project's own skill was deleted, and that a second
 bootstrap run changes nothing.
 
+It also asserts the closing note about the solution path, in both directions: a
+stack that needs one and has none gets the note, naming the file that carries
+the placeholder, and a stack that never asked for one stays silent. The fixture
+owns a solution and so can never show either, and a note that is simply never
+printed would pass the silent half on its own — so two throwaway repositories
+without a solution are built for it.
+
 Then, because it leaves the fixture on two stacks: a re-run with an added stack
 has to bring `DEVKIT_STACKS` in `.devkit/config.sh` with it, while leaving
 `DEVKIT_WORKFLOW` — a project decision — where the project put it.
