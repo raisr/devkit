@@ -24,7 +24,7 @@ AGENTS.dotnet-core.md   stack rules, one per stack          managed
 AGENTS.<forge>.md       forge conventions, github or gitlab managed
 .claude/skills/**       the four skills                     managed
 .devkit/forge.sh        gh or glab behind one contract      managed
-.gitattributes          line endings                        managed
+.gitattributes          line endings                        block
 .editorconfig           between devkit markers              block
 .gitignore              between devkit markers              block
 CLAUDE.md               one line: @AGENTS.md                template
@@ -83,7 +83,7 @@ devkit de6cfe0 (2026-09-14)
 
 core
   managed   AGENTS.core.md
-  managed   .gitattributes
+  block     .gitattributes  [devkit:core]
   block     .editorconfig  [devkit:core]
   block     .gitignore  [devkit:core]
   managed   .claude/skills/commit-message/SKILL.md
@@ -164,9 +164,30 @@ Take that last sentence literally. Until the import chain is closed, the
 bootstrap looks complete and no rule reaches a session. Do the two renames and
 paste the four imports into `AGENTS.md` before anything else.
 
-Existing `.editorconfig` and `.gitignore` are not overwritten either: the devkit
-blocks are inserted **above** the project's own lines, because both formats let
-a later line win. `root = true` stays in the preamble where it means something.
+Existing `.gitattributes`, `.editorconfig` and `.gitignore` are not overwritten
+either: the devkit blocks are inserted **above** the project's own lines,
+because all three formats let a later line win. `root = true` stays in the
+preamble where it means something.
+
+`.gitattributes` was a managed file until it became a block, so a repository
+bootstrapped before that change has the devkit's copy on disk with no markers.
+Bootstrap decides that case from the lock of the previous run. Where the file
+is still the devkit's own copy, the block replaces it and there is nothing to
+do. Where the project had edited it, no line is removed — its own and the
+devkit's cannot be told apart from the outside — and the run says so:
+
+```
+MIGRATION - these used to be managed files and are devkit blocks now.
+This repository had edited them, so nothing was removed:
+
+      .gitattributes
+
+  Keep your own lines. Delete the devkit ones that are now below the
+  block - a later line beats an earlier one, so they override it.
+```
+
+Do it before the next sync. Until it is done the stale devkit lines sit below
+the block, where they override it.
 
 ### Adding a stack later
 

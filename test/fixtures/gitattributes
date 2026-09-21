@@ -1,0 +1,4 @@
+# Lines this project owns. The devkit block is added above them, and a
+# bootstrap run must never rewrite, reorder or drop these.
+*.drawio binary
+*.xlsx binary

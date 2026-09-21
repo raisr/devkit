@@ -100,9 +100,11 @@ check_blocks() {   # <file>
 head2 "blocks"
 check_blocks .editorconfig
 check_blocks .gitignore
+check_blocks .gitattributes
 assert_grep '# >>> devkit:core >>>'          .gitignore     "core block installed"
 assert_grep '# >>> devkit:shared/dotnet >>>' .gitignore     "shared/dotnet block installed"
 assert_grep '# >>> devkit:shared/dotnet >>>' .editorconfig  "shared/dotnet editorconfig block installed"
+assert_grep '# >>> devkit:core >>>'          .gitattributes "core gitattributes block installed"
 
 # --- what the project owns must survive --------------------------------------
 
@@ -112,6 +114,7 @@ assert_grep '*.local.env'        .gitignore    ".gitignore keeps *.local.env"
 assert_grep '!keep-me.local.env' .gitignore    ".gitignore keeps the negation"
 assert_grep '[*.fixture]'        .editorconfig ".editorconfig keeps [*.fixture]"
 assert_grep 'indent_size = 7'    .editorconfig ".editorconfig keeps indent_size = 7"
+assert_grep '*.drawio binary'    .gitattributes ".gitattributes keeps *.drawio binary"
 
 # A project line that ended up inside a devkit block would be rewritten by the
 # next sync, so being present is not enough - it has to be outside.
@@ -130,9 +133,15 @@ outside_blocks .editorconfig '[*.fixture]' \
   && pass "project .editorconfig lines are outside the devkit blocks" \
   || fail "project .editorconfig lines ended up inside a devkit block"
 
-# ...and below them. Both formats let the later line win - an .editorconfig
-# section overrides an earlier one, a .gitignore negation re-includes - so a
-# block sitting underneath the project's own lines would quietly override them.
+outside_blocks .gitattributes '*.drawio binary' \
+  && pass "project .gitattributes lines are outside the devkit block" \
+  || fail "project .gitattributes lines ended up inside the devkit block"
+
+# ...and below them. All three formats let the later line win - an
+# .editorconfig section overrides an earlier one, a .gitignore negation
+# re-includes what an earlier line excluded, a .gitattributes line overrides an
+# earlier one for the same path - so a block sitting underneath the project's
+# own lines would quietly override them.
 blocks_come_first() {   # <file> <literal project line>
   local blk prj
   blk="$(grep -n '^# >>> devkit:' "${REPO}/$1" | head -1 | cut -d: -f1)"
@@ -145,6 +154,9 @@ blocks_come_first .gitignore '/sample-data/' \
 blocks_come_first .editorconfig '[*.fixture]' \
   && pass "devkit blocks come before the project's .editorconfig lines" \
   || fail "devkit blocks sit below the project's .editorconfig lines"
+blocks_come_first .gitattributes '*.drawio binary' \
+  && pass "the devkit block comes before the project's .gitattributes lines" \
+  || fail "the devkit block sits below the project's .gitattributes lines"
 
 # root = true only means anything in the preamble, before the first section.
 if [ -f "${REPO}/.editorconfig" ]; then
@@ -381,6 +393,91 @@ else
   fail "could not bootstrap the colliding fixture"
 fi
 rm -rf "${COLLIDE}"
+
+# --- a managed file that became a block --------------------------------------
+#
+# .gitattributes was managed until it became a block, so in every repository
+# bootstrapped before that change it sits there with devkit content and no
+# markers. Putting the block above it would leave those lines behind as if the
+# project had written them - and this format takes the later line, so the stale
+# copy would override the block from then on. Silently, which is exactly what
+# the block mode is supposed to end.
+#
+# All bootstrap has to go on is the lock from the previous run: it records that
+# the file was managed and the hash of the devkit source it was copied from. A
+# managed file is a verbatim copy, so the hash still matching means the file is
+# the devkit's own and the block may replace it whole.
+#
+# Both outcomes are asserted. The safe half alone would pass without the
+# detection ever running.
+
+head2 "a managed file that became a block"
+
+OLD_SRC="${DEVKIT_ROOT}/project/core/gitattributes.block"
+
+# A repository as it looked before the mode changed: the devkit copy on disk,
+# no markers, and a lock that calls it managed.
+pre_block_repo() {   # <extra project line, empty for the untouched copy> -> path
+  local extra="$1" out r
+  out="$(mktemp -d)"
+  r="$(bash "${TEST_DIR}/build-sample-repo.sh" --out "${out}" 2>/dev/null)" || return 1
+  cp "${OLD_SRC}" "${r}/.gitattributes"
+  [ -z "${extra}" ] || printf '%s\n' "${extra}" >> "${r}/.gitattributes"
+  printf '{\n  "files": [\n    { "path": ".gitattributes", "from": "core/.gitattributes", "mode": "managed", "hash": "%s" }\n  ]\n}\n' \
+    "$(git hash-object "${OLD_SRC}")" > "${r}/devkit.lock.json"
+  printf '%s\n' "${r}"
+}
+
+count() { grep -cF -- "$2" "$1/.gitattributes" 2>/dev/null || echo 0; }
+
+MIGRATE_OUT=""
+migrate_run() {   # <repo> - bootstrap over it, output into MIGRATE_OUT
+  MIGRATE_OUT="$(bash "${DEVKIT_ROOT}/project/bootstrap.sh" --repo "$1" \
+    --forge "${DEVKIT_FORGE}" --stack dotnet-core --workflow light 2>&1)"
+}
+
+# The untouched devkit copy: the block replaces the file, and no devkit line is
+# left outside it.
+M1="$(pre_block_repo "")"
+if [ -n "${M1}" ] && migrate_run "${M1}"; then
+  [ "$(grep -c '^# >>> devkit:core >>>' "${M1}/.gitattributes")" = 1 ] \
+    && pass "an untouched managed copy gains exactly one devkit block" \
+    || fail "expected one core block, found $(grep -c '^# >>> devkit:core >>>' "${M1}/.gitattributes")"
+  [ "$(count "${M1}" '* text=auto eol=lf')" = 1 ] \
+    && pass "the old devkit lines are gone, not left below the block" \
+    || fail "the devkit line appears $(count "${M1}" '* text=auto eol=lf') times"
+  printf '%s' "${MIGRATE_OUT}" | grep -qF "MIGRATION" \
+    && fail "an untouched copy was reported as needing hand work" \
+    || pass "nothing is reported for an untouched copy - there is nothing to do"
+else
+  fail "could not bootstrap the pre-block fixture"
+fi
+[ -z "${M1}" ] || rm -rf "$(dirname "${M1}")"
+
+# The same file with a line the project added. Its lines and the devkit's are
+# indistinguishable from here, so nothing may be dropped - and the run has to
+# say so rather than leave the repository looking migrated.
+M2="$(pre_block_repo '*.drawio binary')"
+if [ -n "${M2}" ] && migrate_run "${M2}"; then
+  [ "$(grep -c '^# >>> devkit:core >>>' "${M2}/.gitattributes")" = 1 ] \
+    && pass "an edited managed copy gains exactly one devkit block" \
+    || fail "expected one core block in the edited copy"
+  [ "$(count "${M2}" '*.drawio binary')" = 1 ] \
+    && pass "the project's own line survives the migration" \
+    || fail "the project's line was dropped"
+  [ "$(count "${M2}" '* text=auto eol=lf')" = 2 ] \
+    && pass "nothing was removed from a file the project had edited" \
+    || fail "the edited copy lost lines: the devkit line appears $(count "${M2}" '* text=auto eol=lf') times"
+  if printf '%s' "${MIGRATE_OUT}" | grep -qF "MIGRATION" \
+     && printf '%s' "${MIGRATE_OUT}" | grep -qF ".gitattributes"; then
+    pass "the run reports the file as one only the project can finish"
+  else
+    fail "no MIGRATION note naming .gitattributes"
+  fi
+else
+  fail "could not bootstrap the edited pre-block fixture"
+fi
+[ -z "${M2}" ] || rm -rf "$(dirname "${M2}")"
 
 # --- the closing note about the solution path --------------------------------
 #
