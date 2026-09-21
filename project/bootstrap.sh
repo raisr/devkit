@@ -207,16 +207,55 @@ apply_template() {   # <src> <target> <origin>
   record "$2" "${origin}" template "$(hash_of "${src}")"
 }
 
+# A target a previous devkit installed as a managed file carries devkit lines
+# and no markers. Putting a block above them leaves those lines behind as if
+# the project had written them - and because these formats let the later line
+# win, the stale copy would then override the block. Silently, which is the
+# failure the block mode exists to end.
+#
+# The lock from that previous run is what answers it: it records the mode and
+# the hash of the devkit source each file came from. A managed file is a
+# verbatim copy of its source, so a hash that still matches means nobody
+# touched it and the block may replace the file whole. A hash that does not
+# match means the project edited the file, and nothing here can tell its lines
+# from the devkit's - so the block goes in above them and the run says so.
+MIGRATE_BY_HAND="" # former managed targets this repository had edited
+
+lock_managed_hash() {   # <target> - source hash a previous run recorded as managed
+  local lock="${REPO}/devkit.lock.json" entry
+  [ -f "${lock}" ] || return 0
+  entry="$(grep -F "\"path\": \"$1\"," "${lock}" | head -1 || true)"
+  case "${entry}" in *'"mode": "managed"'*) ;; *) return 0 ;; esac
+  printf '%s' "${entry}" | sed -n 's/.*"hash": "\([0-9a-f]*\)".*/\1/p'
+}
+
+# Prints `replace`, `by-hand`, or nothing at all.
+migration_of() {   # <target path> <target, repo-relative>
+  local recorded
+  [ -f "$1" ] || return 0
+  grep -q '^# >>> devkit:' "$1" && return 0
+  recorded="$(lock_managed_hash "$2")"
+  [ -n "${recorded}" ] || return 0
+  if [ "$(hash_of "$1")" = "${recorded}" ]; then echo replace; else echo by-hand; fi
+}
+
 apply_block() {   # <src> <target> <marker id> <origin>
-  local src="$1" target="${REPO}/$2" id="$3" origin="$4"
-  if would; then say block "$2  [${id}]"; return; fi
+  local src="$1" target="${REPO}/$2" id="$3" origin="$4" migrate note=""
+  migrate="$(migration_of "${target}" "$2")"
+  case "${migrate}" in
+    replace) note="  (was a managed file)" ;;
+    by-hand) note="  (was a managed file - see MIGRATION below)"
+             MIGRATE_BY_HAND="${MIGRATE_BY_HAND}$2
+" ;;
+  esac
+  if would; then say block "$2  [${id}]${note}"; return; fi
   mkdir -p "$(dirname "${target}")"
-  [ -e "${target}" ] || : > "${target}"
+  if [ ! -e "${target}" ] || [ "${migrate}" = "replace" ]; then : > "${target}"; fi
   BLOCK_SRC="${src}" BLOCK_ID="${id}" awk -f "${DEVKIT_PROJECT_DIR}/block.awk" \
     "${target}" > "${target}.devkit-tmp"
   mv "${target}.devkit-tmp" "${target}"
   record "$2" "${origin}" block "$(hash_of "${src}")" "${id}"
-  say block "$2  [${id}]"
+  say block "$2  [${id}]${note}"
 }
 
 # DEVKIT_FORGE and DEVKIT_STACKS are the only two keys in the config template
@@ -352,6 +391,22 @@ if ! would; then
     echo
     printf '%s\n' "${pending}" | sed 's/^/      /'
   fi
+fi
+
+# A block target that an older devkit installed as a managed file. Where the
+# file was still that devkit's own copy, the block replaced it and there is
+# nothing left to decide. Where the project had edited it, its lines and the
+# old devkit ones are indistinguishable from here, so both stay - and the ones
+# that are stale now sit below the block, where these formats let them win.
+if [ -n "${MIGRATE_BY_HAND}" ]; then
+  echo
+  echo "MIGRATION - these used to be managed files and are devkit blocks now."
+  echo "This repository had edited them, so nothing was removed:"
+  echo
+  printf '%s' "${MIGRATE_BY_HAND}" | sed 's/^/      /'
+  echo
+  echo "  Keep your own lines. Delete the devkit ones that are now below the"
+  echo "  block - a later line beats an earlier one, so they override it."
 fi
 
 # A dir target is copied into, never emptied first, so a file the devkit used to

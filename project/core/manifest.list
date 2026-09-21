@@ -7,7 +7,7 @@
 # dir       whole directory copied; every file tracked as managed
 
 AGENTS.core.md|AGENTS.core.md|managed
-.gitattributes|.gitattributes|managed
+gitattributes.block|.gitattributes|block:devkit:core
 editorconfig.block|.editorconfig|block:devkit:core
 gitignore.block|.gitignore|block:devkit:core
 skills|.claude/skills|dir
