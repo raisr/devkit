@@ -7,8 +7,8 @@
 #   - checked out on a feature branch, NOT on the default branch
 #     (an empty repo on `main` makes the right default branch and the wrong one
 #     coincide, which is how the --main-branch bug survived its first test)
-#   - a project that already owns Agents.md, Claude.md, .gitignore and
-#     .editorconfig, all of which bootstrap must leave alone
+#   - a project that already owns Agents.md, Claude.md, .gitignore,
+#     .editorconfig and .gitattributes, all of which bootstrap must leave alone
 #   - a solution file, so the gates template gets a real path substituted
 #
 # Usage:  bash test/build-sample-repo.sh [--out <dir>]
@@ -49,11 +49,12 @@ git init -q --bare -b main "${ORIGIN}"
 git clone -q "${ORIGIN}" "${REPO}" 2>/dev/null
 
 mkdir -p "${REPO}/src/Sample.Shell" "${REPO}/docs"
-cp "${FIXTURES}/Agents.md"    "${REPO}/Agents.md"
-cp "${FIXTURES}/Claude.md"    "${REPO}/Claude.md"
-cp "${FIXTURES}/gitignore"    "${REPO}/.gitignore"
-cp "${FIXTURES}/editorconfig" "${REPO}/.editorconfig"
-cp "${FIXTURES}/Sample.slnx"  "${REPO}/src/Sample.slnx"
+cp "${FIXTURES}/Agents.md"      "${REPO}/Agents.md"
+cp "${FIXTURES}/Claude.md"      "${REPO}/Claude.md"
+cp "${FIXTURES}/gitignore"      "${REPO}/.gitignore"
+cp "${FIXTURES}/editorconfig"   "${REPO}/.editorconfig"
+cp "${FIXTURES}/gitattributes"  "${REPO}/.gitattributes"
+cp "${FIXTURES}/Sample.slnx"    "${REPO}/src/Sample.slnx"
 # Visual Studio keeps a copy of the solution under .vs/, and a dot directory
 # sorts before src/. Untracked and git-ignored, but on disk on every Windows
 # machine - so the solution search has to skip it.

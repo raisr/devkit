@@ -25,7 +25,8 @@ coincide:
 
 - a real remote, with `origin/HEAD` pointing at the default branch
 - checked out on a **feature** branch, not the default one
-- already owning `Agents.md`, `Claude.md`, `.gitignore` and `.editorconfig`
+- already owning `Agents.md`, `Claude.md`, `.gitignore`, `.editorconfig` and
+  `.gitattributes`
 - a solution file under `src/`, and a decoy copy under `.vs/` that sorts first
 - a skill the devkit once shipped and dropped, next to one the project wrote
 
@@ -41,6 +42,15 @@ lines with `root = true` still in the preamble, an `@`-import for every managed
 rule file with no Markdown link among them, the four skills, that neither the
 dropped file nor the project's own skill was deleted, and that a second
 bootstrap run changes nothing.
+
+It asserts the migration of a managed file to a block, which `.gitattributes`
+went through and any file may go through next. Two throwaway repositories are
+put into the state a bootstrap before that change left behind — the devkit's
+copy on disk, no markers, a lock calling it managed — one untouched and one
+with a line of the project's own. The untouched copy has to end up with the
+block and nothing beside it; the edited one keeps every line it had and has to
+be named in the run's `MIGRATION` note. The safe half alone would pass without
+the detection ever running, which is why both are there.
 
 It also asserts the closing note about the solution path, in both directions: a
 stack that needs one and has none gets the note, naming the file that carries
