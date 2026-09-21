@@ -17,6 +17,32 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-09-21
+
+### Fixed
+
+- **`.gitattributes` is a devkit block now, not a managed file.** It was
+  installed `managed`, so a bootstrap replaced the file whole and every line
+  the repository had was gone — silently, and `managed` then forbade putting it
+  back. A documentation repository lost the rules that kept its Office and
+  diagram files out of text handling. `text=auto` guesses right for those most
+  of the time, which is what made this the bad kind of bug: it did not fail, it
+  waited.
+
+  The devkit lines now sit between `# >>> devkit:core >>>` and
+  `# <<< devkit:core <<<` at the top of the file, and everything below them is
+  the project's. Git takes the last line that matches a path, so a project line
+  under the block wins — the same resolution order `.editorconfig` and
+  `.gitignore` already rely on.
+
+  **What a repository bootstrapped before this has to do:** nothing, if it never
+  edited `.gitattributes`. The next bootstrap recognises the devkit's own copy
+  from the hash in `devkit.lock.json` and the block replaces it. If the file was
+  edited, nothing is removed — the project's lines and the devkit's cannot be
+  told apart from the outside — the block goes in above them, and the run prints
+  a `MIGRATION` note naming the file. Keep your own lines and delete the devkit
+  ones that are now below the block; left there they override it.
+
 ## 2026-09-18
 
 ### Added
