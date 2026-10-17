@@ -54,8 +54,9 @@ forge_issue_body() {
 }
 
 # forge_issue_edit <number> <body file> - replaces the whole description. For a
-# ticket that was wrong when it was filed, before work starts; a finding made
-# while working it goes into forge_issue_reply instead (forge.issues).
+# ticket that was wrong when it was filed, before work starts, and for ticking
+# its Definition of Done after the merge (forge.review); a finding made while
+# working it goes into forge_issue_reply instead (forge.issues).
 forge_issue_edit() {
   glab issue update "$1" --description "$(cat "$2")"
 }

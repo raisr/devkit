@@ -86,6 +86,9 @@ Plus the external-system signature from `core.signature`.
 
 - **Only up-front knowledge.** What is discovered while working the ticket goes
   into a comment or a follow-up issue, never retro-fitted into the description.
+  The one edit after work starts is the checkbox state of the Definition of
+  Done once the request is merged, synced from the request (`forge.review`).
+  The wording of a criterion is never changed.
 - No estimates, no assignees, no milestone, no weight, and no label beyond the
   type unless asked for.
 - Check the open issues for a near-duplicate before filing.
@@ -152,4 +155,7 @@ A GitLab thread stays open until it is resolved; resolve only the threads you
 actually addressed.
 
 **The work is finished when the maintainer approves or merges the request** —
-not when the gates pass. After the merge, delete the branch.
+not when the gates pass. After the merge, bring the ticket in line with the
+request: tick every box of its Definition of Done that the request ticked, and
+list every box the request left open in one signed comment on the ticket, with
+the reason the request gave. Then delete the branch.
