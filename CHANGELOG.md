@@ -67,6 +67,15 @@ that is in the git history.
   these values out of its project files into `Directory.Build.props` has a
   working build but now departs from the rule: record it as a deviation, or
   move them back.
+- **The GitLab adapter and the `dotnet-legacy` pack are no longer untried.**
+  Both were written from a command surface and shipped with a warning saying
+  so. Each has now run against a sample repository on GitLab — an ASP.NET Core
+  application, and an ASP.NET MVC application on .NET Framework 4.8 from the
+  Visual Studio templates — and the defects listed under *Fixed* came out of
+  that run. The warnings in `forge.sh`, `AGENTS.dotnet-legacy.md` and the
+  legacy `gates.sh` now say what was verified instead. The GitLab adapter
+  reads glab's JSON output throughout and was verified with glab 1.117.0; an
+  older glab may lack `--output json --jq`.
 
 ### Fixed
 

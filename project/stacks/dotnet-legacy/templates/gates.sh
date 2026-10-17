@@ -5,10 +5,10 @@
 # Usage:  bash .devkit/gates.sh [restore|build|test|all]
 #         (no argument means all)
 #
-# NEVER EXECUTED. This file was written from the MSBuild, NuGet and VSTest
-# command surface, not from a working build. The first repository that uses it
-# is what verifies it - expect to fix it gate by gate, and fix it upstream in
-# the devkit rather than only here.
+# Run against one layout so far: a .NET Framework 4.8 solution created from the
+# Visual Studio templates, built with MSBuild and VSTest from Visual Studio 2026
+# under Git Bash. A repository laid out differently may still need a gate
+# adjusted - fix it upstream in the devkit rather than only here.
 #
 # A repository that drives its build through a build script of its own replaces
 # the gate bodies below with a call into it. The gates are what must pass; how
