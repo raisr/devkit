@@ -20,8 +20,9 @@ forge_check() {
   glab repo view 2>/dev/null | sed -n '1p'
 }
 
+# forge_labels_list -> one label name per line
 forge_labels_list() {
-  glab label list | awk 'NR > 1 { print $1 }'
+  glab label list --output json --jq '.[].name'
 }
 
 # forge_label_create <name> <hex colour without #> <description>
