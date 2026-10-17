@@ -1,12 +1,13 @@
 <Project>
 
-  <!-- MSBuild honours this file for old-style project files too, so the target
-       and language version are set once here rather than in every .csproj.
+  <!-- Only what no project file sets belongs here. MSBuild imports this file at
+       the top of an old-style project file too, so a value the project file
+       sets for itself wins - which is why the target framework version stays
+       in each .csproj (dotnet-legacy.targets), and why there is no <Version>:
+       an old-style project takes it from Properties/AssemblyInfo.cs.
        LangVersion is 7.3 because that is the highest version supported on
        .NET Framework - see dotnet-legacy.targets before raising it. -->
   <PropertyGroup>
-    <Version>0.1.0</Version>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <LangVersion>7.3</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>

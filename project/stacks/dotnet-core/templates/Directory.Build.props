@@ -1,11 +1,12 @@
 <Project>
 
+  <!-- Only what no project file sets belongs here. MSBuild imports this file
+       before a project file's own properties, so a value the project file sets
+       wins - which is why the target framework, Nullable and ImplicitUsings
+       stay in each .csproj, where dotnet new writes them (dotnet-core.compiler). -->
   <PropertyGroup>
     <Version>0.1.0</Version>
-    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 

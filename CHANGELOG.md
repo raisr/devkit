@@ -49,6 +49,25 @@ that is in the git history.
   `forge_pr_create` takes it as an optional last argument — an issue without a
   milestone still yields a request without one.
 
+### Changed
+
+- **Breaking: the target framework lives in the project file, in both .NET
+  stack packs.** `dotnet-legacy.targets` and the central-properties rule in
+  `dotnet-core.compiler` said the target framework was set once in
+  `Directory.Build.props`. It never took effect: MSBuild imports that file
+  before the project file's own properties, and every project Visual Studio or
+  `dotnet new` creates sets the target framework itself, so the project file
+  won — measured with `msbuild -getProperty`. The rules now say a property
+  lives where it takes effect. The target framework (and on `dotnet-core`
+  `Nullable` and `ImplicitUsings`) stays in each project file, all projects on
+  the same value; `Directory.Build.props` keeps only what no project file sets.
+  The `Directory.Build.props` templates drop the values that were dead, and the
+  legacy one drops `<Version>`, which an old-style project takes from
+  `AssemblyInfo.cs`. The slugs are unchanged. A repository that already moved
+  these values out of its project files into `Directory.Build.props` has a
+  working build but now departs from the rule: record it as a deviation, or
+  move them back.
+
 ### Fixed
 
 - **On GitLab, ticking a ticket after a merge no longer deletes its first
