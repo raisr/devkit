@@ -55,6 +55,12 @@ forge_issue_body() {
   glab issue view "$1" | sed -n '/^$/,$p'
 }
 
+# forge_issue_milestone <number> -> milestone title, or nothing when it has none.
+# Read from the same header block that forge_issue_body cuts off.
+forge_issue_milestone() {
+  glab issue view "$1" | sed -n 's/^milestone:[[:space:]]*//p'
+}
+
 # forge_issue_edit <number> <body file> - replaces the whole description. For a
 # ticket that was wrong when it was filed, before work starts, and for ticking
 # its Definition of Done after the merge (forge.review); a finding made while
@@ -63,10 +69,14 @@ forge_issue_edit() {
   glab issue update "$1" --description "$(cat "$2")"
 }
 
-# forge_pr_create <base> <head> <title> <label> <assignee> <body file> -> URL
+# forge_pr_create <base> <head> <title> <label> <assignee> <body file>
+#   [milestone] -> URL
+# The milestone is left off when it is empty, so a request whose issue has
+# none is created without one.
 forge_pr_create() {
   glab mr create --target-branch "$1" --source-branch "$2" --title "$3" \
-    --label "$4" --assignee "$5" --description "$(cat "$6")" --yes
+    --label "$4" --assignee "$5" --description "$(cat "$6")" \
+    ${7:+--milestone "$7"} --yes
 }
 
 forge_pr_view() {

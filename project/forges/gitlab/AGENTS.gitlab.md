@@ -111,7 +111,9 @@ disagree. Group labels that happen to be inherited are not used for the type.
 ## Merge requests {#forge.requests}
 
 Opened against the default branch, titled like the commit
-(`<type>: <summary> (#<issue>)`), labelled with the type, and assigned.
+(`<type>: <summary> (#<issue>)`), labelled with the type, and assigned. It
+carries the milestone of the issue it closes, when that issue has one, so the
+forge's milestone view shows the request that did the work.
 
 The description carries:
 
