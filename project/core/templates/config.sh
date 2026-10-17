@@ -25,6 +25,10 @@ DEVKIT_WORKFLOW={{WORKFLOW}}
 DEVKIT_MAIN_BRANCH={{MAIN_BRANCH}}
 DEVKIT_ASSIGNEE={{ASSIGNEE}}
 
+# no   a new issue is filed unassigned, as forge.issues prescribes
+# yes  a new issue is assigned to DEVKIT_ASSIGNEE as well
+DEVKIT_ASSIGN_ISSUES=no
+
 # ask   the drafted commit message is shown and approved before committing
 # auto  it is committed as drafted, without asking
 #

@@ -90,7 +90,9 @@ Plus the external-system signature from `core.signature`.
   Done once the request is merged, synced from the request (`forge.review`).
   The wording of a criterion is never changed.
 - No estimates, no assignees, no milestone, no weight, and no label beyond the
-  type unless asked for.
+  type unless asked for. A repository asks for an assignee once, with
+  `DEVKIT_ASSIGN_ISSUES=yes` in `.devkit/config.sh`; every new ticket then goes
+  to `DEVKIT_ASSIGNEE`.
 - Check the open issues for a near-duplicate before filing.
 
 The **Acceptance criteria** is the contract being fulfilled. Read it in full

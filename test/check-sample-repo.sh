@@ -53,7 +53,7 @@ head2 "bootstrap output"
 
 # shellcheck source=/dev/null
 DEVKIT_FORGE=""; DEVKIT_STACKS=""; DEVKIT_WORKFLOW=""; DEVKIT_MAIN_BRANCH=""
-DEVKIT_COMMIT_APPROVAL=""
+DEVKIT_COMMIT_APPROVAL=""; DEVKIT_ASSIGN_ISSUES=""
 . "${REPO}/.devkit/config.sh"
 
 # --- the default branch (the bug this fixture exists for) --------------------
@@ -73,6 +73,9 @@ head2 "config"
 [ -n "${DEVKIT_COMMIT_APPROVAL}" ] \
   && pass "DEVKIT_COMMIT_APPROVAL present (${DEVKIT_COMMIT_APPROVAL})" \
   || fail "DEVKIT_COMMIT_APPROVAL missing from .devkit/config.sh"
+[ "${DEVKIT_ASSIGN_ISSUES}" = "no" ] \
+  && pass "DEVKIT_ASSIGN_ISSUES starts on no" \
+  || fail "DEVKIT_ASSIGN_ISSUES is '${DEVKIT_ASSIGN_ISSUES}', expected no"
 # Not just "a solution": the right one. The fixture plants a decoy under .vs/,
 # which is what a Windows machine really looks like and sorts first.
 assert_grep 'SLN="src/Sample.slnx"' .devkit/gates.sh \

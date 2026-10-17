@@ -33,9 +33,11 @@ forge_issue_list_open() {
   glab issue list
 }
 
-# forge_issue_create <title> <label> <body file> -> issue URL
+# forge_issue_create <title> <label> <body file> [assignee] -> issue URL
+# The assignee is left off when it is empty, so the issue stays unassigned.
 forge_issue_create() {
-  glab issue create --title "$1" --label "$2" --description "$(cat "$3")" --yes
+  glab issue create --title "$1" --label "$2" --description "$(cat "$3")" \
+    ${4:+--assignee "$4"} --yes
 }
 
 forge_issue_view() {

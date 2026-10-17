@@ -34,6 +34,14 @@ that is in the git history.
   left open in one comment with its reason. `forge.issues` names this as the
   one edit to the description after work starts; the wording of a criterion
   still never changes.
+- **`DEVKIT_ASSIGN_ISSUES` in `.devkit/config.sh`.** A request was always
+  assigned to `DEVKIT_ASSIGNEE`, a ticket never, and a repository that wanted
+  its tickets assigned had to do it by hand after every filing. With `yes`,
+  `create-issue` assigns each new ticket to `DEVKIT_ASSIGNEE` through a new
+  optional argument on `forge_issue_create`. It starts on `no`, and a
+  repository bootstrapped before the key existed reads as `no` too — add the
+  line by hand to turn it on, since `config.sh` is a template sync never
+  rewrites.
 
 ## 2026-09-21
 

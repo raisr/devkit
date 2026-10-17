@@ -31,9 +31,11 @@ forge_issue_list_open() {
     -q '.[] | "\(.number)|\(.labels | map(.name) | join(","))|\(.title)"'
 }
 
-# forge_issue_create <title> <label> <body file> -> issue URL
+# forge_issue_create <title> <label> <body file> [assignee] -> issue URL
+# The assignee is left off when it is empty, so the issue stays unassigned.
 forge_issue_create() {
-  gh issue create --title "$1" --label "$2" --body-file "$3"
+  gh issue create --title "$1" --label "$2" --body-file "$3" \
+    ${4:+--assignee "$4"}
 }
 
 # forge_issue_view <number> -> "#<n> [<state>] <title>   labels=<a,b>"

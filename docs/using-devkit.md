@@ -249,7 +249,9 @@ first: which of your files would be `kept` rather than written.
 ## The first ten minutes after a bootstrap
 
 1. **`.devkit/config.sh`** — check `DEVKIT_MAIN_BRANCH` and `DEVKIT_ASSIGNEE`,
-   and decide `DEVKIT_WORKFLOW`. `DEVKIT_FORGE` and `DEVKIT_STACKS` are
+   and decide `DEVKIT_WORKFLOW`. `DEVKIT_ASSIGN_ISSUES` starts on `no`, so new
+   tickets stay unassigned; set it to `yes` to assign them to `DEVKIT_ASSIGNEE`
+   as well. `DEVKIT_FORGE` and `DEVKIT_STACKS` are
    bootstrap's to maintain — change a pack by re-running bootstrap, not by
    editing them here.
    `DEVKIT_COMMIT_APPROVAL` starts on `ask`; leave it there until the commit
