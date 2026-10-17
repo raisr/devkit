@@ -42,7 +42,6 @@ forge_issue_view() {
     -q '"#\(.number) [\(.state)] \(.title)   labels=\(.labels|map(.name)|join(","))"'
 }
 
-# forge_issue_body <number> -> raw body
 # forge_issue_reply <number> <body file> - where a finding made while working
 # the ticket goes (forge.issues), rather than into the description. A file, not
 # a string: the note names files and rules, so it is full of backticks.
@@ -50,8 +49,16 @@ forge_issue_reply() {
   gh issue comment "$1" --body-file "$2"
 }
 
+# forge_issue_body <number> -> raw body
 forge_issue_body() {
   gh issue view "$1" --json body -q .body
+}
+
+# forge_issue_edit <number> <body file> - replaces the whole body. For a ticket
+# that was wrong when it was filed, before work starts; a finding made while
+# working it goes into forge_issue_reply instead (forge.issues).
+forge_issue_edit() {
+  gh issue edit "$1" --body-file "$2"
 }
 
 # forge_pr_create <base> <head> <title> <label> <assignee> <body file> -> URL

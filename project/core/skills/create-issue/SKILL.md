@@ -43,6 +43,17 @@ The three that get skipped and should not be:
   ```bash
   forge_issue_reply <n> /path/to/note.md
   ```
+
+  A ticket that was already wrong when it was filed — a mistake in the draft,
+  or an acceptance criterion the user agrees to change before work starts — is
+  corrected in place instead, with the whole approved body:
+
+  ```bash
+  forge_issue_edit <n> /path/to/body.md
+  ```
+
+  Once work has started, a change of mind is a finding, and it goes into
+  `forge_issue_reply`.
 - **Verifiable acceptance criteria.** A concrete command and its expected
   result beats a sentence about things being set up correctly.
 
