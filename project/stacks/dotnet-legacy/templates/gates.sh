@@ -51,10 +51,13 @@ gate_build() {
 gate_test() {
   [ -n "${VSTEST}" ] || { echo "vstest.console.exe not found" >&2; return 1; }
   # Built test assemblies, taken from the output folders rather than a list
-  # kept by hand. Adjust the pattern if the repository names them differently.
+  # kept by hand. *.Tests.*.dll is what dotnet.tests names them (.Tests.Unit,
+  # .Tests.Integration); *.Tests.dll is its suffix-free exception and the name
+  # Visual Studio gives a new test project. Adjust if the repository differs.
   local -a assemblies=()
   while IFS= read -r a; do assemblies+=("${a}"); done < <(
-    find . -path '*/bin/*' -name '*.Tests.dll' -not -path './.git/*' | sort
+    find . -path '*/bin/*' \( -name '*.Tests.dll' -o -name '*.Tests.*.dll' \) \
+      -not -path './.git/*' | sort
   )
   [ "${#assemblies[@]}" -gt 0 ] || { echo "no built test assemblies found" >&2; return 1; }
   "${VSTEST}" "${assemblies[@]}" --nologo
