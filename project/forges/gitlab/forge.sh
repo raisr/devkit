@@ -51,14 +51,16 @@ forge_issue_reply() {
   glab issue note "$1" --message "$(cat "$2")"
 }
 
+# forge_issue_body <number> -> raw body. Read from JSON, not cut out of the
+# text view: implement-feature writes it back through forge_issue_edit, so it
+# must be the stored description byte for byte.
 forge_issue_body() {
-  glab issue view "$1" | sed -n '/^$/,$p'
+  glab issue view "$1" --output json --jq .description
 }
 
-# forge_issue_milestone <number> -> milestone title, or nothing when it has none.
-# Read from the same header block that forge_issue_body cuts off.
+# forge_issue_milestone <number> -> milestone title, or nothing when it has none
 forge_issue_milestone() {
-  glab issue view "$1" | sed -n 's/^milestone:[[:space:]]*//p'
+  glab issue view "$1" --output json --jq '.milestone.title // empty'
 }
 
 # forge_issue_edit <number> <body file> - replaces the whole description. For a
