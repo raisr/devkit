@@ -33,6 +33,8 @@ AGENTS.local.md         personal, git-ignored               template
 .devkit/config.sh       forge, stacks, workflow, assignee   template
 .devkit/gates.sh        the build/test/format commands      template
 src/Directory.Build.props                                   template
+.devkit/generate-third-party-notices.cs, its overrides
+  and .devkit/licenses/ (dotnet-core)                       template
 CHANGELOG.md, ROADMAP.md, docs/README.md                    template
 devkit.lock.json        where each file came from           —
 ```
@@ -102,6 +104,10 @@ stacks/dotnet-core
   block     .editorconfig  [devkit:stack/dotnet-core]
   template  .devkit/gates.sh
   template  src/Directory.Build.props
+  template  .devkit/generate-third-party-notices.cs
+  template  .devkit/third-party-notices.overrides.json
+  template  .devkit/licenses/MIT.txt
+  template  .devkit/licenses/Apache-2.0.txt
 
 forges/github
   managed   AGENTS.github.md
@@ -257,9 +263,12 @@ first: which of your files would be `kept` rather than written.
    `DEVKIT_COMMIT_APPROVAL` starts on `ask`; leave it there until the commit
    messages this repository produces have earned `auto`. Personal overrides go
    in `.devkit/local.sh`, which is git-ignored and sourced afterwards.
-2. **`.devkit/gates.sh`** — confirm `SLN`, and adjust the three `gate_*`
-   functions to what this repository actually builds. It is a template: it is
-   yours, and sync will never argue with your version.
+2. **`.devkit/gates.sh`** — confirm `SLN`, and adjust the `gate_*` functions
+   to what this repository actually builds. It is a template: it is yours, and
+   sync will never argue with your version. On `dotnet-core`, set
+   `NOTICES_PROJECT` if the repository ships a distributable build, and
+   generate `THIRD-PARTY-NOTICES.md` once (`dotnet-core.notices`); leave it
+   empty otherwise.
 3. **`AGENTS.md`** — fill *Overview*, *Tech stack*, *Architecture* and
    *Domain terms*. Keep it prescriptive; explanation belongs in `docs/`.
 4. **Run the gates once**, before writing any code:
@@ -276,6 +285,8 @@ first: which of your files would be `kept` rather than written.
    === format ===
      FAIL - expected: no formatting changes needed
        …last 15 lines of the log…
+   === notices ===
+     SKIP - NOTICES_PROJECT is empty - this repository ships no distributable build
 
    GATES: not ready
    ```
