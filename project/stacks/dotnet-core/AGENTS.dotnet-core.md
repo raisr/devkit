@@ -22,8 +22,15 @@ Keep `<Nullable>enable</Nullable>` and `<TreatWarningsAsErrors>true</TreatWarnin
 switched on. A warning that is worth suppressing is worth suppressing
 explicitly, at the narrowest scope, with a reason.
 
-Target framework, language version and version number are set once in
-`Directory.Build.props`, not per project file.
+A property lives where it takes effect. MSBuild imports `Directory.Build.props`
+before a project file's own properties, so a value the project file sets always
+wins over it.
+
+- Target framework, `Nullable` and `ImplicitUsings` stay in each project file,
+  where `dotnet new` writes them. Every project targets the same framework; one
+  that targets another is a deviation and needs a reason.
+- Language version and version number are set once in `Directory.Build.props`.
+  No project file sets them; one that does is a deviation and needs a reason.
 
 ## Language style {#dotnet-core.style}
 

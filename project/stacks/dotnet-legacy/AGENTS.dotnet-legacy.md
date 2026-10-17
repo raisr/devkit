@@ -18,10 +18,19 @@ not here. Deviations go in the *Deviations* table of the project `AGENTS.md`.
 
 ## Target and language version {#dotnet-legacy.targets}
 
-`<TargetFrameworkVersion>` and `<LangVersion>` are decided once for the
-repository and written into `Directory.Build.props`, which MSBuild honours for
-old-style project files as well. A project file that sets either of them for
-itself is a deviation and needs a reason.
+A property lives where it takes effect. MSBuild imports `Directory.Build.props`
+at the top of an old-style project file, so a value the project file sets for
+itself always wins over it.
+
+- `<TargetFrameworkVersion>` stays in each project file, where Visual Studio
+  writes it and writes it back when the target is changed. Every project in the
+  repository targets the same version; one that targets another is a deviation
+  and needs a reason.
+- `<LangVersion>` is decided once for the repository in `Directory.Build.props`.
+  No project file sets it, so the value there takes effect. A project file that
+  sets it for itself is a deviation and needs a reason.
+- There is no version number in `Directory.Build.props`: an old-style project
+  takes it from `Properties/AssemblyInfo.cs`.
 
 **`LangVersion` is `7.3`, not `latest`.** It is the highest version Microsoft
 supports on .NET Framework. The compiler will accept later syntax, but several
