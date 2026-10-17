@@ -94,8 +94,12 @@ stop in this lifecycle. Repo commits carry no AI footer.
 ```bash
 . .devkit/config.sh && . .devkit/forge.sh
 forge_pr_create "${DEVKIT_MAIN_BRANCH}" "<branch>" \
-  "<type>: <summary> (#<issue>)" "<type>" "${DEVKIT_ASSIGNEE}" /path/to/body.md
+  "<type>: <summary> (#<issue>)" "<type>" "${DEVKIT_ASSIGNEE}" /path/to/body.md \
+  "$(forge_issue_milestone <issue>)"
 ```
+
+The last argument gives the request the issue's milestone (`forge.requests`).
+An issue without one prints nothing, and the request is created without one.
 
 The body follows `forge.requests`: what and why, an **Evidence** block with the
 gate output, the **Definition of Done** copied from the issue as checkboxes and

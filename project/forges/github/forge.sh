@@ -56,6 +56,11 @@ forge_issue_body() {
   gh issue view "$1" --json body -q .body
 }
 
+# forge_issue_milestone <number> -> milestone title, or nothing when it has none
+forge_issue_milestone() {
+  gh issue view "$1" --json milestone -q '.milestone.title // empty'
+}
+
 # forge_issue_edit <number> <body file> - replaces the whole body. For a ticket
 # that was wrong when it was filed, before work starts, and for ticking its
 # Definition of Done after the merge (forge.review); a finding made while
@@ -64,10 +69,13 @@ forge_issue_edit() {
   gh issue edit "$1" --body-file "$2"
 }
 
-# forge_pr_create <base> <head> <title> <label> <assignee> <body file> -> URL
+# forge_pr_create <base> <head> <title> <label> <assignee> <body file>
+#   [milestone] -> URL
+# The milestone is left off when it is empty, so a request whose issue has
+# none is created without one.
 forge_pr_create() {
   gh pr create --base "$1" --head "$2" --title "$3" \
-    --label "$4" --assignee "$5" --body-file "$6"
+    --label "$4" --assignee "$5" --body-file "$6" ${7:+--milestone "$7"}
 }
 
 # forge_pr_view <branch or number> -> "#<n> state=<s> draft=<b> review=<r>\n<url>"

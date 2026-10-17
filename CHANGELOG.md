@@ -42,6 +42,12 @@ that is in the git history.
   repository bootstrapped before the key existed reads as `no` too — add the
   line by hand to turn it on, since `config.sh` is a template sync never
   rewrites.
+- **A request carries its issue's milestone.** `forge_pr_create` set none, so
+  milestone and release views on the forge listed the issues but not the
+  requests that closed them. `forge.requests` now requires the milestone of
+  the closed issue, `forge_issue_milestone` reads it in both adapters, and
+  `forge_pr_create` takes it as an optional last argument — an issue without a
+  milestone still yields a request without one.
 
 ## 2026-09-21
 

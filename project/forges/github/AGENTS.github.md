@@ -109,7 +109,9 @@ used for the type — they carry no such meaning here.
 ## Pull requests {#forge.requests}
 
 Opened against the default branch, titled like the commit
-(`<type>: <summary> (#<issue>)`), labelled with the type, and assigned.
+(`<type>: <summary> (#<issue>)`), labelled with the type, and assigned. It
+carries the milestone of the issue it closes, when that issue has one, so the
+forge's milestone view shows the request that did the work.
 
 The body carries:
 
