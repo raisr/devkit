@@ -110,6 +110,14 @@ that is in the git history.
   source and failed. The option is `--nologo` now, which VSTest accepts and
   Git Bash leaves alone. As with the pattern above, correct an existing copy
   of `gates.sh` by hand.
+- **The `dotnet-legacy` test gate finds test assemblies named by
+  `dotnet.tests` again.** The pattern change above, from `*.Tests.*.dll` to
+  `*.Tests.dll`, made the gate miss `<Project>.Tests.Unit.dll` and
+  `<Project>.Tests.Integration.dll` — the names the rule prescribes — so it
+  found no tests in a repository that follows it. The gate now matches both
+  patterns: the rule's names, and the suffix-free `*.Tests.dll` that is both
+  the rule's one exception and the Visual Studio default. A copy of `gates.sh`
+  that took the earlier correction needs this one too.
 
 ## 2026-09-21
 
