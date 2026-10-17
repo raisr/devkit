@@ -5,11 +5,10 @@
 # Every forge pack defines the same function names, so the skills never
 # mention gh or glab. Sourced, not executed.
 #
-# STATUS: not yet exercised against a real project. It is written from the
-# glab command surface, not from a run. The first repository that bootstraps
-# with --forge gitlab verifies it, function by function, and fixes what is
-# wrong here. Until then, treat a failure as a bug in this file rather than
-# in the skill that called it.
+# STATUS: exercised function by function against sample repositories on
+# gitlab.com, with glab 1.117.0. Every query reads glab's JSON output
+# (--output json --jq), which an older glab may not offer. Treat a failure as a
+# bug in this file rather than in the skill that called it, and fix it here.
 
 forge_name()      { echo "gitlab"; }
 forge_pr_term()   { echo "merge request"; }

@@ -98,6 +98,10 @@ manifest entry or the forge contract has gone out of step.
 - The four skills have run against a live project — ticket, branch, bootstrap,
   gates, commit and pull request, through `.devkit/forge.sh` rather than around
   it.
+- The GitLab adapter and the `dotnet-legacy` pack have each run against a
+  sample repository on GitLab — an ASP.NET Core application, and an ASP.NET MVC
+  application on .NET Framework 4.8 created from the Visual Studio templates.
+  Every defect that run found is fixed.
 
 What is not yet proven, and what is being worked on, is on the forge:
 [open issues](https://github.com/raisr/devkit/issues).

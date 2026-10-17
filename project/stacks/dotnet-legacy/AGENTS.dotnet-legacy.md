@@ -8,10 +8,12 @@ built with MSBuild rather than the `dotnet` CLI. They add to
 
 For .NET 5 and later, see the `dotnet-core` pack. The two never ship together.
 
-> **This pack has never been used against a real repository.** It was written
-> from the MSBuild, NuGet and VSTest command surface, not from a working build.
-> Treat a failure in `.devkit/gates.sh` as a bug in this pack, not in the
-> project, and fix it upstream.
+> **This pack has been run against one repository layout so far**: an ASP.NET
+> MVC application with a unit test project on .NET Framework 4.8, created from
+> the Visual Studio templates, with `packages.config`, and built with MSBuild
+> and VSTest from Visual Studio 2026. Treat a failure in `.devkit/gates.sh` on
+> a different layout as a gap in this pack, not in the project, and fix it
+> upstream.
 
 Managed by [raisr/devkit](https://github.com/raisr/devkit) — change them there,
 not here. Deviations go in the *Deviations* table of the project `AGENTS.md`.
