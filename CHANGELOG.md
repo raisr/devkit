@@ -49,6 +49,16 @@ that is in the git history.
   `forge_pr_create` takes it as an optional last argument — an issue without a
   milestone still yields a request without one.
 
+### Fixed
+
+- **On GitLab, ticking a ticket after a merge no longer deletes its first
+  heading.** `forge_issue_body` cut the body out of `glab issue view` at the
+  first blank line, but glab ends its header with `--`, so the output started
+  inside the body and lost `## Description`. Written back through
+  `forge_issue_edit`, that loss became permanent. Both `forge_issue_body` and
+  `forge_issue_milestone` now read glab's JSON output (`--output json --jq`),
+  which returns the stored description unchanged.
+
 ## 2026-09-21
 
 ### Fixed
