@@ -20,9 +20,9 @@ Paths below are relative to the repository root.
 bash .claude/skills/create-issue/context.sh
 ```
 
-You get the forge and workflow mode, that the CLI is authenticated and against
-which project, which of the six type labels exist, and the open tickets so a
-near-duplicate can be spotted before filing.
+You get the forge and workflow mode, who a new ticket is assigned to, that the
+CLI is authenticated and against which project, which of the six type labels
+exist, and the open tickets so a near-duplicate can be spotted before filing.
 
 Under `WORKFLOW: light` a ticket is not required. Say so once, and ask whether
 the user wants one anyway — sometimes they do, and that is fine.
@@ -69,8 +69,13 @@ Write the approved body to a temporary file, then:
 
 ```bash
 . .devkit/config.sh && . .devkit/forge.sh
-forge_issue_create "<type>: <summary>" "<type>" /path/to/body.md
+forge_issue_create "<type>: <summary>" "<type>" /path/to/body.md [<assignee>]
 ```
+
+The fourth argument is the `ISSUE_ASSIGNEE` that `context.sh` printed. When it
+printed `none`, leave the argument off: the ticket stays unassigned, as
+`forge.issues` prescribes. It is `DEVKIT_ASSIGN_ISSUES` in `.devkit/config.sh`
+that turns assignment on, never a guess made while filing.
 
 Never call `gh` or `glab` directly — `forge.sh` is what makes this skill work
 on both.

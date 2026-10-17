@@ -12,6 +12,9 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
+# A repository bootstrapped before this key existed has no value for it.
+# Unassigned is what forge.issues prescribes, so that is what a missing key means.
+DEVKIT_ASSIGN_ISSUES="no"
 # shellcheck source=/dev/null
 . .devkit/config.sh
 # shellcheck source=/dev/null
@@ -21,6 +24,11 @@ cd "$(git rev-parse --show-toplevel)"
 
 echo "FORGE: $(forge_name)"
 echo "WORKFLOW: ${DEVKIT_WORKFLOW}"
+if [ "${DEVKIT_ASSIGN_ISSUES}" = "yes" ] && [ -n "${DEVKIT_ASSIGNEE:-}" ]; then
+  echo "ISSUE_ASSIGNEE: ${DEVKIT_ASSIGNEE}"
+else
+  echo "ISSUE_ASSIGNEE: none"
+fi
 
 echo
 echo "=== auth and project ==="
