@@ -92,9 +92,14 @@ forge_pr_comments() {
   glab mr view "$1" --comments
 }
 
-# GitLab reports line comments in the same stream as the discussion.
+# forge_pr_line_comments <number> -> "<path>:<line>  <body>"
+# GitLab reports line comments in the same stream as the discussion; the ones
+# on a diff line are the notes that carry a position. A comment on a removed
+# line has only an old line number.
 forge_pr_line_comments() {
-  glab mr view "$1" --comments
+  glab mr view "$1" --comments --output json --jq '.Discussions[].notes[]
+    | select(.position != null)
+    | "\(.position.new_path):\(.position.new_line // .position.old_line)  \(.body)"'
 }
 
 forge_pr_assign() {

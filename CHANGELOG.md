@@ -66,6 +66,11 @@ that is in the git history.
   glab's table through — and on an empty project a sentence — where the
   contract and the GitHub adapter print `<number>|<labels>|<title>`, one line
   per open issue and nothing when there is none.
+- **On GitLab, `forge_pr_line_comments` prints only line comments.** It ran
+  the same command as `forge_pr_comments` and printed the whole request —
+  header, description and every comment — so a review round could not tell
+  which comment belonged to which line. It now prints `<path>:<line>  <body>`
+  for each comment on a diff line, read from glab's JSON output.
 
 ## 2026-09-21
 
