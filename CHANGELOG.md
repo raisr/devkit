@@ -71,6 +71,13 @@ that is in the git history.
   header, description and every comment — so a review round could not tell
   which comment belonged to which line. It now prints `<path>:<line>  <body>`
   for each comment on a diff line, read from glab's JSON output.
+- **On GitLab, `forge_check`, `forge_issue_view`, `forge_pr_view` and
+  `forge_pr_comments` print the contract format.** They passed glab's text
+  view through. `forge_pr_comments` was the one that misled: it printed the
+  request's description and system notes ahead of the comments, so the
+  description read as one of them. All four now read glab's JSON output.
+  GitLab has no review decision, so `review=` in `forge_pr_view` is its
+  detailed merge status — `not_approved` while an approval is missing.
 
 ## 2026-09-21
 

@@ -15,9 +15,10 @@ forge_name()      { echo "gitlab"; }
 forge_pr_term()   { echo "merge request"; }
 forge_pr_short()  { echo "MR"; }
 
+# Is the CLI there and authenticated, and which repository does it point at?
 forge_check() {
   glab auth status >/dev/null 2>&1 || { echo "glab is not authenticated" >&2; return 1; }
-  glab repo view 2>/dev/null | sed -n '1p'
+  glab repo view --output json --jq .path_with_namespace
 }
 
 # forge_labels_list -> one label name per line
@@ -43,8 +44,10 @@ forge_issue_create() {
     ${4:+--assignee "$4"} --yes
 }
 
+# forge_issue_view <number> -> "#<n> [<state>] <title>   labels=<a,b>"
 forge_issue_view() {
-  glab issue view "$1"
+  glab issue view "$1" --output json \
+    --jq '"#\(.iid) [\(.state)] \(.title)   labels=\(.labels | join(","))"'
 }
 
 # forge_issue_reply <number> <body file> - where a finding made while working
@@ -84,12 +87,21 @@ forge_pr_create() {
     ${7:+--milestone "$7"} --yes
 }
 
+# forge_pr_view <branch or number> -> "#<n> state=<s> draft=<b> review=<r>\n<url>"
+# GitLab has no review decision. review= is its detailed merge status instead:
+# not_approved while an approval is missing, and it also reports failing CI and
+# conflicts, so read it as "what still blocks the merge".
 forge_pr_view() {
-  glab mr view "$1"
+  glab mr view "$1" --output json \
+    --jq '"#\(.iid) state=\(.state) draft=\(.draft) review=\(.detailed_merge_status)\n\(.web_url)"'
 }
 
+# forge_pr_comments <number> -> the human comments, one block each. System
+# notes are left out, and so are comments on a diff line, which
+# forge_pr_line_comments reports - the same split the GitHub adapter makes.
 forge_pr_comments() {
-  glab mr view "$1" --comments
+  glab mr view "$1" --comments --output json --jq '.Discussions[].notes[]
+    | select((.system | not) and .position == null) | .body'
 }
 
 # forge_pr_line_comments <number> -> "<path>:<line>  <body>"
