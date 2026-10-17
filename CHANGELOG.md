@@ -78,6 +78,13 @@ that is in the git history.
   description read as one of them. All four now read glab's JSON output.
   GitLab has no review decision, so `review=` in `forge_pr_view` is its
   detailed merge status — `not_approved` while an approval is missing.
+- **The `dotnet-legacy` test gate finds the test assembly Visual Studio
+  names.** It looked for `*.Tests.*.dll`, which needs something between
+  `.Tests.` and `.dll`, so it missed `Sample.Tests.dll` — the default for a
+  test project created next to a .NET Framework application — and failed with
+  "no built test assemblies found" on tests that built and passed. The pattern
+  is `*.Tests.dll` now. A repository that already has the gate keeps its own
+  copy, since `gates.sh` is a template: correct the pattern there by hand.
 
 ## 2026-09-21
 

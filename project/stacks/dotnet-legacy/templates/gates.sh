@@ -54,7 +54,7 @@ gate_test() {
   # kept by hand. Adjust the pattern if the repository names them differently.
   local -a assemblies=()
   while IFS= read -r a; do assemblies+=("${a}"); done < <(
-    find . -path '*/bin/*' -name '*.Tests.*.dll' -not -path './.git/*' | sort
+    find . -path '*/bin/*' -name '*.Tests.dll' -not -path './.git/*' | sort
   )
   [ "${#assemblies[@]}" -gt 0 ] || { echo "no built test assemblies found" >&2; return 1; }
   "${VSTEST}" "${assemblies[@]}" /nologo
