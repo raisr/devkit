@@ -58,6 +58,20 @@ that is in the git history.
   never affected — code-style rules do not run in an old-style project's build
   — so there the change only quiets the editor. A repository that carries such
   a section locally can drop it after the sync.
+- **A third-party notices gate for `dotnet-core`** (`dotnet-core.notices`).
+  A repository that ships a distributable build owes the licences of the
+  packages inside it: MIT and Apache-2.0 make the copyright notice and the
+  licence text travelling with the software a condition. The pack now installs
+  a generator, `.devkit/generate-third-party-notices.cs`, that writes
+  `THIRD-PARTY-NOTICES.md` from what `dotnet publish` actually ships — its
+  `deps.json`, per runtime identifier, including the .NET runtime of a
+  self-contained build — with licence metadata from a pinned `nuget-license`.
+  A fourth gate, `notices`, regenerates into a temporary file and fails when
+  the committed one is stale. It is off until `NOTICES_PROJECT` in
+  `.devkit/gates.sh` names the shipped project, so a library is not held to
+  it. Needs the .NET 10 SDK. An existing repository is offered the generator,
+  its overrides file and the licence texts by `/devkit-sync`; its own
+  `gates.sh` is a template, so the gate itself is copied in by hand.
 
 ### Changed
 

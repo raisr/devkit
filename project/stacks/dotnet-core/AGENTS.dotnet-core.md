@@ -64,13 +64,14 @@ Configuration through `IOptions<T>`. No magic strings scattered around, no
 
 ## Gates {#dotnet-core.gates}
 
-Three, all green before a commit, all runnable by hand:
+Four, all green before a commit, all runnable by hand:
 
 | Gate | Command | Expected |
 |---|---|---|
 | build | `dotnet build <solution> -warnaserror` | 0 warnings, 0 errors |
 | test | `dotnet test <solution>` | green |
 | format | `dotnet format <solution> --verify-no-changes` | clean |
+| notices | the generator into a temporary file, diffed against `THIRD-PARTY-NOTICES.md` | no difference, or skipped |
 
 They live in `.devkit/gates.sh`, which the project owns and adapts.
 
@@ -82,3 +83,34 @@ is a reason not to commit.
 
 `dotnet test` exits non-zero when a test project contains **no** tests. A new
 test project needs at least one real test, not a placeholder.
+
+## Third-party notices {#dotnet-core.notices}
+
+**A repository that ships a distributable build carries the notices gate.**
+MIT, Apache-2.0 and most other package licences make it a condition that the
+copyright notice and the licence text travel with the software. A library or an
+internal service ships nothing to give notice for and leaves it off.
+
+- `NOTICES_PROJECT` in `.devkit/gates.sh` names the project whose
+  `dotnet publish` output is shipped. Empty skips the gate.
+- `.devkit/generate-third-party-notices.cs` writes `THIRD-PARTY-NOTICES.md` at
+  the repository root from that publish's `deps.json` — what the build actually
+  ships, not what the project references — once per runtime identifier the
+  project lists. It needs the .NET 10 SDK. After a package change, regenerate
+  and commit the file:
+
+  ```bash
+  dotnet run --file .devkit/generate-third-party-notices.cs -- --project <NOTICES_PROJECT>
+  ```
+
+- Licence texts live in `.devkit/licenses/<SPDX>.txt`; the generator fails on a
+  licence it has no text for. Copyright notices a package does not declare, and
+  shipped files that are not packages, go into
+  `.devkit/third-party-notices.overrides.json` — copied from the source, never
+  made up.
+- To regenerate on every publish, hook the generator into the shipped project
+  with `BeforeTargets="Publish"`, never `AfterTargets="Build"`: an editor's
+  background builds fire `Build` constantly, and the generator publishes the
+  project itself, so the hook retriggers itself without end. Call it as
+  `dotnet run --file`, since a bare file argument inside a project directory
+  resolves to the project.
