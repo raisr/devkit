@@ -62,6 +62,10 @@ that is in the git history.
   `forge_labels_list` printed the ID column of `glab label list` instead of
   the names, so every label was reported missing and the skill offered to
   create labels the repository already had. It now reads glab's JSON output.
+- **On GitLab, `forge_issue_list_open` prints the contract format.** It passed
+  glab's table through — and on an empty project a sentence — where the
+  contract and the GitHub adapter print `<number>|<labels>|<title>`, one line
+  per open issue and nothing when there is none.
 
 ## 2026-09-21
 

@@ -30,8 +30,10 @@ forge_label_create() {
   glab label create --name "$1" --color "#$2" --description "$3"
 }
 
+# forge_issue_list_open -> "<number>|<labels, comma separated>|<title>"
 forge_issue_list_open() {
-  glab issue list
+  glab issue list --output json \
+    --jq '.[] | "\(.iid)|\(.labels | join(","))|\(.title)"'
 }
 
 # forge_issue_create <title> <label> <body file> [assignee] -> issue URL
