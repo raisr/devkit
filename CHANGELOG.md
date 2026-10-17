@@ -17,6 +17,17 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-10-17
+
+### Added
+
+- `forge_issue_edit` in both forge adapters. A ticket that was wrong when it
+  was filed could only be corrected by calling `gh` or `glab` directly, which
+  the rules call a bug — `forge_pr_edit` had the request side, nothing had the
+  issue side. It is for the correction before work starts; a finding made while
+  working a ticket still goes into `forge_issue_reply`, and `forge.issues` is
+  unchanged.
+
 ## 2026-09-21
 
 ### Fixed

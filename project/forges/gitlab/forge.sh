@@ -53,6 +53,13 @@ forge_issue_body() {
   glab issue view "$1" | sed -n '/^$/,$p'
 }
 
+# forge_issue_edit <number> <body file> - replaces the whole description. For a
+# ticket that was wrong when it was filed, before work starts; a finding made
+# while working it goes into forge_issue_reply instead (forge.issues).
+forge_issue_edit() {
+  glab issue update "$1" --description "$(cat "$2")"
+}
+
 # forge_pr_create <base> <head> <title> <label> <assignee> <body file> -> URL
 forge_pr_create() {
   glab mr create --target-branch "$1" --source-branch "$2" --title "$3" \
