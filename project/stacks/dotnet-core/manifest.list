@@ -11,3 +11,7 @@ editorconfig.block|.editorconfig|block:devkit:stack/dotnet-core
 
 templates/gates.sh|.devkit/gates.sh|template
 templates/Directory.Build.props|src/Directory.Build.props|template
+templates/generate-third-party-notices.cs|.devkit/generate-third-party-notices.cs|template
+templates/third-party-notices.overrides.json|.devkit/third-party-notices.overrides.json|template
+templates/licenses/MIT.txt|.devkit/licenses/MIT.txt|template
+templates/licenses/Apache-2.0.txt|.devkit/licenses/Apache-2.0.txt|template
