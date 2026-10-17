@@ -57,7 +57,7 @@ gate_test() {
     find . -path '*/bin/*' -name '*.Tests.dll' -not -path './.git/*' | sort
   )
   [ "${#assemblies[@]}" -gt 0 ] || { echo "no built test assemblies found" >&2; return 1; }
-  "${VSTEST}" "${assemblies[@]}" /nologo
+  "${VSTEST}" "${assemblies[@]}" --nologo
 }
 
 # Expectation per gate, printed when a gate fails.

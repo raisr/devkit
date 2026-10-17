@@ -85,6 +85,12 @@ that is in the git history.
   "no built test assemblies found" on tests that built and passed. The pattern
   is `*.Tests.dll` now. A repository that already has the gate keeps its own
   copy, since `gates.sh` is a template: correct the pattern there by hand.
+- **The `dotnet-legacy` test gate runs under Git Bash.** It passed `/nologo`
+  to `vstest.console.exe`, and Git Bash turns an argument starting with `/`
+  into a Windows path, so VSTest read `C:/Program Files/Git/nologo` as a test
+  source and failed. The option is `--nologo` now, which VSTest accepts and
+  Git Bash leaves alone. As with the pattern above, correct an existing copy
+  of `gates.sh` by hand.
 
 ## 2026-09-21
 
