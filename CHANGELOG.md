@@ -58,6 +58,10 @@ that is in the git history.
   `forge_issue_edit`, that loss became permanent. Both `forge_issue_body` and
   `forge_issue_milestone` now read glab's JSON output (`--output json --jq`),
   which returns the stored description unchanged.
+- **On GitLab, `create-issue` sees the type labels that exist.**
+  `forge_labels_list` printed the ID column of `glab label list` instead of
+  the names, so every label was reported missing and the skill offered to
+  create labels the repository already had. It now reads glab's JSON output.
 
 ## 2026-09-21
 
