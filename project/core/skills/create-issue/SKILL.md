@@ -53,7 +53,8 @@ The three that get skipped and should not be:
   ```
 
   Once work has started, a change of mind is a finding, and it goes into
-  `forge_issue_reply`.
+  `forge_issue_reply`. The one later edit is ticking the Definition of Done
+  after the merge, which `implement-feature` does (`forge.review`).
 - **Verifiable acceptance criteria.** A concrete command and its expected
   result beats a sentence about things being set up correctly.
 

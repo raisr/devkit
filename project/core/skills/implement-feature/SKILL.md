@@ -143,7 +143,24 @@ backticks and does not survive being passed as a string.
 ## 9. Done — `full` only
 
 The work is finished when **the user accepts or merges the request** — not when
-the gates pass. After the merge:
+the gates pass. After the merge, bring the ticket in line with the request
+(`forge.review`):
+
+```bash
+. .devkit/config.sh && . .devkit/forge.sh
+forge_issue_body <issue> > /path/to/issue.md
+# tick every box in /path/to/issue.md that the request body ticked -
+# the state only, never the wording of a criterion
+forge_issue_edit <issue> /path/to/issue.md
+forge_issue_reply <issue> /path/to/open-boxes.md   # only when a box stayed open
+```
+
+The request body is the source, as you last wrote it through `forge_pr_create`
+or `forge_pr_edit`: you tick it, the maintainer comments. The comment lists
+each open box with the reason the request gave, and carries the signature from
+`core.signature`. When every box holds, there is no comment.
+
+Then:
 
 ```bash
 git checkout "${DEVKIT_MAIN_BRANCH}" && git pull && git branch -d <branch>

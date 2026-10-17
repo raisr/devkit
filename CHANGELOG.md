@@ -27,6 +27,13 @@ that is in the git history.
   issue side. It is for the correction before work starts; a finding made while
   working a ticket still goes into `forge_issue_reply`, and `forge.issues` is
   unchanged.
+- **A merged request ticks its ticket.** The Definition of Done was ticked box
+  by box in the request, but the ticket kept every box empty, so a closed
+  ticket read as an unfulfilled contract. After the merge, `forge.review` now
+  syncs the checkbox state from the request into the ticket and lists every box
+  left open in one comment with its reason. `forge.issues` names this as the
+  one edit to the description after work starts; the wording of a criterion
+  still never changes.
 
 ## 2026-09-21
 
