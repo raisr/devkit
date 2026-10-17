@@ -48,6 +48,16 @@ that is in the git history.
   the closed issue, `forge_issue_milestone` reads it in both adapters, and
   `forge_pr_create` takes it as an optional last argument — an issue without a
   milestone still yields a request without one.
+- **EF migrations count as generated code** in the shared .NET `.editorconfig`
+  block, for both `dotnet-core` and `dotnet-legacy`. EF writes them with a BOM
+  and a block-scoped namespace and rewrites them on every model change, so the
+  `dotnet-core` format gate went red on a branch whose own code was clean.
+  `**/Migrations/*.cs` is now `generated_code = true`. EF6's
+  `Migrations/Configuration.cs` is the exception: people maintain its `Seed`
+  method, so it stays under the style rules. On `dotnet-legacy` the build was
+  never affected — code-style rules do not run in an old-style project's build
+  — so there the change only quiets the editor. A repository that carries such
+  a section locally can drop it after the sync.
 
 ### Changed
 
