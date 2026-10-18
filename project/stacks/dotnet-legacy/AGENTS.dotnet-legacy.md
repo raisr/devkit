@@ -103,6 +103,24 @@ repository drives its build through something else, `gates.sh` calls into that
 rather than restating the build — one definition, not two that drift. Which
 gates must pass is the rule here; how they are invoked is the project's.
 
+**The `test` gate carries the architecture tests.** The pack installs
+`src/Tests/Architecture.Tests/`, the project `dotnet.layout` makes mandatory,
+as a template: an old-style project with `packages.config`, on MSTest 2.2.10.
+MSTest rather than xUnit because the Visual Studio template for .NET Framework
+uses it, and because xUnit 2.x on .NET Framework pulls `NETStandard.Library`
+and its forty-odd packages into `packages.config`. Bootstrap does not edit the
+solution, so the project is added once by hand — until it is, the gate passes
+without running it:
+
+```bash
+dotnet sln add src/Tests/Architecture.Tests/Architecture.Tests.csproj
+```
+
+Its package paths assume the solution in the repository root and NuGet's
+default `packages/` folder beside it. The tests read the `.csproj` files and
+`packages.config` rather than the built assemblies, and find the repository
+root by its `.git`.
+
 **There is no format gate.** `dotnet format` needs SDK-style project files and
 will not run over an old-style `.csproj`. The `.editorconfig` still binds and
 the IDE still applies it; what enforces it in the build are the analyser
