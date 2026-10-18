@@ -20,6 +20,54 @@ there, not here. Deviations go in the *Deviations* table of the project
 for extension classes or anything else. The analyser enforces it (`IDE0130`),
 so a mismatch fails the gate rather than surviving in review.
 
+## Solution layout {#dotnet.layout}
+
+The concrete cut of `core.architecture`. It describes the target state: a
+repository that has not reached it yet records the gap as a deviation, rather
+than the rule bending to the code.
+
+```
+<Name>.slnx
+src/
+  Core/
+    <Name>.Domain/
+    <Name>.Application/
+    <Name>.Infrastructure/
+  <Name>.<Ui>/
+  Tools/
+  Tests/
+    <Name>.Architecture.Tests/
+```
+
+| Project | Lives in | May reference |
+|---|---|---|
+| `<Name>.Domain` | `src/Core/` | nothing beyond the BCL, unless named as an exception |
+| `<Name>.Application` | `src/Core/` | Domain |
+| `<Name>.Infrastructure[.<Source>]` | `src/Core/` | Application, Domain |
+| a UI — web, MAUI, WinForms, WPF, console | `src/` directly | anything but another UI |
+| a development tool | `src/Tools/` | anything, when it is a composition root |
+| a test project | `src/Tests/` | whatever it needs to assert something, Infrastructure included |
+
+- **`src/Core/` holds the application, not its UIs.** A UI is a composition
+  root: it wires Infrastructure to the use cases and holds no business logic.
+  It is meant to be replaceable, and a repository may have several side by
+  side.
+- **A UI never references another UI.** What two of them share belongs in
+  Application.
+- **The solution file lives in the repository root**, not in `src/`. The
+  solution folders `/Core/`, `/Tools/` and `/Tests/` list the same projects as
+  the directories of the same name.
+- **A Domain reference beyond the BCL is an exception, and it is written
+  down.** It is allowed only when it runs in-process — the first question of
+  `core.architecture` — such as existing business logic the domain builds on.
+  Each one is named in the *Architecture* section of the project `AGENTS.md`.
+- **`<Name>.Architecture.Tests` is mandatory.** It asserts the reference graph,
+  the layout and the Domain exceptions against that list, so a reference nobody
+  wrote down fails the build. It is the solution-wide test project
+  `dotnet.tests` allows.
+- A separate host project, or Infrastructure split into several projects, is a
+  decision the repository takes and writes into its own `AGENTS.md`.
+
 ## Entry point {#dotnet.entry-point}
 
 **No top-level statements.** The entry point is an ordinary `Program` class
