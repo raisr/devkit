@@ -54,10 +54,10 @@ cp "${FIXTURES}/Claude.md"      "${REPO}/Claude.md"
 cp "${FIXTURES}/gitignore"      "${REPO}/.gitignore"
 cp "${FIXTURES}/editorconfig"   "${REPO}/.editorconfig"
 cp "${FIXTURES}/gitattributes"  "${REPO}/.gitattributes"
-cp "${FIXTURES}/Sample.slnx"    "${REPO}/src/Sample.slnx"
+cp "${FIXTURES}/Sample.slnx"    "${REPO}/Sample.slnx"
 # Visual Studio keeps a copy of the solution under .vs/, and a dot directory
-# sorts before src/. Untracked and git-ignored, but on disk on every Windows
-# machine - so the solution search has to skip it.
+# sorts before the real one. Untracked and git-ignored, but on disk on every
+# Windows machine - so the solution search has to skip it.
 mkdir -p "${REPO}/.vs"
 cp "${FIXTURES}/Sample.slnx" "${REPO}/.vs/Sample.slnx"
 printf 'namespace Sample.Shell\n{\n    public static class Program\n    {\n        public static void Main() { }\n    }\n}\n' \

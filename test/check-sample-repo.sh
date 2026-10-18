@@ -78,8 +78,8 @@ head2 "config"
   || fail "DEVKIT_ASSIGN_ISSUES is '${DEVKIT_ASSIGN_ISSUES}', expected no"
 # Not just "a solution": the right one. The fixture plants a decoy under .vs/,
 # which is what a Windows machine really looks like and sorts first.
-assert_grep 'SLN="src/Sample.slnx"' .devkit/gates.sh \
-  "gates.sh points at src/Sample.slnx, not the .vs/ copy"
+assert_grep 'SLN="Sample.slnx"' .devkit/gates.sh \
+  "gates.sh points at the root Sample.slnx, not the .vs/ copy"
 
 # The architecture tests arrive with dotnet-core, at the fixed path
 # dotnet.layout names - bootstrap cannot know the solution's name.
