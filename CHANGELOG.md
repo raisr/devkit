@@ -17,6 +17,22 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-10-18
+
+### Added
+
+- **`dotnet.layout` in the shared .NET rules.** `core.architecture` stated the
+  dependency direction but no project cut and no directory layout, so every
+  repository invented its own. The rule now fixes both for `dotnet-core` and
+  `dotnet-legacy` alike: Domain, Application and Infrastructure under
+  `src/Core/`, every UI directly under `src/` as a composition root without
+  business logic, tools under `src/Tools/`, tests under `src/Tests/`, and the
+  solution file in the repository root. A Domain reference beyond the BCL is
+  allowed only when it runs in-process and is named in the project
+  `AGENTS.md`, and `<Name>.Architecture.Tests` is mandatory to assert all of
+  it. The rule describes the target state: a repository that does not meet it
+  yet records the gap in its *Deviations* table.
+
 ## 2026-10-17
 
 ### Added
