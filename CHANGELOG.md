@@ -47,6 +47,12 @@ that is in the git history.
   `src/Tests/` and the top of `src/`, or when the solution is not in the
   repository root. Add it to the solution once by hand; bootstrap does not
   edit the solution.
+- **The same architecture tests for `dotnet-legacy`.** The same checks under
+  the same test names, as an old-style project with `packages.config` on
+  MSTest 2.2.10 and C# 7.3, reading `packages.config` as well as the project
+  files. MSTest, not xUnit: it is what the Visual Studio template for .NET
+  Framework uses, and xUnit 2.x there drags `NETStandard.Library` and its
+  dependency tree into `packages.config`.
 
 ### Changed
 
