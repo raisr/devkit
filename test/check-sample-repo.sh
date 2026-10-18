@@ -193,6 +193,19 @@ head2 "templates left alone"
 assert_grep 'A project that already had its own rules' Agents.md \
   "the project's own Agents.md is untouched"
 
+# The layout document arrives as a template, with the project name filled in,
+# and the docs index already points at it.
+[ -f "${REPO}/docs/architecture.md" ] && pass "docs/architecture.md installed" \
+  || fail "docs/architecture.md missing"
+assert_no_grep '{{PROJECT_NAME}}' docs/architecture.md \
+  "docs/architecture.md has its placeholder substituted"
+assert_grep '(architecture.md)' docs/README.md \
+  "docs/README.md lists architecture.md"
+
+# Edited here so the idempotency run below also proves the project's own copy
+# survives a re-run: the snapshot is taken after this line.
+printf '\n- Kept by the project.\n' >> "${REPO}/docs/architecture.md"
+
 # --- the import chain --------------------------------------------------------
 #
 # This is the regression guard for the defect where the rule files were linked
@@ -277,6 +290,8 @@ if bash "${DEVKIT_ROOT}/project/bootstrap.sh" --repo "${REPO}" \
   after="$(snapshot)"
   if [ "${before}" = "${after}" ]; then
     pass "a second bootstrap run changes no file"
+    assert_grep 'Kept by the project.' docs/architecture.md \
+      "an edited docs/architecture.md survives the re-run"
   else
     fail "a second bootstrap run changed files:"
     diff <(printf '%s\n' "${before}") <(printf '%s\n' "${after}") | sed 's/^/          /'

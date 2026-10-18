@@ -18,4 +18,5 @@ templates/AGENTS.local.md|AGENTS.local.md|template
 templates/CHANGELOG.md|CHANGELOG.md|template
 templates/ROADMAP.md|ROADMAP.md|template
 templates/docs/README.md|docs/README.md|template
+templates/docs/architecture.md|docs/architecture.md|template
 templates/config.sh|.devkit/config.sh|template
