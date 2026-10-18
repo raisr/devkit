@@ -78,8 +78,17 @@ head2 "config"
   || fail "DEVKIT_ASSIGN_ISSUES is '${DEVKIT_ASSIGN_ISSUES}', expected no"
 # Not just "a solution": the right one. The fixture plants a decoy under .vs/,
 # which is what a Windows machine really looks like and sorts first.
-assert_grep 'SLN="src/Sample.slnx"' .devkit/gates.sh \
-  "gates.sh points at src/Sample.slnx, not the .vs/ copy"
+assert_grep 'SLN="Sample.slnx"' .devkit/gates.sh \
+  "gates.sh points at the root Sample.slnx, not the .vs/ copy"
+
+# The architecture tests arrive with dotnet-core, at the fixed path
+# dotnet.layout names - bootstrap cannot know the solution's name.
+for f in Architecture.Tests.csproj DomainExceptions.cs LayoutTests.cs \
+         ProjectFile.cs ProjectLocation.cs ReferenceTests.cs SolutionTree.cs; do
+  [ -f "${REPO}/src/Tests/Architecture.Tests/${f}" ] \
+    && pass "src/Tests/Architecture.Tests/${f} installed" \
+    || fail "src/Tests/Architecture.Tests/${f} missing"
+done
 
 # The notices mechanism arrives with dotnet-core, switched off: a repository
 # that ships nothing distributable must not be held to it.

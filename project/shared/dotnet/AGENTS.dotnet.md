@@ -36,7 +36,7 @@ src/
   <Name>.<Ui>/
   Tools/
   Tests/
-    <Name>.Architecture.Tests/
+    Architecture.Tests/
 ```
 
 | Project | Lives in | May reference |
@@ -60,11 +60,15 @@ src/
 - **A Domain reference beyond the BCL is an exception, and it is written
   down.** It is allowed only when it runs in-process — the first question of
   `core.architecture` — such as existing business logic the domain builds on.
-  Each one is named in the *Architecture* section of the project `AGENTS.md`.
-- **`<Name>.Architecture.Tests` is mandatory.** It asserts the reference graph,
-  the layout and the Domain exceptions against that list, so a reference nobody
+  Each one is listed in `src/Tests/Architecture.Tests/DomainExceptions.cs`, and
+  the *Architecture* section of the project `AGENTS.md` points at that file
+  rather than restating the list.
+- **`Architecture.Tests` is mandatory.** It asserts the reference graph, the
+  layout and the Domain exceptions against that list, so a reference nobody
   wrote down fails the build. It is the solution-wide test project
-  `dotnet.tests` allows.
+  `dotnet.tests` allows, and the one project without the `<Name>.` prefix:
+  the stack pack ships it as a template, and a template cannot land at a path
+  that depends on the solution's name.
 - A separate host project, or Infrastructure split into several projects, is a
   decision the repository takes and writes into its own `AGENTS.md`.
 

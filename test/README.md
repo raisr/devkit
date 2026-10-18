@@ -27,7 +27,8 @@ coincide:
 - checked out on a **feature** branch, not the default one
 - already owning `Agents.md`, `Claude.md`, `.gitignore`, `.editorconfig` and
   `.gitattributes`
-- a solution file under `src/`, and a decoy copy under `.vs/` that sorts first
+- a solution file in the repository root, as `dotnet.layout` prescribes, and a
+  decoy copy under `.vs/` that sorts first
 - a skill the devkit once shipped and dropped, next to one the project wrote
 
 Commit identity and timestamps are fixed, so two runs produce the same hashes

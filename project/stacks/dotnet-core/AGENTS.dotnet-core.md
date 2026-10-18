@@ -84,6 +84,19 @@ is a reason not to commit.
 `dotnet test` exits non-zero when a test project contains **no** tests. A new
 test project needs at least one real test, not a placeholder.
 
+**The `test` gate carries the architecture tests.** The pack installs
+`src/Tests/Architecture.Tests/`, the project `dotnet.layout` makes mandatory,
+as a template. Bootstrap does not edit the solution, so it is added once by
+hand — until it is, the gate passes without running it:
+
+```bash
+dotnet sln add src/Tests/Architecture.Tests/Architecture.Tests.csproj
+```
+
+The tests read the `.csproj` files rather than the built assemblies, because
+the compiler drops a reference the code never uses. They find the repository
+root by its `.git`, so they run in a checkout, not in a copied build output.
+
 ## Third-party notices {#dotnet-core.notices}
 
 **A repository that ships a distributable build carries the notices gate.**

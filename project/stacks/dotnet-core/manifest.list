@@ -15,3 +15,10 @@ templates/generate-third-party-notices.cs|.devkit/generate-third-party-notices.c
 templates/third-party-notices.overrides.json|.devkit/third-party-notices.overrides.json|template
 templates/licenses/MIT.txt|.devkit/licenses/MIT.txt|template
 templates/licenses/Apache-2.0.txt|.devkit/licenses/Apache-2.0.txt|template
+templates/Architecture.Tests/Architecture.Tests.csproj|src/Tests/Architecture.Tests/Architecture.Tests.csproj|template
+templates/Architecture.Tests/DomainExceptions.cs|src/Tests/Architecture.Tests/DomainExceptions.cs|template
+templates/Architecture.Tests/LayoutTests.cs|src/Tests/Architecture.Tests/LayoutTests.cs|template
+templates/Architecture.Tests/ProjectFile.cs|src/Tests/Architecture.Tests/ProjectFile.cs|template
+templates/Architecture.Tests/ProjectLocation.cs|src/Tests/Architecture.Tests/ProjectLocation.cs|template
+templates/Architecture.Tests/ReferenceTests.cs|src/Tests/Architecture.Tests/ReferenceTests.cs|template
+templates/Architecture.Tests/SolutionTree.cs|src/Tests/Architecture.Tests/SolutionTree.cs|template
