@@ -40,8 +40,10 @@ the resolved default branch, the config keys, the solution path, balanced and
 non-duplicated block markers, devkit blocks sitting *above* the project's own
 lines with `root = true` still in the preamble, an `@`-import for every managed
 rule file with no Markdown link among them, the four skills, that neither the
-dropped file nor the project's own skill was deleted, and that a second
-bootstrap run changes nothing.
+dropped file nor the project's own skill was deleted, that
+`docs/architecture.md` arrives with its placeholder filled in and listed in
+`docs/README.md`, and that a second bootstrap run changes nothing — an edited
+`docs/architecture.md` included.
 
 It asserts the migration of a managed file to a block, which `.gitattributes`
 went through and any file may go through next. Two throwaway repositories are

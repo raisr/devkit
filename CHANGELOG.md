@@ -32,6 +32,12 @@ that is in the git history.
   `AGENTS.md`, and `<Name>.Architecture.Tests` is mandatory to assert all of
   it. The rule describes the target state: a repository that does not meet it
   yet records the gap in its *Deviations* table.
+- **`docs/architecture.md` as a core template.** The *Architecture* section of
+  the `AGENTS.md` template already sent the project layout there, but nothing
+  created the file, so every repository started it from nothing. Bootstrap now
+  writes it once with three sections — *Projects*, *Directory layout* and *Why
+  it is cut this way* — and `docs/README.md` lists it from the start. A
+  repository that predates it sees it as `missing` in `/devkit-sync`.
 
 ## 2026-10-17
 

@@ -5,4 +5,4 @@ binding rules live in [`AGENTS.md`](../AGENTS.md), not here.
 
 | Document | About |
 |---|---|
-| — | nothing yet |
+| [`architecture.md`](architecture.md) | The projects, the directory layout and why they are cut this way |
