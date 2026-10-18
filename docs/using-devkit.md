@@ -35,6 +35,7 @@ AGENTS.local.md         personal, git-ignored               template
 src/Directory.Build.props                                   template
 .devkit/generate-third-party-notices.cs, its overrides
   and .devkit/licenses/ (dotnet-core)                       template
+src/Tests/Architecture.Tests/ (dotnet-core)                 template
 CHANGELOG.md, ROADMAP.md, docs/README.md,
   docs/architecture.md                                      template
 devkit.lock.json        where each file came from           —

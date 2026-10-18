@@ -38,6 +38,24 @@ that is in the git history.
   writes it once with three sections — *Projects*, *Directory layout* and *Why
   it is cut this way* — and `docs/README.md` lists it from the start. A
   repository that predates it sees it as `missing` in `/devkit-sync`.
+- **Architecture tests as a `dotnet-core` template.** `dotnet.layout` made them
+  mandatory with nothing to start from. Bootstrap now installs
+  `src/Tests/Architecture.Tests/`, which reads the `.csproj` files and fails
+  when Domain references anything not listed in `DomainExceptions.cs`, when
+  Application or Infrastructure reach outwards, when one UI references
+  another, when a project lies outside `src/Core/`, `src/Tools/`,
+  `src/Tests/` and the top of `src/`, or when the solution is not in the
+  repository root. Add it to the solution once by hand; bootstrap does not
+  edit the solution.
+
+### Changed
+
+- **`dotnet.layout` names the test project `Architecture.Tests`**, without
+  the `<Name>.` prefix, because a template cannot land at a path that depends
+  on the solution's name. The Domain exceptions are listed in
+  `DomainExceptions.cs` inside it, and the project `AGENTS.md` points there
+  instead of restating them. A repository that already follows the rule
+  renames its project, or records the old name as a deviation.
 
 ## 2026-10-17
 
