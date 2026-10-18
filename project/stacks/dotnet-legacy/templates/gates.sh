@@ -40,7 +40,10 @@ need_msbuild() {
 
 gate_restore() {
   need_msbuild || return 1
-  "${MSBUILD}" "${SLN}" -t:restore -nologo -verbosity:minimal
+  # RestorePackagesConfig: without it -t:restore only covers PackageReference,
+  # leaves a packages.config project untouched, and still exits 0.
+  "${MSBUILD}" "${SLN}" -t:restore -p:RestorePackagesConfig=true \
+    -nologo -verbosity:minimal
 }
 
 gate_build() {
@@ -60,7 +63,15 @@ gate_test() {
       -not -path './.git/*' | sort
   )
   [ "${#assemblies[@]}" -gt 0 ] || { echo "no built test assemblies found" >&2; return 1; }
-  "${VSTEST}" "${assemblies[@]}" --nologo
+  # VSTest exits 0 when it discovers no test - a missing adapter, an assembly
+  # that fails to load - so TreatNoTestsAsError turns that into a failure. It
+  # counts per run, which is why each assembly gets a run of its own: an empty
+  # one next to a full one would otherwise pass.
+  local fail=0
+  for a in "${assemblies[@]}"; do
+    "${VSTEST}" "${a}" --nologo -- RunConfiguration.TreatNoTestsAsError=true || fail=1
+  done
+  return "${fail}"
 }
 
 # Expectation per gate, printed when a gate fails.

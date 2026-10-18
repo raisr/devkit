@@ -94,9 +94,9 @@ placeholder.
 
 | Gate | Command | Expected |
 |---|---|---|
-| restore | `msbuild <solution> -t:restore` or `nuget restore` for `packages.config` | packages resolved |
+| restore | `msbuild <solution> -t:restore -p:RestorePackagesConfig=true` | packages resolved, `packages.config` included |
 | build | `msbuild <solution> -warnaserror` | 0 warnings, 0 errors |
-| test | `vstest.console.exe` over the built test assemblies | green |
+| test | `vstest.console.exe` once per built test assembly, with `RunConfiguration.TreatNoTestsAsError=true` | green, and no assembly without a test |
 
 They live in `.devkit/gates.sh`, which the project owns and adapts. Where the
 repository drives its build through something else, `gates.sh` calls into that
