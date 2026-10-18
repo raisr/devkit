@@ -63,6 +63,20 @@ that is in the git history.
   instead of restating them. A repository that already follows the rule
   renames its project, or records the old name as a deviation.
 
+### Fixed
+
+- **The `dotnet-legacy` `restore` gate restores `packages.config`.** It ran
+  `msbuild -t:restore`, which only covers `PackageReference`, leaves a
+  `packages.config` project untouched and still exits 0, so a fresh clone
+  passed `restore` and then failed `build` on missing packages. It now passes
+  `-p:RestorePackagesConfig=true`. `.devkit/gates.sh` is a template: an
+  existing repository adds the flag by hand.
+- **The `dotnet-legacy` `test` gate fails when a test assembly has no tests.**
+  VSTest exits 0 when it discovers nothing — a missing adapter, an assembly
+  that fails to load — so the gate was green while nothing ran. Each assembly
+  now gets a run of its own with `RunConfiguration.TreatNoTestsAsError=true`.
+  An existing repository copies the new `gate_test` by hand.
+
 ## 2026-10-17
 
 ### Added
