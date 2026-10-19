@@ -17,6 +17,19 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-10-19
+
+### Changed
+
+- **`core.antipatterns` no longer bans events.** "Domain events" stood in the
+  list of DDD building blocks never to be suggested, which also ruled out an
+  ordinary event that records something that happened — inside a service or
+  published between services through a broker. Such a repository had to record
+  a deviation for a design that has nothing to do with DDD. The list now names
+  value objects, aggregate roots and repositories-per-aggregate only, and says
+  that events are allowed. A repository that recorded a deviation against
+  `core.antipatterns` for events can drop it.
+
 ## 2026-10-18
 
 ### Added

@@ -98,9 +98,11 @@ Conversely: no documentation is written for something that does not exist yet.
 
 - Exceptions as control flow for expected business outcomes. Use a result type.
 - Static helpers that hold state; a service locator.
-- DDD building blocks: value objects, domain events, aggregate roots,
+- DDD building blocks: value objects, aggregate roots,
   repositories-per-aggregate. Plain models and the rules that operate on them
-  are enough.
+  are enough. An event that records something that happened — inside a
+  service or between services — is not a DDD building block and is allowed;
+  what is excluded is the DDD machinery, not the idea of an event.
 
 ## Tests {#core.tests}
 
