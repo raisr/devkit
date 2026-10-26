@@ -33,4 +33,16 @@ internal sealed record ProjectFile(
         var grouping = RelativeDirectory.Split('/')[..^1];
         return string.Join('.', [solutionName, .. grouping]) + ".";
     }
+
+    /// <summary>
+    /// The name of the project a test project is named after under
+    /// <c>dotnet.tests</c>, or <see langword="null"/> when the name carries
+    /// neither <c>.Tests.Unit</c> nor <c>.Tests.Integration</c>.
+    /// </summary>
+    internal string? ProjectUnderTest()
+    {
+        string[] suffixes = [".Tests.Unit", ".Tests.Integration"];
+        var suffix = suffixes.FirstOrDefault(candidate => Name.EndsWith(candidate, StringComparison.Ordinal));
+        return suffix is null ? null : Name[..^suffix.Length];
+    }
 }

@@ -36,6 +36,15 @@ that is in the git history.
   to the new place; sync and bootstrap both take the target from there. Managed
   files and blocks stay where the manifest puts them.
 
+- **`Architecture.Tests` asserts test project names.** `dotnet.tests` has
+  always required a test project to be named after one production project plus
+  `.Tests.Unit` or `.Tests.Integration`, with `Architecture.Tests` as the one
+  exception, but nothing checked it — a misnamed or orphaned test project
+  passed every gate. A new test in `LayoutTests` names every project under
+  `src/Tests/` that breaks the rule. It is a template: an existing repository
+  copies `LayoutTests.cs` and `ProjectFile.cs` across by hand when
+  `/devkit-sync` shows that they moved on.
+
 ### Changed
 
 - **Breaking: grouping directories are part of a .NET project's name.**

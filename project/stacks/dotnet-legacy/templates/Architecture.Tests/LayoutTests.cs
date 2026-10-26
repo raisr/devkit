@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -97,6 +98,29 @@ namespace Architecture.Tests
                         || project.Location == ProjectLocation.Ui)
                     .Where(project => !project.Name.StartsWith(project.NamePrefix(solution), StringComparison.Ordinal))
                     .Select(project => $"{project.Name}, expected {project.NamePrefix(solution)}*")
+                    .ToList();
+
+                Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
+            }
+
+            /// <summary>
+            /// <c>dotnet.tests</c>: a test project is named after exactly one
+            /// production project, plus <c>.Tests.Unit</c> or <c>.Tests.Integration</c>.
+            /// <c>Architecture.Tests</c> is the one solution-wide exception.
+            /// </summary>
+            [TestMethod]
+            public void Under_Tests_Are_Named_After_A_Production_Project()
+            {
+                var production = new HashSet<string>(
+                    SolutionTree.Projects
+                        .Where(project => project.Location != ProjectLocation.Tests)
+                        .Select(project => project.Name),
+                    StringComparer.Ordinal);
+
+                var offenders = SolutionTree.Projects
+                    .Where(project => project.Location == ProjectLocation.Tests && project.Name != "Architecture.Tests")
+                    .Where(project => project.ProjectUnderTest() == null || !production.Contains(project.ProjectUnderTest()))
+                    .Select(project => project.Name)
                     .ToList();
 
                 Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
