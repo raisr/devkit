@@ -90,5 +90,27 @@ public sealed class LayoutTests
 
             Assert.Empty(offenders);
         }
+
+        /// <summary>
+        /// <c>dotnet.tests</c>: a test project is named after exactly one
+        /// production project, plus <c>.Tests.Unit</c> or <c>.Tests.Integration</c>.
+        /// <c>Architecture.Tests</c> is the one solution-wide exception.
+        /// </summary>
+        [Fact]
+        public void Under_Tests_Are_Named_After_A_Production_Project()
+        {
+            var production = SolutionTree.Projects
+                .Where(project => project.Location != ProjectLocation.Tests)
+                .Select(project => project.Name)
+                .ToHashSet(StringComparer.Ordinal);
+
+            var offenders = SolutionTree.Projects
+                .Where(project => project.Location == ProjectLocation.Tests && project.Name != "Architecture.Tests")
+                .Where(project => project.ProjectUnderTest() is not { } underTest || !production.Contains(underTest))
+                .Select(project => project.Name)
+                .ToList();
+
+            Assert.Empty(offenders);
+        }
     }
 }
