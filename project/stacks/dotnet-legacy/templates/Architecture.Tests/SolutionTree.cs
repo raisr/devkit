@@ -26,6 +26,19 @@ namespace Architecture.Tests
         }
 
         /// <summary>
+        /// The names of the solution files in the repository root. <c>dotnet.layout</c>
+        /// wants one, and its name is the <c>&lt;Name&gt;</c> every project starts with.
+        /// A <c>.sln</c> next to a <c>.slnx</c> of the same name counts once.
+        /// </summary>
+        internal static IReadOnlyList<string> SolutionNames()
+        {
+            return SolutionFiles(Root, SearchOption.TopDirectoryOnly)
+                .Select(path => Path.GetFileNameWithoutExtension(path))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+        }
+
+        /// <summary>
         /// <paramref name="path"/> relative to <paramref name="basePath"/>, with
         /// <c>/</c> as separator. .NET Framework has no
         /// <c>Path.GetRelativePath</c>; every path here lies below its base.

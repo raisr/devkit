@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Architecture.Tests
 {
@@ -42,5 +43,19 @@ namespace Architecture.Tests
         internal bool IsInfrastructure => Name.IndexOf(".Infrastructure", StringComparison.Ordinal) >= 0;
 
         internal bool IsLayer => IsDomain || IsApplication || IsInfrastructure;
+
+        /// <summary>The project's own directory, the last segment of <see cref="RelativeDirectory"/>.</summary>
+        internal string DirectoryName => RelativeDirectory.Split('/').Last();
+
+        /// <summary>
+        /// What the name has to start with under <c>dotnet.layout</c>: the solution
+        /// name, then every grouping directory between <c>src/</c> and the project.
+        /// </summary>
+        internal string NamePrefix(string solutionName)
+        {
+            var segments = RelativeDirectory.Split('/');
+            var grouping = segments.Take(segments.Length - 1);
+            return string.Join(".", new[] { solutionName }.Concat(grouping)) + ".";
+        }
     }
 }

@@ -20,4 +20,17 @@ internal sealed record ProjectFile(
     internal bool IsInfrastructure => Name.Contains(".Infrastructure", StringComparison.Ordinal);
 
     internal bool IsLayer => IsDomain || IsApplication || IsInfrastructure;
+
+    /// <summary>The project's own directory, the last segment of <see cref="RelativeDirectory"/>.</summary>
+    internal string DirectoryName => RelativeDirectory.Split('/')[^1];
+
+    /// <summary>
+    /// What the name has to start with under <c>dotnet.layout</c>: the solution
+    /// name, then every grouping directory between <c>src/</c> and the project.
+    /// </summary>
+    internal string NamePrefix(string solutionName)
+    {
+        var grouping = RelativeDirectory.Split('/')[..^1];
+        return string.Join('.', [solutionName, .. grouping]) + ".";
+    }
 }
