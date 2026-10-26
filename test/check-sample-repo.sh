@@ -309,6 +309,32 @@ else
   fail "a second bootstrap run failed outright"
 fi
 
+# --- a template the project moved --------------------------------------------
+#
+# A template belongs to the project, which may move it and record the new place
+# in the `path` of its lock entry. A re-run has to find it there: re-creating it
+# at the manifest target, or writing the manifest target back into the lock,
+# would undo the move every time.
+
+head2 "a template the project moved"
+MOVED="docs/architecture/architecture.md"
+mkdir -p "${REPO}/docs/architecture"
+mv "${REPO}/docs/architecture.md" "${REPO}/${MOVED}"
+sed "s|\"path\": \"docs/architecture.md\",|\"path\": \"${MOVED}\",|" "${REPO}/devkit.lock.json" \
+  > "${REPO}/devkit.lock.json.tmp" && mv "${REPO}/devkit.lock.json.tmp" "${REPO}/devkit.lock.json"
+if bash "${DEVKIT_ROOT}/project/bootstrap.sh" --repo "${REPO}" \
+     --forge "${DEVKIT_FORGE}" ${DEVKIT_STACKS:+$(printf -- '--stack %s ' ${DEVKIT_STACKS})} \
+     --workflow "${DEVKIT_WORKFLOW}" > /dev/null 2>&1; then
+  [ ! -e "${REPO}/docs/architecture.md" ] \
+    && pass "the moved template is not re-created at the manifest target" \
+    || fail "bootstrap re-created docs/architecture.md next to the moved copy"
+  assert_grep 'Kept by the project.' "${MOVED}" "the moved template keeps its content"
+  assert_grep "\"path\": \"${MOVED}\", \"from\": \"core/templates/docs/architecture.md\"" \
+    devkit.lock.json "the lock keeps the moved path"
+else
+  fail "a re-run after moving a template failed outright"
+fi
+
 # --- adding a stack later ----------------------------------------------------
 #
 # .devkit/config.sh is a template and is never overwritten, but DEVKIT_STACKS is

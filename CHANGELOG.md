@@ -17,6 +17,18 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-10-26
+
+### Added
+
+- **A template can be moved.** A template belongs to the project, but where it
+  lived was always the manifest's say: a repository that moved
+  `docs/architecture.md` into `docs/architecture/` saw `/devkit-sync` report it
+  as `missing` on every run, and a bootstrap re-run wrote a fresh copy at the
+  old path. Move the file and set the `path` of its entry in `devkit.lock.json`
+  to the new place; sync and bootstrap both take the target from there. Managed
+  files and blocks stay where the manifest puts them.
+
 ## 2026-10-19
 
 ### Changed
