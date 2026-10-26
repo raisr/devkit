@@ -36,6 +36,23 @@ that is in the git history.
   to the new place; sync and bootstrap both take the target from there. Managed
   files and blocks stay where the manifest puts them.
 
+### Changed
+
+- **Breaking: grouping directories are part of a .NET project's name.**
+  `dotnet.namespaces` says the namespace follows the directory structure, yet
+  `dotnet.layout` put `<Name>.Domain` into `src/Core/` — so the stack pack
+  broke its own rule for anyone reading it from `src/` on. A project is now
+  named `<Name>`, then every grouping directory, then its own name:
+  `src/Core/<Name>.Core.Domain/`, `src/Tools/<Name>.Tools.<Tool>/`. A UI
+  directly under `src/` stays `<Name>.<Ui>`, and `src/Tests/` is not a segment —
+  a test project is still named after the project under test. A repository on
+  the old names either renames its projects, namespaces and test projects, or
+  records a deviation against `dotnet.layout`. The `Architecture.Tests`
+  template gains two tests that assert the names against the paths and the
+  solution file; it is a template, so an existing repository copies
+  `LayoutTests.cs`, `ProjectFile.cs` and `SolutionTree.cs` across by hand when
+  `/devkit-sync` shows that they moved on.
+
 ## 2026-10-19
 
 ### Changed

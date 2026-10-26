@@ -61,5 +61,34 @@ public sealed class LayoutTests
 
             Assert.Empty(offenders);
         }
+
+        [Fact]
+        public void Carry_The_Name_Of_Their_Directory()
+        {
+            var offenders = SolutionTree.Projects
+                .Where(project => project.Name != project.DirectoryName)
+                .Select(project => $"src/{project.RelativeDirectory}/{project.Name}.csproj")
+                .ToList();
+
+            Assert.Empty(offenders);
+        }
+
+        /// <summary>
+        /// <c>src/Tests/</c> is left out: it is not a name segment, and a test
+        /// project is named after the project under test (<c>dotnet.tests</c>).
+        /// </summary>
+        [Fact]
+        public void Are_Named_After_The_Solution_And_Their_Grouping_Directories()
+        {
+            var solution = Assert.Single(SolutionTree.SolutionNames());
+
+            var offenders = SolutionTree.Projects
+                .Where(project => project.Location is ProjectLocation.Core or ProjectLocation.Tools or ProjectLocation.Ui)
+                .Where(project => !project.Name.StartsWith(project.NamePrefix(solution), StringComparison.Ordinal))
+                .Select(project => $"{project.Name}, expected {project.NamePrefix(solution)}*")
+                .ToList();
+
+            Assert.Empty(offenders);
+        }
     }
 }

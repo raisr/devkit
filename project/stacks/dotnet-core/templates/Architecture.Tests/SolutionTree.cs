@@ -22,6 +22,19 @@ internal static class SolutionTree
     }
 
     /// <summary>
+    /// The names of the solution files in the repository root. <c>dotnet.layout</c>
+    /// wants one, and its name is the <c>&lt;Name&gt;</c> every project starts with.
+    /// A <c>.sln</c> next to a <c>.slnx</c> of the same name counts once.
+    /// </summary>
+    internal static IReadOnlyList<string> SolutionNames()
+    {
+        return SolutionFiles(Root, SearchOption.TopDirectoryOnly)
+            .Select(path => Path.GetFileNameWithoutExtension(path))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+    }
+
+    /// <summary>
     /// Walks up from the test assembly to the directory holding <c>.git</c>. Not
     /// to the first solution file: one that wrongly sits in <c>src/</c> would be
     /// mistaken for the root, and the layout test could never see it.
