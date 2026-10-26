@@ -55,3 +55,19 @@ manifest_lines() {
       printf '%s|%s|%s|%s\n' "${pack}" "${src}" "${target}" "${mode}"
     done
 }
+
+# manifest_template_target <lock file> <pack/source> <manifest target>
+# Where a template lives in this repository. A template belongs to the project,
+# which may move it and record the new place in the `path` of its lock entry -
+# so that entry, matched by `from`, wins over the manifest. Managed and block
+# files never come through here: their location is part of the contract.
+#
+# Read with grep and sed, not jq: one entry per line, as bootstrap writes it.
+manifest_template_target() {
+  local lock="$1" from="$2" target="$3" entry path=""
+  if [ -f "${lock}" ]; then
+    entry="$(grep -F "\"from\": \"${from}\"," "${lock}" | grep -F '"mode": "template"' | head -1 || true)"
+    path="$(printf '%s' "${entry}" | sed -n 's/.*"path": "\([^"]*\)".*/\1/p')"
+  fi
+  printf '%s\n' "${path:-${target}}"
+}

@@ -397,6 +397,18 @@ yours since. Sync can only tell you that the upstream template moved on — for
 example that `.devkit/config.sh` gained a key your copy does not have. Taking
 anything across is your call, by hand.
 
+### Moving a template
+
+A template is yours, so you may move it — `docs/architecture.md` to
+`docs/architecture/architecture.md`, say. Move the file, then change the `path`
+of its entry in `devkit.lock.json` to the new place; the entry is the one whose
+`from` names the template. Both `/devkit-sync` and a bootstrap re-run take the
+target from that entry from then on. Without the lock edit, sync reports the
+moved template as `missing` and a re-run writes a fresh copy at the old path.
+
+Only templates move. A managed file or a block target stays where the manifest
+puts it, whatever the lock says: its location is part of the contract.
+
 `no-marker` means a block target lost its markers. Sync stops there and asks
 rather than appending a second block.
 

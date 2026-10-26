@@ -327,7 +327,9 @@ while IFS= read -r pack; do
     [ -e "${src_path}" ] || die "manifest points at a missing file: project/${p}/${src}"
     case "${mode}" in
       managed)  apply_managed  "${src_path}" "${target}" "${p}/${src}" ;;
-      template) apply_template "${src_path}" "${target}" "${p}/${src}" ;;
+      template) apply_template "${src_path}" \
+                  "$(manifest_template_target "${REPO}/devkit.lock.json" "${p}/${src}" "${target}")" \
+                  "${p}/${src}" ;;
       dir)      apply_dir      "${src_path}" "${target}" "${p}/${src}" ;;
       block:*)  apply_block    "${src_path}" "${target}" "${mode#block:}" "${p}/${src}" ;;
       *)        die "unknown mode ${mode} for ${p}/${src}" ;;

@@ -212,6 +212,38 @@ row="$(row_from core/templates/CHANGELOG.md)"
 assert_eq "$(installed_of "${row}")" "missing" \
   "a deleted template reports missing rather than owned"
 
+head2 "a template the project moved"
+
+# The project owns a template and may move it, recording the new place in the
+# `path` of its lock entry. Moving the file alone is the baseline: without the
+# lock saying so, sync has every reason to call it missing.
+cp "${REPO}/devkit.lock.json" "${PRISTINE}/devkit.lock.json"
+MOVED="docs/architecture/architecture.md"
+mkdir -p "${REPO}/docs/architecture"
+mv "${REPO}/docs/architecture.md" "${REPO}/${MOVED}"
+collect
+row="$(row_from core/templates/docs/architecture.md)"
+assert_eq "$(installed_of "${row}")" "missing" \
+  "a moved template the lock does not know about reports missing"
+
+relocate() {   # <old path> <new path> - rewrite one `path` in the lock
+  sed "s|\"path\": \"$1\",|\"path\": \"$2\",|" "${PRISTINE}/devkit.lock.json" \
+    > "${REPO}/devkit.lock.json"
+}
+relocate docs/architecture.md "${MOVED}"
+collect
+row="$(row_from core/templates/docs/architecture.md)"
+assert_eq "$(field "${row}" 2)" "${MOVED}" "with the lock updated, its target is the moved path"
+assert_eq "$(installed_of "${row}")" "owned" "and it reports owned, not missing"
+
+# The same lock edit on a managed file must change nothing: where it lives is
+# part of the contract, not the project's to move.
+relocate AGENTS.core.md docs/AGENTS.core.md
+collect
+row="$(row_from core/AGENTS.core.md)"
+assert_eq "$(field "${row}" 2)" "AGENTS.core.md" "a managed file keeps its manifest target"
+cp "${PRISTINE}/devkit.lock.json" "${REPO}/devkit.lock.json"
+
 head2 "a file the devkit does not ship"
 
 collect

@@ -44,7 +44,9 @@ rule file with no Markdown link among them, the four skills, that neither the
 dropped file nor the project's own skill was deleted, that
 `docs/architecture.md` arrives with its placeholder filled in and listed in
 `docs/README.md`, and that a second bootstrap run changes nothing — an edited
-`docs/architecture.md` included.
+`docs/architecture.md` included. Moved to `docs/architecture/` with its lock
+entry updated, a third run must neither re-create it at the old path nor write
+the old path back into the lock.
 
 It asserts the migration of a managed file to a block, which `.gitattributes`
 went through and any file may go through next. Two throwaway repositories are
@@ -94,8 +96,10 @@ same content or the three hashes never line up.
 It then provokes one situation at a time and compares the columns `collect.sh`
 prints: an untouched file; a change upstream with the repository clean; a local
 edit with upstream clean; both sides changed; a block target whose marker was
-deleted; a template that moved on upstream; a template that is gone; and the two
-kinds of orphan.
+deleted; a template that moved on upstream; a template that is gone; a template
+the project moved, first without and then with its lock entry updated, next to
+a managed file whose lock `path` was edited the same way and must not move; and
+the two kinds of orphan.
 
 Every special value is asserted against its own baseline first — that an intact
 block reports a hash and not `no-marker`, that a present template reports
