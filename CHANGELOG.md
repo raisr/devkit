@@ -21,6 +21,13 @@ that is in the git history.
 
 ### Added
 
+- **`/create-issue` sets the tickets a new one is blocked by.** It asks for the
+  direct prerequisites while drafting, shows them with the draft, and records
+  them after filing as the forge's own dependency links, through the new
+  `forge_issue_block`. Picking "the next unblocked ticket" no longer needs the
+  links set by hand. On GitLab the free tier has no blocking links; there the
+  two tickets are linked as related instead, and the skill says so.
+
 - **A template can be moved.** A template belongs to the project, but where it
   lived was always the manifest's say: a repository that moved
   `docs/architecture.md` into `docs/architecture/` saw `/devkit-sync` report it

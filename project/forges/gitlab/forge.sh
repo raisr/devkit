@@ -76,6 +76,29 @@ forge_issue_edit() {
   glab issue update "$1" --description "$(cat "$2")"
 }
 
+# forge_issue_block <number> <blocker> - records that <number> is blocked by
+# <blocker>, as an issue link of type is_blocked_by. <blocker> is an iid in this
+# project or <group>/<project>#<iid> in another one.
+#
+# Blocking links need a paid tier. On the free tier the link is made as
+# relates_to instead, the downgrade is said on stderr, and the function returns
+# 2 - so the caller can tell a real block from a mere reference.
+forge_issue_block() {
+  local project="" blocker="$2" pid out
+  case "$2" in *'#'*) project="${2%#*}"; blocker="${2##*#}" ;; esac
+  pid="$(glab repo view ${project:+"${project}"} --output json --jq .id)" || return 1
+  out="$(glab api -X POST "projects/:id/issues/$1/links" -f target_project_id="${pid}" \
+    -f target_issue_iid="${blocker}" -f link_type=is_blocked_by 2>&1)" && return 0
+  case "${out}" in
+    *'not available for current license'*) ;;
+    *) printf '%s\n' "${out}" >&2; return 1 ;;
+  esac
+  echo "gitlab: blocking links need a paid tier - linked as related instead" >&2
+  glab api -X POST "projects/:id/issues/$1/links" -f target_project_id="${pid}" \
+    -f target_issue_iid="${blocker}" -f link_type=relates_to > /dev/null || return 1
+  return 2
+}
+
 # forge_pr_create <base> <head> <title> <label> <assignee> <body file>
 #   [milestone] -> URL
 # The milestone is left off when it is empty, so a request whose issue has
