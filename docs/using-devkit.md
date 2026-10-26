@@ -306,7 +306,7 @@ Four skills are installed, and they call each other:
 | Skill | Does |
 |---|---|
 | `/implement-feature` | the whole lifecycle: ticket, branch, implementation, gates, commit, request, review loop |
-| `/create-issue` | drafts a ticket in the required schema, files it after a yes |
+| `/create-issue` | drafts a ticket in the required schema, files it after a yes, and sets the tickets it is blocked by as forge links (on GitLab's free tier only as *related*) |
 | `/commit-message` | drafts the commit message, commits and pushes after a yes |
 | `/devkit-sync` | updates the vendored devkit files |
 
