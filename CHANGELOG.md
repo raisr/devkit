@@ -17,6 +17,17 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-10-27
+
+### Added
+
+- **`dotnet-core.web` makes HTTP APIs controllers.** ASP.NET Core offers
+  controllers and minimal APIs, and the rules did not choose, so repositories
+  drifted between the two. API endpoints are now `[ApiController]` classes
+  with attribute routing. A repository that keeps minimal APIs records a
+  deviation of `dotnet-core.web`. Endpoints the framework maps itself, such as
+  `MapHealthChecks` and `MapOpenApi`, are unaffected.
+
 ## 2026-10-26
 
 ### Added

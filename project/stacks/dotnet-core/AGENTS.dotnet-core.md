@@ -62,6 +62,16 @@ such as a startup banner, is not logging and is the one exception.
 Configuration through `IOptions<T>`. No magic strings scattered around, no
 `IConfiguration` reached into from the middle of a use case.
 
+## Web APIs {#dotnet-core.web}
+
+HTTP API endpoints are controllers: classes marked `[ApiController]`,
+deriving from `ControllerBase`, routed by attribute. Minimal APIs — `MapGet`,
+`MapPost`, route groups — are not used for them. A repository that uses
+minimal APIs records that as a deviation of this rule (`core.deviations`).
+
+Endpoints the framework maps itself, such as `MapHealthChecks` and
+`MapOpenApi`, are not API endpoints in this sense and are unaffected.
+
 ## Gates {#dotnet-core.gates}
 
 Four, all green before a commit, all runnable by hand:
