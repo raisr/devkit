@@ -27,6 +27,12 @@ that is in the git history.
   with attribute routing. A repository that keeps minimal APIs records a
   deviation of `dotnet-core.web`. Endpoints the framework maps itself, such as
   `MapHealthChecks` and `MapOpenApi`, are unaffected.
+- **`core.design` forbids magic strings and numbers.** The ban used to cover
+  configuration only. A literal that carries meaning is now a named constant
+  everywhere, and where the platform defines one, that one is used —
+  `dotnet-core.style` names `HttpMethods`, `StatusCodes` and `MediaTypeNames`
+  as examples. A literal in a test that states the expected wire format is
+  exempt: it is the expectation, not a magic value.
 
 ## 2026-10-26
 

@@ -44,6 +44,9 @@ is a deliberate change to the block, not a sentence in this file.
 What the file cannot express, and therefore belongs here:
 
 - Records for DTOs and commands.
+- The platform constants instead of literals (`core.design`):
+  `HttpMethods.Post`, `StatusCodes.Status404NotFound`,
+  `MediaTypeNames.Application.Json`.
 
 ## Logging {#dotnet-core.logging}
 
