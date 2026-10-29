@@ -21,6 +21,14 @@ that is in the git history.
 
 ### Added
 
+- **`dotnet-core.web` requires OpenAPI metadata and Problem Details.** API
+  endpoints shipped OpenAPI documents without descriptions or declared
+  responses, and error bodies had no common shape. Every action now carries
+  XML doc comments, which reach the OpenAPI document through
+  `GenerateDocumentationFile` with CS1591 left off, and declares its status
+  codes with `[ProducesResponseType]`. Every 4xx and 5xx response is Problem
+  Details (RFC 9457), served as `application/problem+json`.
+
 - **`dotnet.layout` covers solutions with several stacks.** A set of services
   or a modular monolith had no place in the layout and recorded it whole as a
   deviation. The unit of the cut is now the stack — a directory of layers,

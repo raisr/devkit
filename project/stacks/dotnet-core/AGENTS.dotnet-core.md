@@ -75,6 +75,24 @@ minimal APIs records that as a deviation of this rule (`core.deviations`).
 Endpoints the framework maps itself, such as `MapHealthChecks` and
 `MapOpenApi`, are not API endpoints in this sense and are unaffected.
 
+Every API endpoint is documented where it is declared:
+
+- XML doc comments on every action — `<summary>`, a `<param>` per parameter
+  and a `<response>` per status code. They reach the OpenAPI document through
+  `<GenerateDocumentationFile>true</GenerateDocumentationFile>` in the API
+  project's file. CS1591 stays off: the rule covers API endpoints, not every
+  public member, so the warning is suppressed in that project with
+  `<NoWarn>$(NoWarn);CS1591</NoWarn>` rather than raised to an error by
+  `TreatWarningsAsErrors`.
+- Every status code an action can return is declared with
+  `[ProducesResponseType]`. Error responses declare `ProblemDetails` with
+  `MediaTypeNames.Application.ProblemJson`.
+
+**Every 4xx and 5xx response is Problem Details** (RFC 9457) — including
+unhandled exceptions and status codes the framework sets without a body. A
+response that hands the client an empty body or an ad-hoc error shape breaks
+this rule.
+
 ## Aspire {#dotnet-core.aspire}
 
 An Aspire app host lives in `src/Aspire/` as `<Name>.Aspire.AppHost`, the one
