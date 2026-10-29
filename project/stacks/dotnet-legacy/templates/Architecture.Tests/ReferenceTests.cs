@@ -12,15 +12,45 @@ namespace Architecture.Tests
     public sealed class ReferenceTests
     {
         [TestClass]
+        public sealed class Contracts
+        {
+            /// <summary>
+            /// Every caller takes Contracts, so it takes nothing else with it - no
+            /// project, no package, no assembly from a path, and no exception list.
+            /// An assembly from the GAC, such as <c>System.Web</c>, is not detected:
+            /// in the project file it looks exactly like the BCL.
+            /// </summary>
+            [TestMethod]
+            public void References_Nothing()
+            {
+                var offenders = SolutionTree.Projects
+                    .Where(project => project.IsContracts)
+                    .SelectMany(project => project.ProjectReferences
+                        .Concat(project.PackageReferences)
+                        .Concat(project.FileReferences)
+                        .Distinct()
+                        .Select(reference => $"{project.Name} -> {reference}"))
+                    .ToList();
+
+                Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
+            }
+        }
+
+        [TestClass]
         public sealed class Domain
         {
             [TestMethod]
-            public void References_Nothing_But_The_Listed_Exceptions()
+            public void References_Nothing_But_Contracts_And_The_Listed_Exceptions()
             {
+                var contracts = SolutionTree.Projects
+                    .Where(project => project.IsContracts)
+                    .Select(project => project.Name);
+
                 var offenders = SolutionTree.Projects
                     .Where(project => project.IsDomain)
                     .SelectMany(project => project.ProjectReferences
                         .Concat(project.PackageReferences)
+                        .Except(contracts)
                         .Except(DomainExceptions.Allowed)
                         .Select(reference => $"{project.Name} -> {reference}"))
                     .ToList();
@@ -33,11 +63,11 @@ namespace Architecture.Tests
         public sealed class Application
         {
             [TestMethod]
-            public void References_No_Project_But_Domain()
+            public void References_No_Project_But_Domain_And_Contracts()
             {
                 var offenders = Offenders(
                     project => project.IsApplication,
-                    reference => reference.IsDomain);
+                    reference => reference.IsDomain || reference.IsContracts);
 
                 Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
             }
@@ -47,11 +77,11 @@ namespace Architecture.Tests
         public sealed class Infrastructure
         {
             [TestMethod]
-            public void References_No_Project_But_Application_And_Domain()
+            public void References_No_Project_But_Application_Domain_And_Contracts()
             {
                 var offenders = Offenders(
                     project => project.IsInfrastructure,
-                    reference => reference.IsApplication || reference.IsDomain);
+                    reference => reference.IsApplication || reference.IsDomain || reference.IsContracts);
 
                 Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
             }

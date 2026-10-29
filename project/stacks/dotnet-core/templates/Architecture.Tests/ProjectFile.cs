@@ -6,20 +6,27 @@ namespace Architecture.Tests;
 /// <param name="Location">What the directory makes the project.</param>
 /// <param name="ProjectReferences">The names of the projects it references.</param>
 /// <param name="PackageReferences">The names of the packages it references.</param>
+/// <param name="FrameworkReferences">
+/// The shared frameworks it references, explicitly or through an SDK other than
+/// the plain <c>Microsoft.NET.Sdk</c>.
+/// </param>
 internal sealed record ProjectFile(
     string Name,
     string RelativeDirectory,
     ProjectLocation Location,
     IReadOnlyList<string> ProjectReferences,
-    IReadOnlyList<string> PackageReferences)
+    IReadOnlyList<string> PackageReferences,
+    IReadOnlyList<string> FrameworkReferences)
 {
+    internal bool IsContracts => Name.EndsWith(".Contracts", StringComparison.Ordinal);
+
     internal bool IsDomain => Name.EndsWith(".Domain", StringComparison.Ordinal);
 
     internal bool IsApplication => Name.EndsWith(".Application", StringComparison.Ordinal);
 
     internal bool IsInfrastructure => Name.Contains(".Infrastructure", StringComparison.Ordinal);
 
-    internal bool IsLayer => IsDomain || IsApplication || IsInfrastructure;
+    internal bool IsLayer => IsContracts || IsDomain || IsApplication || IsInfrastructure;
 
     /// <summary>The project's own directory, the last segment of <see cref="RelativeDirectory"/>.</summary>
     internal string DirectoryName => RelativeDirectory.Split('/')[^1];
