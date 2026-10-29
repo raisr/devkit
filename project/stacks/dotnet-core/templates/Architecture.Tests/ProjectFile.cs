@@ -28,6 +28,22 @@ internal sealed record ProjectFile(
 
     internal bool IsLayer => IsContracts || IsDomain || IsApplication || IsInfrastructure;
 
+    /// <summary>Any project in a stack that is not a layer: an API, a worker.</summary>
+    internal bool IsHost => Location == ProjectLocation.Stack && !IsLayer;
+
+    /// <summary>The one Contracts every project may reference.</summary>
+    internal bool IsSharedContracts => Location == ProjectLocation.Shared && IsContracts;
+
+    internal bool IsSharedLibrary => Location == ProjectLocation.Shared && !IsContracts;
+
+    /// <summary>
+    /// The stack's directory relative to <c>src/</c>, such as <c>Core</c> or
+    /// <c>Modules/Billing</c>, or <see langword="null"/> outside a stack.
+    /// </summary>
+    internal string? Stack => Location == ProjectLocation.Stack
+        ? RelativeDirectory[..RelativeDirectory.LastIndexOf('/')]
+        : null;
+
     /// <summary>The project's own directory, the last segment of <see cref="RelativeDirectory"/>.</summary>
     internal string DirectoryName => RelativeDirectory.Split('/')[^1];
 
