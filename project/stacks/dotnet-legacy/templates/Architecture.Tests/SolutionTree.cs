@@ -106,7 +106,23 @@ namespace Architecture.Tests
                 directory,
                 LocationOf(directory),
                 Attributes(document, "ProjectReference", "Include").Select(ProjectName).ToList(),
-                packages.ToList());
+                packages.ToList(),
+                FileReferences(document).ToList());
+        }
+
+        /// <summary>
+        /// Every <c>Reference</c> with a <c>HintPath</c>, by its assembly name. A
+        /// package from <c>packages.config</c> shows up here as well as among the
+        /// packages.
+        /// </summary>
+        private static IEnumerable<string> FileReferences(XDocument document)
+        {
+            return document.Descendants()
+                .Where(node => node.Name.LocalName == "Reference")
+                .Where(node => node.Elements().Any(child => child.Name.LocalName == "HintPath"))
+                .Select(node => (string)node.Attribute("Include"))
+                .Where(include => include != null)
+                .Select(include => include.Split(',')[0].Trim());
         }
 
         private static ProjectLocation LocationOf(string relativeDirectory)
