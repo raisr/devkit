@@ -21,6 +21,19 @@ that is in the git history.
 
 ### Added
 
+- **`dotnet.layout` covers solutions with several stacks.** A set of services
+  or a modular monolith had no place in the layout and recorded it whole as a
+  deviation. The unit of the cut is now the stack — a directory of layers,
+  `src/Core/` in a single-stack solution, `src/[<Group>/]<Stack>/` otherwise —
+  and a stack reaches another only through its Contracts, from Infrastructure
+  or a host. A stack may hold hosts such as `.Api` or `.Worker` next to its
+  layers, which `src/Core/` did not allow before. New reserved directories:
+  `src/Shared/` for `Shared.Contracts` and freely named Shared libraries,
+  `src/Sdk/` for one SDK, and in `dotnet-core` `src/Aspire/` for the app host
+  (`dotnet-core.aspire`). `Architecture.Tests` asserts all of it; the test
+  files are templates, so a repository that already has them adopts the change
+  by hand.
+
 - **`dotnet.layout` has an optional Contracts layer.** What an application
   shares with its callers — request and response types, messages, a result
   type — had no place, and each type would have become a Domain exception.
