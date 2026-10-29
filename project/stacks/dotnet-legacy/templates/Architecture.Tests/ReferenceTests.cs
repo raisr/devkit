@@ -6,8 +6,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Architecture.Tests
 {
     /// <summary>
-    /// The reference graph of <c>dotnet.layout</c>: the arrow points inwards, and a
-    /// UI is a leaf that no other UI builds on.
+    /// The reference graph of <c>dotnet.layout</c>: within a stack the arrow points
+    /// inwards, a stack reaches another only through its Contracts, and a UI is a
+    /// leaf that no other UI builds on.
     /// </summary>
     public sealed class ReferenceTests
     {
@@ -16,18 +17,20 @@ namespace Architecture.Tests
         {
             /// <summary>
             /// Every caller takes Contracts, so it takes nothing else with it - no
-            /// project, no package, no assembly from a path, and no exception list.
-            /// An assembly from the GAC, such as <c>System.Web</c>, is not detected:
-            /// in the project file it looks exactly like the BCL.
+            /// package, no assembly from a path, and no project but Shared.Contracts.
+            /// Shared.Contracts itself references nothing at all. An assembly from
+            /// the GAC, such as <c>System.Web</c>, is not detected: in the project
+            /// file it looks exactly like the BCL.
             /// </summary>
             [TestMethod]
-            public void References_Nothing()
+            public void References_Nothing_But_Shared_Contracts()
             {
                 var offenders = SolutionTree.Projects
                     .Where(project => project.IsContracts)
-                    .SelectMany(project => project.ProjectReferences
-                        .Concat(project.PackageReferences)
+                    .SelectMany(project => project.PackageReferences
                         .Concat(project.FileReferences)
+                        .Concat(project.ProjectReferences
+                            .Where(reference => project.IsSharedContracts || !Is(reference, target => target.IsSharedContracts)))
                         .Distinct()
                         .Select(reference => $"{project.Name} -> {reference}"))
                     .ToList();
@@ -42,15 +45,12 @@ namespace Architecture.Tests
             [TestMethod]
             public void References_Nothing_But_Contracts_And_The_Listed_Exceptions()
             {
-                var contracts = SolutionTree.Projects
-                    .Where(project => project.IsContracts)
-                    .Select(project => project.Name);
-
                 var offenders = SolutionTree.Projects
                     .Where(project => project.IsDomain)
                     .SelectMany(project => project.ProjectReferences
+                        .Where(reference => !Is(reference, target =>
+                            (target.IsContracts && target.Stack == project.Stack) || target.IsSharedContracts))
                         .Concat(project.PackageReferences)
-                        .Except(contracts)
                         .Except(DomainExceptions.Allowed)
                         .Select(reference => $"{project.Name} -> {reference}"))
                     .ToList();
@@ -63,11 +63,13 @@ namespace Architecture.Tests
         public sealed class Application
         {
             [TestMethod]
-            public void References_No_Project_But_Domain_And_Contracts()
+            public void References_No_Project_But_Its_Domain_Contracts_And_Shared()
             {
                 var offenders = Offenders(
                     project => project.IsApplication,
-                    reference => reference.IsDomain || reference.IsContracts);
+                    (project, target) =>
+                        ((target.IsDomain || target.IsContracts) && target.Stack == project.Stack)
+                        || target.Location == ProjectLocation.Shared);
 
                 Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
             }
@@ -77,11 +79,60 @@ namespace Architecture.Tests
         public sealed class Infrastructure
         {
             [TestMethod]
-            public void References_No_Project_But_Application_Domain_And_Contracts()
+            public void References_No_Project_But_Its_Inner_Layers_Shared_And_Other_Contracts()
             {
                 var offenders = Offenders(
                     project => project.IsInfrastructure,
-                    reference => reference.IsApplication || reference.IsDomain || reference.IsContracts);
+                    (project, target) =>
+                        ((target.IsApplication || target.IsDomain) && target.Stack == project.Stack)
+                        || target.IsContracts
+                        || target.Location == ProjectLocation.Shared);
+
+                Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
+            }
+        }
+
+        [TestClass]
+        public sealed class Host
+        {
+            [TestMethod]
+            public void References_No_Project_But_Its_Layers_Shared_The_Sdk_And_Other_Contracts()
+            {
+                var offenders = Offenders(
+                    project => project.IsHost,
+                    (project, target) =>
+                        (target.IsLayer && target.Stack == project.Stack)
+                        || target.IsContracts
+                        || target.Location == ProjectLocation.Shared
+                        || target.Location == ProjectLocation.Sdk);
+
+                Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
+            }
+        }
+
+        [TestClass]
+        public sealed class Shared
+        {
+            [TestMethod]
+            public void Library_References_No_Project_Outside_Shared()
+            {
+                var offenders = Offenders(
+                    project => project.IsSharedLibrary,
+                    (project, target) => target.Location == ProjectLocation.Shared);
+
+                Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
+            }
+        }
+
+        [TestClass]
+        public sealed class Sdk
+        {
+            [TestMethod]
+            public void References_No_Project_Outside_Shared()
+            {
+                var offenders = Offenders(
+                    project => project.Location == ProjectLocation.Sdk,
+                    (project, target) => target.Location == ProjectLocation.Shared);
 
                 Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
             }
@@ -95,7 +146,7 @@ namespace Architecture.Tests
             {
                 var offenders = Offenders(
                     project => project.Location == ProjectLocation.Ui,
-                    reference => reference.Location != ProjectLocation.Ui);
+                    (project, target) => target.Location != ProjectLocation.Ui);
 
                 Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
             }
@@ -103,19 +154,24 @@ namespace Architecture.Tests
 
         /// <summary>
         /// Every project reference, from a project <paramref name="from"/> selects,
-        /// that <paramref name="allowed"/> rejects. A reference to a project outside
-        /// <c>src/</c> is not in the tree and is never allowed.
+        /// that <paramref name="allowed"/> rejects for that project. A reference to
+        /// a project outside <c>src/</c> is not in the tree and is never allowed.
         /// </summary>
-        private static List<string> Offenders(Func<ProjectFile, bool> from, Func<ProjectFile, bool> allowed)
+        private static List<string> Offenders(Func<ProjectFile, bool> from, Func<ProjectFile, ProjectFile, bool> allowed)
         {
-            var byName = SolutionTree.Projects.ToDictionary(project => project.Name);
-
             return SolutionTree.Projects
                 .Where(from)
                 .SelectMany(project => project.ProjectReferences
-                    .Where(reference => !byName.TryGetValue(reference, out var target) || !allowed(target))
+                    .Where(reference => !Is(reference, target => allowed(project, target)))
                     .Select(reference => $"{project.Name} -> {reference}"))
                 .ToList();
+        }
+
+        /// <summary>Whether the referenced project is in the tree and <paramref name="predicate"/> holds for it.</summary>
+        private static bool Is(string reference, Func<ProjectFile, bool> predicate)
+        {
+            var target = SolutionTree.Projects.FirstOrDefault(project => project.Name == reference);
+            return target != null && predicate(target);
         }
     }
 }

@@ -75,6 +75,17 @@ minimal APIs records that as a deviation of this rule (`core.deviations`).
 Endpoints the framework maps itself, such as `MapHealthChecks` and
 `MapOpenApi`, are not API endpoints in this sense and are unaffected.
 
+## Aspire {#dotnet-core.aspire}
+
+An Aspire app host lives in `src/Aspire/` as `<Name>.Aspire.AppHost`, the one
+project there. `Aspire` is therefore not a stack name (`dotnet.layout`). The
+app host may reference the hosts of the stacks and the Shared libraries, and
+nothing references it.
+
+Aspire's service defaults are referenced by the hosts, so they are a Shared
+library, `<Name>.Shared.ServiceDefaults`, not a second project in
+`src/Aspire/`.
+
 ## Gates {#dotnet-core.gates}
 
 Four, all green before a commit, all runnable by hand:

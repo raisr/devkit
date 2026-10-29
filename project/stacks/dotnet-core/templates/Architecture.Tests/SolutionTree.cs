@@ -11,6 +11,22 @@ internal static class SolutionTree
     /// <summary>The SDK that brings no shared framework beyond the BCL.</summary>
     private const string PlainSdk = "Microsoft.NET.Sdk";
 
+    /// <summary>A project directly in a reserved directory: <c>src/Shared/&lt;project&gt;</c>.</summary>
+    private const int ReservedDepth = 2;
+
+    /// <summary>A project in a grouped stack: <c>src/&lt;Group&gt;/&lt;Stack&gt;/&lt;project&gt;</c>.</summary>
+    private const int MaxStackDepth = 3;
+
+    /// <summary>The directories under <c>src/</c> that are not stack names.</summary>
+    private static readonly Dictionary<string, ProjectLocation> ReservedDirectories = new(StringComparer.Ordinal)
+    {
+        ["Shared"] = ProjectLocation.Shared,
+        ["Sdk"] = ProjectLocation.Sdk,
+        ["Aspire"] = ProjectLocation.Aspire,
+        ["Tools"] = ProjectLocation.Tools,
+        ["Tests"] = ProjectLocation.Tests,
+    };
+
     internal static readonly string Root = FindRoot();
 
     internal static readonly string Source = Path.Combine(Root, "src");
@@ -95,6 +111,10 @@ internal static class SolutionTree
         return Includes(document, "FrameworkReference").Concat(implicitFramework);
     }
 
+    /// <summary>
+    /// A reserved directory holds its projects directly. Any other directory is
+    /// a stack, or a group of stacks one level deep - never deeper.
+    /// </summary>
     private static ProjectLocation LocationOf(string relativeDirectory)
     {
         var segments = relativeDirectory.Split('/');
@@ -103,18 +123,12 @@ internal static class SolutionTree
             return ProjectLocation.Ui;
         }
 
-        if (segments.Length != 2)
+        if (ReservedDirectories.TryGetValue(segments[0], out var reserved))
         {
-            return ProjectLocation.Elsewhere;
+            return segments.Length == ReservedDepth ? reserved : ProjectLocation.Elsewhere;
         }
 
-        return segments[0] switch
-        {
-            "Core" => ProjectLocation.Core,
-            "Tools" => ProjectLocation.Tools,
-            "Tests" => ProjectLocation.Tests,
-            _ => ProjectLocation.Elsewhere,
-        };
+        return segments.Length <= MaxStackDepth ? ProjectLocation.Stack : ProjectLocation.Elsewhere;
     }
 
     /// <summary>
