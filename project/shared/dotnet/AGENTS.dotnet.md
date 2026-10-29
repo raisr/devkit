@@ -36,6 +36,7 @@ than the rule bending to the code.
 <Name>.slnx
 src/
   Core/
+    <Name>.Core.Contracts/
     <Name>.Core.Domain/
     <Name>.Core.Application/
     <Name>.Core.Infrastructure/
@@ -48,9 +49,10 @@ src/
 
 | Project | Lives in | May reference |
 |---|---|---|
-| `<Name>.Core.Domain` | `src/Core/` | nothing beyond the BCL, unless named as an exception |
-| `<Name>.Core.Application` | `src/Core/` | Domain |
-| `<Name>.Core.Infrastructure[.<Source>]` | `src/Core/` | Application, Domain |
+| `<Name>.Core.Contracts` — optional | `src/Core/` | nothing beyond the BCL, without exception |
+| `<Name>.Core.Domain` | `src/Core/` | Contracts; nothing else beyond the BCL, unless named as an exception |
+| `<Name>.Core.Application` | `src/Core/` | Domain, Contracts |
+| `<Name>.Core.Infrastructure[.<Source>]` | `src/Core/` | Application, Domain, Contracts |
 | `<Name>.<Ui>` — web, MAUI, WinForms, WPF, console | `src/` directly | anything but another UI |
 | `<Name>.Tools.<Tool>` — a development tool | `src/Tools/` | anything, when it is a composition root |
 | a test project | `src/Tests/` | whatever it needs to assert something, Infrastructure included |
@@ -70,6 +72,15 @@ src/
 - **The solution file lives in the repository root**, not in `src/`. The
   solution folders `/Core/`, `/Tools/` and `/Tests/` list the same projects as
   the directories of the same name.
+- **Contracts is what the application shares with its callers**: request and
+  response types, messages, and the types both sides need, such as a result
+  type. It exists once there is something to share. It references nothing
+  beyond the BCL — no project, package or framework reference — so every
+  caller can take it without taking anything else. A type that needs ASP.NET,
+  such as `ProblemDetails`, stays in the UI, and Contracts describes the wire
+  format with its own types where a caller needs it.
+- **The Domain uses only the shared types from Contracts**, never the wire
+  types. Contracts never references the Domain.
 - **A Domain reference beyond the BCL is an exception, and it is written
   down.** It is allowed only when it runs in-process — the first question of
   `core.architecture` — such as existing business logic the domain builds on.

@@ -17,6 +17,20 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-10-29
+
+### Added
+
+- **`dotnet.layout` has an optional Contracts layer.** What an application
+  shares with its callers — request and response types, messages, a result
+  type — had no place, and each type would have become a Domain exception.
+  `<Name>.Core.Contracts` in `src/Core/` holds them and references nothing
+  beyond the BCL, so a caller takes nothing else with it. Domain, Application
+  and Infrastructure may reference it; it never references the Domain.
+  `Architecture.Tests` asserts this, and in `dotnet-core` now also fails on a
+  framework reference in Contracts or the Domain. The test files are
+  templates, so a repository that already has them adopts the change by hand.
+
 ## 2026-10-27
 
 ### Added
