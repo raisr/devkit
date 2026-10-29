@@ -8,10 +8,14 @@ namespace Architecture.Tests
 {
     /// <summary>
     /// The directory layout of <c>dotnet.layout</c>: the solution in the root, the
-    /// application in <c>src/Core/</c>, every UI directly under <c>src/</c>.
+    /// layers in stacks, every UI directly under <c>src/</c>, and the reserved
+    /// directories holding only what they are reserved for.
     /// </summary>
     public sealed class LayoutTests
     {
+        /// <summary>The SDK's name after the solution name (<c>dotnet.layout</c>).</summary>
+        private const string SdkSuffix = ".Sdk";
+
         [TestClass]
         public sealed class Solution
         {
@@ -38,7 +42,7 @@ namespace Architecture.Tests
         public sealed class Projects
         {
             [TestMethod]
-            public void Lie_In_Core_Tools_Tests_Or_Directly_Under_Src()
+            public void Lie_In_A_Stack_A_Reserved_Directory_Or_Directly_Under_Src()
             {
                 var offenders = SolutionTree.Projects
                     .Where(project => project.Location == ProjectLocation.Elsewhere)
@@ -48,22 +52,15 @@ namespace Architecture.Tests
                 Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
             }
 
+            /// <summary>
+            /// Shared.Contracts is the one layer-named project outside a stack. A
+            /// Domain or Application in <c>src/Shared/</c> fails here.
+            /// </summary>
             [TestMethod]
-            public void Put_Every_Layer_In_Core()
+            public void Put_Every_Layer_In_A_Stack()
             {
                 var offenders = SolutionTree.Projects
-                    .Where(project => project.IsLayer && project.Location != ProjectLocation.Core)
-                    .Select(project => $"src/{project.RelativeDirectory}")
-                    .ToList();
-
-                Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
-            }
-
-            [TestMethod]
-            public void Keep_Anything_But_Layers_Out_Of_Core()
-            {
-                var offenders = SolutionTree.Projects
-                    .Where(project => project.Location == ProjectLocation.Core && !project.IsLayer)
+                    .Where(project => project.IsLayer && project.Location != ProjectLocation.Stack && !project.IsSharedContracts)
                     .Select(project => $"src/{project.RelativeDirectory}")
                     .ToList();
 
@@ -84,19 +81,19 @@ namespace Architecture.Tests
             /// <summary>
             /// <c>src/Tests/</c> is left out: it is not a name segment, and a test
             /// project is named after the project under test (<c>dotnet.tests</c>).
+            /// A stack's single host and the SDK carry the prefix without an own
+            /// name, such as <c>&lt;Name&gt;.Sdk</c>.
             /// </summary>
             [TestMethod]
             public void Are_Named_After_The_Solution_And_Their_Grouping_Directories()
             {
-                var solutions = SolutionTree.SolutionNames();
-                Assert.AreEqual(1, solutions.Count, $"Solutions in the repository root: {string.Join(", ", solutions)}");
-                var solution = solutions[0];
+                var solution = SingleSolution();
 
                 var offenders = SolutionTree.Projects
-                    .Where(project => project.Location == ProjectLocation.Core
-                        || project.Location == ProjectLocation.Tools
-                        || project.Location == ProjectLocation.Ui)
+                    .Where(project => project.Location != ProjectLocation.Tests)
                     .Where(project => !project.Name.StartsWith(project.NamePrefix(solution), StringComparison.Ordinal))
+                    .Where(project => !((project.Location == ProjectLocation.Stack || project.Location == ProjectLocation.Sdk)
+                        && project.Name == project.NamePrefix(solution).TrimEnd('.')))
                     .Select(project => $"{project.Name}, expected {project.NamePrefix(solution)}*")
                     .ToList();
 
@@ -125,6 +122,52 @@ namespace Architecture.Tests
 
                 Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
             }
+        }
+
+        [TestClass]
+        public sealed class Stacks
+        {
+            /// <summary>
+            /// A host named after its stack, without a suffix, stands for a stack
+            /// without business rules. Once layers grow next to it, it takes one.
+            /// </summary>
+            [TestMethod]
+            public void Keep_A_Host_Without_Suffix_Alone()
+            {
+                var solution = SingleSolution();
+
+                var offenders = SolutionTree.Projects
+                    .Where(project => project.IsHost && project.Name == project.NamePrefix(solution).TrimEnd('.'))
+                    .Where(host => SolutionTree.Projects.Any(other => other.Stack == host.Stack && other.Name != host.Name))
+                    .Select(host => host.Name)
+                    .ToList();
+
+                Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
+            }
+        }
+
+        [TestClass]
+        public sealed class Reserved
+        {
+            [TestMethod]
+            public void Sdk_Holds_Only_The_Sdk()
+            {
+                var solution = SingleSolution();
+
+                var offenders = SolutionTree.Projects
+                    .Where(project => project.Location == ProjectLocation.Sdk && project.Name != solution + SdkSuffix)
+                    .Select(project => $"{project.Name}, expected {solution}{SdkSuffix}")
+                    .ToList();
+
+                Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
+            }
+        }
+
+        private static string SingleSolution()
+        {
+            var solutions = SolutionTree.SolutionNames();
+            Assert.AreEqual(1, solutions.Count, $"Solutions in the repository root: {string.Join(", ", solutions)}");
+            return solutions[0];
         }
     }
 }
