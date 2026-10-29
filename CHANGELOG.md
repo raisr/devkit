@@ -21,6 +21,14 @@ that is in the git history.
 
 ### Added
 
+- **`core.logging` says when to log.** `dotnet-core.logging` only said how, so
+  code shipped without a log line and production failures were hard to
+  diagnose. A level table now names what must be logged as Error, Warning,
+  Information and Debug, and three prohibitions apply: no log-and-rethrow, no
+  `catch` that swallows, no secrets, personal data or request and response
+  bodies in a log. In `dotnet-core`, the `.editorconfig` raises CA2254 to
+  `warning`, so an interpolated log template now fails the build.
+
 - **`dotnet-core.web` requires OpenAPI metadata and Problem Details.** API
   endpoints shipped OpenAPI documents without descriptions or declared
   responses, and error bodies had no common shape. Every action now carries

@@ -50,6 +50,8 @@ What the file cannot express, and therefore belongs here:
 
 ## Logging {#dotnet-core.logging}
 
+When to log, and at which level, is `core.logging`; this section is how.
+
 Log through `ILogger<T>` with structured templates:
 
 ```csharp
@@ -59,6 +61,10 @@ logger.LogInformation("Order {OrderId} shipped", id);
 No `Console.WriteLine`, and no string interpolation inside a log template — it
 destroys the structure the template exists for. User-facing console output,
 such as a startup banner, is not logging and is the one exception.
+
+The `.editorconfig` raises CA2254 to `warning`, so an interpolated template
+fails the build. `[LoggerMessage]` source-generated methods are allowed, not
+required.
 
 ## Configuration {#dotnet-core.configuration}
 
