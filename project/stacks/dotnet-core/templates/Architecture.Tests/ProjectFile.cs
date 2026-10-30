@@ -18,13 +18,20 @@ internal sealed record ProjectFile(
     IReadOnlyList<string> PackageReferences,
     IReadOnlyList<string> FrameworkReferences)
 {
-    internal bool IsContracts => Name.EndsWith(".Contracts", StringComparison.Ordinal);
+    /// <summary>
+    /// A project in <c>src/Tests/</c>. It carries the name of the project under
+    /// test, such as <c>Acme.Core.Infrastructure.Tests.Unit</c>, and is never a
+    /// layer for that: <c>dotnet.layout</c> leaves test projects unrestricted.
+    /// </summary>
+    internal bool IsTest => Location == ProjectLocation.Tests;
 
-    internal bool IsDomain => Name.EndsWith(".Domain", StringComparison.Ordinal);
+    internal bool IsContracts => !IsTest && Name.EndsWith(".Contracts", StringComparison.Ordinal);
 
-    internal bool IsApplication => Name.EndsWith(".Application", StringComparison.Ordinal);
+    internal bool IsDomain => !IsTest && Name.EndsWith(".Domain", StringComparison.Ordinal);
 
-    internal bool IsInfrastructure => Name.Contains(".Infrastructure", StringComparison.Ordinal);
+    internal bool IsApplication => !IsTest && Name.EndsWith(".Application", StringComparison.Ordinal);
+
+    internal bool IsInfrastructure => !IsTest && Name.Contains(".Infrastructure", StringComparison.Ordinal);
 
     internal bool IsLayer => IsContracts || IsDomain || IsApplication || IsInfrastructure;
 

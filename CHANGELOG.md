@@ -17,6 +17,19 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-10-30
+
+### Fixed
+
+- **A test project is no longer taken for a layer.** The architecture tests in
+  `dotnet-core` and `dotnet-legacy` recognised a layer by its name alone, so
+  `Acme.Core.Infrastructure.Tests.Unit` counted as Infrastructure: it failed
+  `Put_Every_Layer_In_A_Stack`, and its reference to the project under test
+  failed the Infrastructure reference rule. Every repository that tested its
+  Infrastructure, as `core.tests` requires, had a red test gate. A project in
+  `src/Tests/` is now neither a layer nor a host. The test files are templates:
+  existing repositories copy `ProjectFile.cs` by hand.
+
 ## 2026-10-29
 
 ### Added
