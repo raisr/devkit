@@ -19,6 +19,16 @@ that is in the git history.
 
 ## 2026-10-30
 
+### Added
+
+- **`dotnet-core.web` requires dedicated request and response types.** Nothing
+  stopped an action from putting a domain model or a persistence type on the
+  wire, so a change inside a service could break its callers. Every action now
+  takes a `<Action>Request` record for a body it takes and returns a
+  `<Thing>Response` record for a body it returns; no domain or persistence type
+  appears in its signature. An exception carries a comment where it is
+  declared.
+
 ### Fixed
 
 - **A test project is no longer taken for a layer.** The architecture tests in
