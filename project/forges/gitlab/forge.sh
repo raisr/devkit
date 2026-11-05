@@ -36,11 +36,23 @@ forge_issue_list_open() {
     --jq '.[] | "\(.iid)|\(.labels | join(","))|\(.title)"'
 }
 
-# forge_issue_create <title> <label> <body file> [assignee] -> issue URL
-# The assignee is left off when it is empty, so the issue stays unassigned.
+# forge_issue_create <title> <label> <body file> [assignee] [milestone]
+#   -> issue URL
+# Either is left off when it is empty, so the issue stays unassigned or without
+# a milestone. A milestone without an assignee passes "" as the fourth argument.
 forge_issue_create() {
   glab issue create --title "$1" --label "$2" --description "$(cat "$3")" \
-    ${4:+--assignee "$4"} --yes
+    ${4:+--assignee "$4"} ${5:+--milestone "$5"} --yes
+}
+
+# forge_milestones_list -> one active milestone title per line, including those
+# of the groups above the project, which an issue in it can use as well. glab
+# wants the project named even when it is the current one.
+forge_milestones_list() {
+  local project
+  project="$(glab repo view --output json --jq .path_with_namespace)" || return 1
+  glab milestone list --project "${project}" --state active --include-ancestors \
+    --per-page 100 --output json --jq '.[].title'
 }
 
 # forge_issue_view <number> -> "#<n> [<state>] <title>   labels=<a,b>"

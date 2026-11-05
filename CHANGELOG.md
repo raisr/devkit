@@ -17,6 +17,18 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-11-05
+
+### Added
+
+- **`create-issue` can file a ticket under a milestone.** Until now a ticket
+  that belonged to a milestone had to be edited on the forge by hand after
+  filing. The skill now lists the open milestones, asks for one while drafting
+  the ticket, and passes it to `forge_issue_create`, which takes an optional
+  fifth argument in both adapters. None remains the default. GitLab supports
+  this on the free tier, so there is no degraded path as there is for blocking
+  links.
+
 ## 2026-10-30
 
 ### Added
