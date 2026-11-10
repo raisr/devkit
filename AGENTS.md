@@ -126,4 +126,5 @@ Rules from `AGENTS.core.md` or a forge pack that deliberately do not apply here.
 | Rule | Deviation | Why |
 |---|---|---|
 | `core.deviations` | recorded in this table only, with no `devkit.lock.json` | The lock file answers one question: which devkit commit was a decision made against. This repository *is* the devkit, so the answer is always its own history, which git already keeps. A lock file here would carry an empty file list and a version nobody maintains. |
+| `core.releasing` | devkit is not released: no tags, no versions, no *Releasing* section — not even `core.release-none` | A consumer vendors a commit of `main`, not a version, and its lock file records that commit and a date. A version nobody vendors would be bookkeeping without a reader. |
 | `forge.changelog` | `CHANGELOG.md` is keyed by date, not by version, and claims no Semantic Versioning | devkit has no releases and no tags — `main` is the truth and a consumer's lock file records a commit and a date. An `[Unreleased]` section that is never released would be a heading that lies. |
