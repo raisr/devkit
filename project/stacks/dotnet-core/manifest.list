@@ -15,6 +15,8 @@ templates/generate-third-party-notices.cs|.devkit/generate-third-party-notices.c
 templates/third-party-notices.overrides.json|.devkit/third-party-notices.overrides.json|template
 templates/licenses/MIT.txt|.devkit/licenses/MIT.txt|template
 templates/licenses/Apache-2.0.txt|.devkit/licenses/Apache-2.0.txt|template
+templates/licenses/BSD-3-Clause.txt|.devkit/licenses/BSD-3-Clause.txt|template
+templates/licenses/PostgreSQL.txt|.devkit/licenses/PostgreSQL.txt|template
 templates/Architecture.Tests/Architecture.Tests.csproj|src/Tests/Architecture.Tests/Architecture.Tests.csproj|template
 templates/Architecture.Tests/DomainExceptions.cs|src/Tests/Architecture.Tests/DomainExceptions.cs|template
 templates/Architecture.Tests/LayoutTests.cs|src/Tests/Architecture.Tests/LayoutTests.cs|template

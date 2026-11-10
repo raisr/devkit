@@ -10,12 +10,16 @@ cd "$(git rev-parse --show-toplevel)"
 
 SLN="{{SOLUTION}}"
 
-# The project whose `dotnet publish` output is shipped, e.g.
-# "src/Acme.Shell/Acme.Shell.csproj". Set it when the repository ships a
-# distributable build: the third-party licences it carries must travel with it
-# (dotnet-core.notices). Empty skips the notices gate - a library or an internal
-# service has nothing to give notice for.
-NOTICES_PROJECT=""
+# The projects whose `dotnet publish` output is shipped, one per line, e.g.
+#   NOTICES_PROJECTS=(
+#     "src/Acme.Shell/Acme.Shell.csproj"
+#     "src/Billing/Acme.Billing.Api/Acme.Billing.Api.csproj"
+#   )
+# Set it when the repository ships a distributable build: the third-party
+# licences it carries must travel with it (dotnet-core.notices). One
+# THIRD-PARTY-NOTICES.md covers every project listed. Empty skips the notices
+# gate - a library or an internal service has nothing to give notice for.
+NOTICES_PROJECTS=()
 
 # -warnaserror so the gate itself enforces "0 warnings", rather than relying on
 # TreatWarningsAsErrors in a Directory.Build.props the project owns and may
@@ -28,17 +32,22 @@ gate_format() { dotnet format "${SLN}" --verify-no-changes; }
 
 # Regenerates the notices into a temporary file and compares it with the
 # committed one, the way the format gate verifies without writing. To update
-# the committed file after a package change, run the generator without --output:
-#   dotnet run --file .devkit/generate-third-party-notices.cs -- --project "${NOTICES_PROJECT}"
+# the committed file after a package change, run the generator without --output,
+# with one --project per entry of NOTICES_PROJECTS:
+#   dotnet run --file .devkit/generate-third-party-notices.cs -- \
+#     $(sed -n '/^NOTICES_PROJECTS=(/,/^)/s/^  "\(.*\)"$/--project \1/p' .devkit/gates.sh)
 gate_notices() {
-  if [ -z "${NOTICES_PROJECT}" ]; then
-    echo "NOTICES_PROJECT is empty - this repository ships no distributable build"
+  if [ "${#NOTICES_PROJECTS[@]}" -eq 0 ]; then
+    echo "NOTICES_PROJECTS is empty - this repository ships no distributable build"
     return 77
   fi
-  local generated rc=0
+  local generated rc=0 project args=()
+  for project in "${NOTICES_PROJECTS[@]}"; do
+    args+=(--project "${project}")
+  done
   generated="$(mktemp)"
   dotnet run --file .devkit/generate-third-party-notices.cs -- \
-      --project "${NOTICES_PROJECT}" --output "${generated}" \
+      "${args[@]}" --output "${generated}" \
     && diff -u THIRD-PARTY-NOTICES.md "${generated}" \
     || rc=1
   rm -f "${generated}"
@@ -51,7 +60,7 @@ gate_expectation() {
     build)   echo "0 warnings, 0 errors" ;;
     test)    echo "all tests green" ;;
     format)  echo "no formatting changes needed" ;;
-    notices) echo "THIRD-PARTY-NOTICES.md matches what the shipped project publishes" ;;
+    notices) echo "THIRD-PARTY-NOTICES.md matches what the shipped projects publish" ;;
   esac
 }
 

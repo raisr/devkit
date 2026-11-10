@@ -94,15 +94,16 @@ done
 # that ships nothing distributable must not be held to it.
 for f in .devkit/generate-third-party-notices.cs \
          .devkit/third-party-notices.overrides.json \
-         .devkit/licenses/MIT.txt .devkit/licenses/Apache-2.0.txt; do
+         .devkit/licenses/MIT.txt .devkit/licenses/Apache-2.0.txt \
+         .devkit/licenses/BSD-3-Clause.txt .devkit/licenses/PostgreSQL.txt; do
   [ -f "${REPO}/${f}" ] && pass "${f} installed" || fail "${f} missing"
 done
-assert_grep 'NOTICES_PROJECT=""' .devkit/gates.sh \
-  "NOTICES_PROJECT starts empty"
+assert_grep 'NOTICES_PROJECTS=()' .devkit/gates.sh \
+  "NOTICES_PROJECTS starts empty"
 notices_out="$(cd "${REPO}" && bash .devkit/gates.sh notices 2>&1)"
 notices_rc=$?
 [ "${notices_rc}" -eq 0 ] && printf '%s' "${notices_out}" | grep -q 'SKIP' \
-  && pass "the notices gate skips, and passes, while NOTICES_PROJECT is empty" \
+  && pass "the notices gate skips, and passes, while NOTICES_PROJECTS is empty" \
   || fail "the notices gate did not skip cleanly (rc ${notices_rc}): ${notices_out}"
 
 # --- blocks ------------------------------------------------------------------
