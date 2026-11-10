@@ -268,7 +268,7 @@ first: which of your files would be `kept` rather than written.
 2. **`.devkit/gates.sh`** — confirm `SLN`, and adjust the `gate_*` functions
    to what this repository actually builds. It is a template: it is yours, and
    sync will never argue with your version. On `dotnet-core`, set
-   `NOTICES_PROJECT` if the repository ships a distributable build, and
+   `NOTICES_PROJECTS` to every project whose build the repository ships, and
    generate `THIRD-PARTY-NOTICES.md` once (`dotnet-core.notices`); leave it
    empty otherwise.
 3. **`AGENTS.md`** — fill *Overview*, *Tech stack*, *Architecture* and
@@ -288,7 +288,7 @@ first: which of your files would be `kept` rather than written.
      FAIL - expected: no formatting changes needed
        …the full log of the gate…
    === notices ===
-     SKIP - NOTICES_PROJECT is empty - this repository ships no distributable build
+     SKIP - NOTICES_PROJECTS is empty - this repository ships no distributable build
 
    GATES: not ready
    ```

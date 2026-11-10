@@ -37,6 +37,21 @@ that is in the git history.
   exists or a project outside `src/Tests/` references it. They are templates,
   so `/devkit-sync` does not update an existing copy: take `ProjectFile.cs`,
   `LayoutTests.cs` and `ReferenceTests.cs` from the pack by hand.
+- **The notices gate covers several projects.** A repository that ships one
+  image per service could name only one of them, although every one carries
+  third-party licences. `NOTICES_PROJECT` in the `dotnet-core` `gates.sh`
+  template is now the array `NOTICES_PROJECTS`, and the generator takes
+  `--project` once per entry and writes one `THIRD-PARTY-NOTICES.md`: every
+  package and version once, the projects named in its header. A package
+  offered under a choice of licences (`Apache-2.0 OR MPL-2.0`) is recorded in
+  a new `license` section of `third-party-notices.overrides.json` instead of
+  failing on a licence text named after the expression. `.devkit/licenses/`
+  gains `BSD-3-Clause.txt` and `PostgreSQL.txt`. All of these are templates,
+  so `/devkit-sync` adds the two licence texts but does not update an existing
+  `gates.sh` or generator: copy `generate-third-party-notices.cs` from the
+  pack, and turn `NOTICES_PROJECT="<path>"` into `NOTICES_PROJECTS=("<path>")`
+  together with the `gate_notices` function by hand. An overrides file
+  without a `license` section keeps working.
 
 ### Changed
 
