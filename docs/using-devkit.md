@@ -286,7 +286,7 @@ first: which of your files would be `kept` rather than written.
      PASS
    === format ===
      FAIL - expected: no formatting changes needed
-       …last 15 lines of the log…
+       …the full log of the gate…
    === notices ===
      SKIP - NOTICES_PROJECT is empty - this repository ships no distributable build
 

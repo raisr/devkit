@@ -155,6 +155,7 @@ gate_expectation() {
 
 GATES="syntax manifest forge stubs fixture markdown sync"
 
+# A failing gate prints its whole log, a passing one only PASS.
 run_one() {
   local name="$1" log
   log="$(mktemp)"
@@ -165,7 +166,7 @@ run_one() {
     return 0
   fi
   printf '  FAIL - expected: %s\n' "$(gate_expectation "${name}")"
-  tail -n 15 "${log}" | sed 's/^/    /'
+  sed 's/^/    /' "${log}"
   rm -f "${log}"
   return 1
 }

@@ -588,6 +588,38 @@ else
   pass "a stack with no solution to name stays silent"
 fi
 
+# --- a failing gate shows its whole log --------------------------------------
+
+# Each runner gets one gate that writes 20 lines and fails. The first line
+# must reach the output - a runner that cuts the log loses it.
+head2 "a failing gate shows its whole log"
+for runner in project/stacks/dotnet-core/templates/gates.sh \
+              project/stacks/dotnet-legacy/templates/gates.sh \
+              project/stacks/markdown/templates/gates.sh \
+              .devkit/gates.sh; do
+  probe="$(mktemp)"
+  {
+    cat <<'EOF'
+gate_probe() {
+  local i=1
+  while [ "${i}" -le 20 ]; do echo "probe line ${i}"; i=$((i + 1)); done
+  return 1
+}
+gate_expectation() { echo "the probe passes"; }
+EOF
+    sed -n '/^# --- runner/,$p' "${DEVKIT_ROOT}/${runner}"
+  } > "${probe}"
+  probe_out="$(bash "${probe}" probe 2>&1)"
+  probe_rc=$?
+  rm -f "${probe}"
+  if [ "${probe_rc}" -ne 0 ] \
+     && printf '%s\n' "${probe_out}" | grep -qx '    probe line 1'; then
+    pass "${runner}: a failing gate prints the first of its 20 lines"
+  else
+    fail "${runner}: the first log line is missing (rc ${probe_rc}): ${probe_out}"
+  fi
+done
+
 # --- verdict -----------------------------------------------------------------
 
 echo
