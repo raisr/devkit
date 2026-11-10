@@ -54,6 +54,21 @@ not done.
 
 Conversely: no documentation is written for something that does not exist yet.
 
+## Diagrams {#core.diagrams}
+
+- Diagrams are drawn with **draw.io**.
+- They are stored as `.drawio.svg`, exported uncompressed with the diagram
+  embedded:
+  `draw.io -x -f svg -e -u -o <out>.drawio.svg <in>.drawio`.
+  Forges render the file, draw.io opens it for editing, and a test can read
+  its labels. No separate PNG, and no `.drawio` source file in the repository.
+- A diagram lives next to the document that embeds it and is named after that
+  document and its subject: `<document>-<subject>.drawio.svg`.
+- A diagram is an image of a document, embedded with Markdown image syntax.
+  It is not a document of its own and is not listed in `docs/README.md`.
+- `.gitattributes` carries no line for `*.drawio.svg`. It stays text, so it
+  diffs.
+
 ## Architecture {#core.architecture}
 
 - **The dependency arrow points inwards, never outwards.** The centre holds the

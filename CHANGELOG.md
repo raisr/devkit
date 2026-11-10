@@ -19,6 +19,15 @@ that is in the git history.
 
 ## 2026-11-10
 
+### Added
+
+- **`core.diagrams` says how diagrams are kept.** Every repository that drew a
+  diagram had to settle the tool, the file format, the place and the embedding
+  again. The rule fixes them once: draw.io, exported as an uncompressed
+  `.drawio.svg` with the diagram embedded, kept next to the document that
+  embeds it and named after it, embedded as a Markdown image and not listed in
+  the docs index. The file stays text in `.gitattributes`, so it diffs.
+
 ### Changed
 
 - **A failing gate prints its whole log.** The runner in every `gates.sh`
