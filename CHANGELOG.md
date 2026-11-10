@@ -27,6 +27,16 @@ that is in the git history.
   `.drawio.svg` with the diagram embedded, kept next to the document that
   embeds it and named after it, embedded as a Markdown image and not listed in
   the docs index. The file stays text in `.gitattributes`, so it diffs.
+- **`dotnet.tests` allows one test library, `src/Tests/<Name>.Testing`.**
+  Test projects need the same helpers — stand-ins for other components,
+  containers with their pinned images, the repository root — and without a
+  shared place they were copied from one test project into the next. The
+  library is a class library without tests, referenced by test projects only,
+  and there is at most one. The `Architecture.Tests` templates of
+  `dotnet-core` and `dotnet-legacy` accept its name and fail when a second one
+  exists or a project outside `src/Tests/` references it. They are templates,
+  so `/devkit-sync` does not update an existing copy: take `ProjectFile.cs`,
+  `LayoutTests.cs` and `ReferenceTests.cs` from the pack by hand.
 
 ### Changed
 

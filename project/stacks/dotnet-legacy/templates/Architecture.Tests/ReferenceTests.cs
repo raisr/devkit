@@ -139,6 +139,24 @@ namespace Architecture.Tests
         }
 
         [TestClass]
+        public sealed class TestLibrary
+        {
+            /// <summary>
+            /// The test library holds stand-ins and fixtures. A production project
+            /// that takes it ships them.
+            /// </summary>
+            [TestMethod]
+            public void Is_Referenced_By_No_Project_Outside_Tests()
+            {
+                var offenders = Offenders(
+                    project => !project.IsTest,
+                    (project, target) => !target.IsTestLibrary);
+
+                Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
+            }
+        }
+
+        [TestClass]
         public sealed class Ui
         {
             [TestMethod]
