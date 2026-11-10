@@ -17,6 +17,19 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-11-10
+
+### Changed
+
+- **A failing gate prints its whole log.** The runner in every `gates.sh`
+  template showed only the last 15 lines of a failing gate, so whatever came
+  before them — a failing test's actual value, a build error above its
+  summary, a stack trace — was lost, and in CI the run had to be repeated to
+  read it. A passing gate still prints `PASS`, a skipped one `SKIP`.
+  `gates.sh` is a template, so `/devkit-sync` does not update an existing
+  copy: replace `tail -n 15 "${log}" | sed 's/^/    /'` in its `run_one` with
+  `sed 's/^/    /' "${log}"` by hand.
+
 ## 2026-11-05
 
 ### Added
