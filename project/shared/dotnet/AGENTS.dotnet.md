@@ -166,6 +166,15 @@ framework demands.
 Constructor injection only. No service locator, no `new` on a service, no
 static mutable state.
 
+**A factory registered with the container performs no I/O.** The container
+runs it when it first hands the service out, under the singleton's lock, and
+every request arriving meanwhile holds a thread-pool thread waiting for it —
+the connect starves the pool it needs and times out. That covers a client
+library's `Add…Client` extension that connects synchronously, too.
+
+A service that connects when it is created is created while the host starts,
+by a hosted service, never by the first request that needs it.
+
 ## Persistence {#dotnet.persistence}
 
 The domain layer contains no attributes from the ORM or the web framework.
