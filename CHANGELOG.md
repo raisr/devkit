@@ -21,6 +21,17 @@ that is in the git history.
 
 ### Added
 
+- **`dotnet.di` forbids I/O in a factory registered with the container.**
+  `dotnet.async` already ruled out `.Result` and `.Wait()` in a repository's
+  own code, but not a factory that connects synchronously when the container
+  first hands the service out — such as a client library's `Add…Client`
+  extension. Under load that factory runs under the singleton's lock while
+  every waiting request holds a thread-pool thread, and on a machine with few
+  cores the connect starves and times out; a large development machine never
+  shows it. A service that connects when it is created is now created while
+  the host starts, by a hosted service. `AGENTS.dotnet.md` is managed, so
+  `/devkit-sync` brings the rule in; a registration that connects on first use
+  has to move to a hosted service by hand.
 - **Rules for releasing: `core.releasing`, `core.release-models` and
   `core.release-artifacts`.** The rules used to end at the merge, and every
   repository that shipped something invented its own release. `core.releasing`
