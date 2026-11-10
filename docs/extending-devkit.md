@@ -56,6 +56,27 @@ A rule that moves between packs is a slug change too: the prefix is part of the
 identity. `core.` for `AGENTS.core.md`, the pack name for a stack or shared
 pack, and `forge.` for **both** forge packs.
 
+## A new release model or artifact type
+
+Both live in `AGENTS.core.md`, not in a pack: a repository picks them in the
+*Releasing* section of its own `AGENTS.md`, so there is nothing for
+`bootstrap.sh` to install.
+
+- A release model is one more paragraph in
+  [`core.release-models`](../project/core/AGENTS.core.md#release-models-corerelease-models).
+  It says where candidates and releases are tagged and in which direction a
+  fix flows.
+- An artifact type is one more `###` section under
+  [`core.release-artifacts`](../project/core/AGENTS.core.md#release-artifacts-corerelease-artifacts),
+  with a slug of its own, `core.release-<type>`. It says what a candidate
+  publishes, what promoting means, what `latest` means where there is one, and
+  what clean-up deletes.
+- What only one stack needs, such as how a package is packed, goes into that
+  stack pack. What only one forge needs stays out: the rules name a draft
+  release, not the forge's command for one.
+
+Then follow [Changing a rule](#changing-a-rule).
+
 ## A new stack pack
 
 ```

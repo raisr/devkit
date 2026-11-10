@@ -21,6 +21,23 @@ that is in the git history.
 
 ### Added
 
+- **Rules for releasing: `core.releasing`, `core.release-models` and
+  `core.release-artifacts`.** The rules used to end at the merge, and every
+  repository that shipped something invented its own release. `core.releasing`
+  holds what is true for every release: only from a hand-made version tag, the
+  version from the tag alone, the changelog cut in a release request before
+  the first candidate, the gates again on the tagged commit, candidates as
+  drafts, the release tagged on the accepted candidate's commit, each version
+  built once and promoted through the environments, the build's shape set in
+  the project, and a discarded candidate cleaned up completely.
+  `core.release-models` offers trunk with tags or a stabilisation branch, and
+  rules out branches per environment. `core.release-artifacts` adds the rules
+  for desktop, web or service, library, static site and none. A repository
+  states its model and its artifact types in a new *Releasing* section of its
+  `AGENTS.md`. That file is a template, so `/devkit-sync` does not add the
+  section to an existing copy: add it by hand. A repository that tagged its
+  candidates before cutting the changelog changes that order.
+
 - **`core.diagrams` says how diagrams are kept.** Every repository that drew a
   diagram had to settle the tool, the file format, the place and the embedding
   again. The rule fixes them once: draw.io, exported as an uncompressed

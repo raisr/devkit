@@ -32,6 +32,13 @@ does not exist.
 <!-- The dependency rules that must not be broken, and what happens when they
      are. The current project layout belongs in docs/architecture.md. -->
 
+## Releasing
+
+<!-- The release model this repository follows (core.release-models) and every
+     artifact type it ships (core.release-artifacts), with what is specific to
+     it: platforms, image or package names, environments. The steps belong in
+     docs/releasing.md. -->
+
 ## Domain terms
 
 <!-- | Term | Means | — the words this project uses in a specific sense. -->

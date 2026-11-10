@@ -271,8 +271,9 @@ first: which of your files would be `kept` rather than written.
    `NOTICES_PROJECTS` to every project whose build the repository ships, and
    generate `THIRD-PARTY-NOTICES.md` once (`dotnet-core.notices`); leave it
    empty otherwise.
-3. **`AGENTS.md`** — fill *Overview*, *Tech stack*, *Architecture* and
-   *Domain terms*. Keep it prescriptive; explanation belongs in `docs/`.
+3. **`AGENTS.md`** — fill *Overview*, *Tech stack*, *Architecture*,
+   *Releasing* and *Domain terms*. Keep it prescriptive; explanation belongs in
+   `docs/`.
 4. **Run the gates once**, before writing any code:
 
    ```bash
