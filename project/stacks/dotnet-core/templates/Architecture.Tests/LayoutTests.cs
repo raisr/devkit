@@ -98,11 +98,14 @@ public sealed class LayoutTests
         /// <summary>
         /// <c>dotnet.tests</c>: a test project is named after exactly one
         /// production project, plus <c>.Tests.Unit</c> or <c>.Tests.Integration</c>.
-        /// <c>Architecture.Tests</c> is the one solution-wide exception.
+        /// <c>Architecture.Tests</c> is the one solution-wide exception, and
+        /// <c>&lt;Name&gt;.Testing</c> the one test library.
         /// </summary>
         [Fact]
         public void Under_Tests_Are_Named_After_A_Production_Project()
         {
+            var solution = Assert.Single(SolutionTree.SolutionNames());
+
             var production = SolutionTree.Projects
                 .Where(project => project.Location != ProjectLocation.Tests)
                 .Select(project => project.Name)
@@ -110,6 +113,7 @@ public sealed class LayoutTests
 
             var offenders = SolutionTree.Projects
                 .Where(project => project.Location == ProjectLocation.Tests && project.Name != "Architecture.Tests")
+                .Where(project => project.Name != solution + ProjectFile.TestLibrarySuffix)
                 .Where(project => project.ProjectUnderTest() is not { } underTest || !production.Contains(underTest))
                 .Select(project => project.Name)
                 .ToList();
@@ -152,6 +156,21 @@ public sealed class LayoutTests
                 .ToList();
 
             Assert.Empty(offenders);
+        }
+
+        /// <summary>
+        /// <c>dotnet.tests</c> allows one library of helpers next to the test
+        /// projects. A second one is the per-layer split it rules out.
+        /// </summary>
+        [Fact]
+        public void Tests_Hold_At_Most_One_Test_Library()
+        {
+            var libraries = SolutionTree.Projects
+                .Where(project => project.IsTestLibrary)
+                .Select(project => project.Name)
+                .ToList();
+
+            Assert.True(libraries.Count <= 1, $"More than one test library: {string.Join(", ", libraries)}");
         }
 
         [Fact]

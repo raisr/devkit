@@ -146,6 +146,23 @@ public sealed class ReferenceTests
         }
     }
 
+    public sealed class TestLibrary
+    {
+        /// <summary>
+        /// The test library holds stand-ins and fixtures. A production project
+        /// that takes it ships them.
+        /// </summary>
+        [Fact]
+        public void Is_Referenced_By_No_Project_Outside_Tests()
+        {
+            var offenders = Offenders(
+                project => !project.IsTest,
+                (_, target) => !target.IsTestLibrary);
+
+            Assert.Empty(offenders);
+        }
+    }
+
     public sealed class Ui
     {
         [Fact]

@@ -103,11 +103,14 @@ namespace Architecture.Tests
             /// <summary>
             /// <c>dotnet.tests</c>: a test project is named after exactly one
             /// production project, plus <c>.Tests.Unit</c> or <c>.Tests.Integration</c>.
-            /// <c>Architecture.Tests</c> is the one solution-wide exception.
+            /// <c>Architecture.Tests</c> is the one solution-wide exception, and
+            /// <c>&lt;Name&gt;.Testing</c> the one test library.
             /// </summary>
             [TestMethod]
             public void Under_Tests_Are_Named_After_A_Production_Project()
             {
+                var solution = SingleSolution();
+
                 var production = new HashSet<string>(
                     SolutionTree.Projects
                         .Where(project => project.Location != ProjectLocation.Tests)
@@ -116,6 +119,7 @@ namespace Architecture.Tests
 
                 var offenders = SolutionTree.Projects
                     .Where(project => project.Location == ProjectLocation.Tests && project.Name != "Architecture.Tests")
+                    .Where(project => project.Name != solution + ProjectFile.TestLibrarySuffix)
                     .Where(project => project.ProjectUnderTest() == null || !production.Contains(project.ProjectUnderTest()))
                     .Select(project => project.Name)
                     .ToList();
@@ -160,6 +164,21 @@ namespace Architecture.Tests
                     .ToList();
 
                 Assert.AreEqual(string.Empty, string.Join(Environment.NewLine, offenders));
+            }
+
+            /// <summary>
+            /// <c>dotnet.tests</c> allows one library of helpers next to the test
+            /// projects. A second one is the per-layer split it rules out.
+            /// </summary>
+            [TestMethod]
+            public void Tests_Hold_At_Most_One_Test_Library()
+            {
+                var libraries = SolutionTree.Projects
+                    .Where(project => project.IsTestLibrary)
+                    .Select(project => project.Name)
+                    .ToList();
+
+                Assert.IsTrue(libraries.Count <= 1, $"More than one test library: {string.Join(", ", libraries)}");
             }
         }
 

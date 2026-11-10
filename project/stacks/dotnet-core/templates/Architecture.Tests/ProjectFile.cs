@@ -25,6 +25,15 @@ internal sealed record ProjectFile(
     /// </summary>
     internal bool IsTest => Location == ProjectLocation.Tests;
 
+    /// <summary>The suffix of the one test library <c>dotnet.tests</c> allows.</summary>
+    internal const string TestLibrarySuffix = ".Testing";
+
+    /// <summary>
+    /// A project in <c>src/Tests/</c> that holds helpers for test projects, not
+    /// tests: <c>&lt;Name&gt;.Testing</c> under <c>dotnet.tests</c>.
+    /// </summary>
+    internal bool IsTestLibrary => IsTest && Name.EndsWith(TestLibrarySuffix, StringComparison.Ordinal);
+
     internal bool IsContracts => !IsTest && Name.EndsWith(".Contracts", StringComparison.Ordinal);
 
     internal bool IsDomain => !IsTest && Name.EndsWith(".Domain", StringComparison.Ordinal);
