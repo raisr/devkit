@@ -28,6 +28,13 @@ at one, so they survive rewording of the text beneath them.
   "Should work" is not a result.
 - Keep the working tree reviewable: no stray scratch files, no reformatted
   files nobody touched.
+- A command the maintainer is to run on their own machine is given for every
+  shell the maintainer uses — PowerShell and bash unless the repository says
+  otherwise — in one labelled block per shell. A command that runs unchanged
+  in all of them, such as a plain `git` call, is given once and says so.
+- Such a command does not assume the current directory: each block starts
+  with a `cd` to the repository, or uses only paths that do not depend on
+  where the shell is.
 
 ## Language {#core.language}
 
