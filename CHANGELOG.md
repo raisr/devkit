@@ -17,6 +17,21 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-11-13
+
+### Added
+
+- **`core.working-style` says how a command for the maintainer's own machine
+  is given.** An agent used to hand over the bash form only, relative to the
+  repository root — a pipe into `grep` fails in PowerShell, and a relative
+  `--project` path fails in any shell that is somewhere else. Such a command
+  now comes in one labelled block per shell, PowerShell and bash by default,
+  or once with a note when it runs unchanged in both, and it starts with a
+  `cd` to the repository or uses paths that do not depend on where the shell
+  is. `AGENTS.core.md` is managed, so `/devkit-sync` brings the rule in.
+  Commands the agent runs itself, and the repository's scripts, are not
+  affected.
+
 ## 2026-11-10
 
 ### Added
