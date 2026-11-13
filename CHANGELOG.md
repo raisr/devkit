@@ -21,6 +21,17 @@ that is in the git history.
 
 ### Added
 
+- **`core.docs` requires screenshots of a user interface.** A screen
+  described only in prose is hard to recognise, and a screenshot nobody is
+  required to update goes stale with the first change. In a repository with
+  a user interface, every screen a document describes is now shown in a
+  screenshot embedded in it, updated in the same request that changes the
+  screen, stored as a PNG next to the document and named
+  `<document>-<subject>.png`. How screenshots are taken — build, theme,
+  size — is the repository's decision: write it into its `AGENTS.md` by hand,
+  since that file is a template. `AGENTS.core.md` is managed, so
+  `/devkit-sync` brings the rule in.
+
 - **`core.working-style` says how a command for the maintainer's own machine
   is given.** An agent used to hand over the bash form only, relative to the
   repository root — a pipe into `grep` fails in PowerShell, and a relative
