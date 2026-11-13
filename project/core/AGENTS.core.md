@@ -61,6 +61,20 @@ not done.
 
 Conversely: no documentation is written for something that does not exist yet.
 
+**A user interface is shown, not only described.** In a repository with a
+user interface:
+
+- Each screen a document describes is shown in a screenshot embedded in that
+  document.
+- A change to what a screen shows updates its screenshot in the same branch
+  and request. A new screen gets one.
+- A screenshot is a PNG next to the document that embeds it, named
+  `<document>-<subject>.png`, and like a diagram it is not listed in
+  `docs/README.md`. It is a picture of the product, not a diagram, so
+  `core.diagrams` does not apply to it.
+- How a screenshot is taken — from which build, in which theme, at which
+  size — is written in the repository's own `AGENTS.md`.
+
 ## Diagrams {#core.diagrams}
 
 - Diagrams are drawn with **draw.io**.
