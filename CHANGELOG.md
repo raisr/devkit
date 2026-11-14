@@ -19,6 +19,24 @@ that is in the git history.
 
 ## 2026-11-14
 
+### Changed
+
+- **Breaking: `dotnet.docs` requires a short XML doc comment on every type and
+  member of a production project, private ones included.** Only API actions
+  had to be documented, so gaps crept in unnoticed. Now every project outside
+  `src/Tests/` documents its types, methods, properties, events, constructors
+  and constants — private fields, local functions and generated code excepted —
+  with a summary of ideally one sentence, and more only where a member needs it
+  to be used correctly. The build enforces it: StyleCop.Analyzers (MIT) runs
+  with SA1600 alone, every other StyleCop rule off, and CS1591 off so a public
+  member is not reported twice. `dotnet-core.web` no longer suppresses CS1591.
+  `/devkit-sync` brings the rules, the `.editorconfig` block and the new
+  managed `src/stylecop.json`, but `src/Directory.Build.props` is a template:
+  copy the new documentation section from the pack's template by hand. Under
+  `dotnet-legacy`, also add StyleCop.Analyzers to the `packages.config` of every
+  production project. Expect the first build to fail on every undocumented
+  member.
+
 ### Fixed
 
 - **`create-issue` and `implement-feature` respect a recorded deviation from
