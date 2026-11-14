@@ -17,6 +17,23 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-11-15
+
+### Added
+
+- **`/review-feature`, a second reading of a change before you review it.** It
+  checks the branch against its ticket, its request, the rule documents and a
+  list of things no gate finds — a fallback that invents data, a missing-data
+  path that fails open next to one that fails closed, a text that claims more
+  than the code does. It runs in a subagent that has not seen the conversation
+  the change was written in, reports numbered findings with a concrete failure
+  for each, and posts nothing. It only runs when you call it. `/devkit-sync`
+  offers `.claude/skills/review-feature/` as new managed files; take them.
+  Under either .NET stack it also offers `checks/dotnet.md`, from the shared
+  .NET pack.
+- **`forge_pr_body` in `.devkit/forge.sh`**, which the review reads the request
+  with. `/devkit-sync` reports the adapter as changed upstream; take it.
+
 ## 2026-11-14
 
 ### Changed

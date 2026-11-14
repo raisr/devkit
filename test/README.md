@@ -40,7 +40,9 @@ and a difference between two fixtures means a real difference.
 the resolved default branch, the config keys, the solution path, balanced and
 non-duplicated block markers, devkit blocks sitting *above* the project's own
 lines with `root = true` still in the preamble, an `@`-import for every managed
-rule file with no Markdown link among them, the four skills, that neither the
+rule file with no Markdown link among them, the five skills, that
+`review-feature` names no forge command, that the .NET review checks arrive with
+either .NET stack and not with `markdown`, that neither the
 dropped file nor the project's own skill was deleted, that
 `docs/architecture.md` arrives with its placeholder filled in and listed in
 `docs/README.md`, and that a second bootstrap run changes nothing — an edited

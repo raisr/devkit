@@ -22,7 +22,7 @@ AGENTS.core.md          rules that hold everywhere          managed
 AGENTS.dotnet.md        shared .NET rules                   managed
 AGENTS.dotnet-core.md   stack rules, one per stack          managed
 AGENTS.<forge>.md       forge conventions, github or gitlab managed
-.claude/skills/**       the four skills                     managed
+.claude/skills/**       the five skills                     managed
 .devkit/forge.sh        gh or glab behind one contract      managed
 .gitattributes          line endings                        block
 .editorconfig           between devkit markers              block
@@ -304,7 +304,8 @@ first: which of your files would be `kept` rather than written.
 
 ## Daily work
 
-Four skills are installed, and they call each other:
+Five skills are installed. The first four call each other; `/review-feature`
+runs only when you ask for it:
 
 | Skill | Does |
 |---|---|
@@ -312,6 +313,14 @@ Four skills are installed, and they call each other:
 | `/create-issue` | drafts a ticket in the required schema, files it after a yes, and sets the tickets it is blocked by as forge links (on GitLab's free tier only as *related*) |
 | `/commit-message` | drafts the commit message, commits and pushes after a yes |
 | `/devkit-sync` | updates the vendored devkit files |
+| `/review-feature` | reviews the checked-out branch against its ticket, its request, the rules and the review checks, and reports numbered findings — it changes and posts nothing |
+
+`/review-feature` runs in a subagent that has not seen the conversation, so the
+reasons the change was written with do not colour the review. Call it in the
+same chat once the request is open; the findings come back there, and you
+decide which become review comments. It reads every file in
+`.claude/skills/review-feature/checks/`: `core.md` always, and one file per
+stack pack that ships checks — `dotnet.md` under either .NET stack.
 
 `DEVKIT_WORKFLOW` decides how much of the lifecycle applies:
 
