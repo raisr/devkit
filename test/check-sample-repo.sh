@@ -277,10 +277,22 @@ fi
 # --- skills ------------------------------------------------------------------
 
 head2 "skills"
-for s in commit-message create-issue devkit-sync implement-feature; do
+for s in commit-message create-issue devkit-sync implement-feature review-feature; do
   [ -f "${REPO}/.claude/skills/${s}/SKILL.md" ] \
     && pass "skill ${s} installed" || fail "skill ${s} missing"
 done
+
+# The review reads every file in its checks/ directory, so the core checks have
+# to arrive there through the skills dir entry, not only the SKILL.md.
+[ -f "${REPO}/.claude/skills/review-feature/checks/core.md" ] \
+  && pass "the core review checks are installed" \
+  || fail "review-feature/checks/core.md missing"
+# Skills call forge_* only (AGENTS.md, Forge adapters).
+if grep -rqE '\b(gh|glab)\b' "${REPO}/.claude/skills/review-feature"; then
+  fail "review-feature names a forge command directly"
+else
+  pass "review-feature names no forge command directly"
+fi
 
 # A dir target is copied into, never emptied. Bootstrap reports what the devkit
 # no longer ships, but deleting is the project's decision - so both of these

@@ -17,7 +17,7 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-SKILLS="create-issue implement-feature commit-message"
+SKILLS="create-issue implement-feature commit-message review-feature"
 
 # devkit-sync is deliberately absent: in this repository it would clone devkit
 # into a temp directory and compare the repo against itself. Listing it here
