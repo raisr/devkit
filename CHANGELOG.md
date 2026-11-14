@@ -17,6 +17,18 @@ This is a deliberate deviation from `forge.changelog`, recorded in
 The log starts on the day devkit adopted its own workflow. Everything before
 that is in the git history.
 
+## 2026-11-14
+
+### Fixed
+
+- **`create-issue` and `implement-feature` respect a recorded deviation from
+  `forge.changelog`.** Both used to assume the changelog entry goes under
+  `## [Unreleased]`, so in a repository that keys its changelog differently
+  every drafted ticket carried an acceptance criterion that could never
+  truthfully be ticked. The entry now goes where the deviation in the project
+  `AGENTS.md` puts it, and a ticket's criterion names that place.
+  `/devkit-sync` brings the updated skills in.
+
 ## 2026-11-13
 
 ### Added
