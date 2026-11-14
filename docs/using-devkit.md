@@ -33,6 +33,7 @@ AGENTS.local.md         personal, git-ignored               template
 .devkit/config.sh       forge, stacks, workflow, assignee   template
 .devkit/gates.sh        the build/test/format commands      template
 src/Directory.Build.props                                   template
+src/stylecop.json       SA1600 settings (.NET)              managed
 .devkit/generate-third-party-notices.cs, its overrides
   and .devkit/licenses/ (dotnet-core)                       template
 src/Tests/Architecture.Tests/ (dotnet-core, dotnet-legacy)  template
@@ -100,6 +101,7 @@ shared/dotnet
   managed   AGENTS.dotnet.md
   block     .editorconfig  [devkit:shared/dotnet]
   block     .gitignore  [devkit:shared/dotnet]
+  managed   src/stylecop.json
 
 stacks/dotnet-core
   managed   AGENTS.dotnet-core.md
