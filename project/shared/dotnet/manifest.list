@@ -8,3 +8,4 @@
 AGENTS.dotnet.md|AGENTS.dotnet.md|managed
 editorconfig.block|.editorconfig|block:devkit:shared/dotnet
 gitignore.block|.gitignore|block:devkit:shared/dotnet
+stylecop.json|src/stylecop.json|managed

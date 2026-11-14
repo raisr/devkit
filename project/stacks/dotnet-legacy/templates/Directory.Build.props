@@ -12,4 +12,29 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <!-- Every production project - everything outside src/Tests/ - writes its
+       documentation file and runs StyleCop.Analyzers for SA1600 alone
+       (dotnet.docs). .editorconfig switches every other StyleCop rule off.
+       An old-style project ignores GenerateDocumentationFile and does not know
+       its AssemblyName or OutputPath yet when this file is read, so the file
+       is named after the project, which dotnet.layout makes the same name.
+       A packages.config project ignores PackageReference: the package comes
+       from the project's own packages.config, and the build fails while it is
+       not restored rather than quietly running without the rule. -->
+  <PropertyGroup Condition="!$(MSBuildProjectDirectory.StartsWith('$(MSBuildThisFileDirectory)Tests'))">
+    <DevkitDocumented>true</DevkitDocumented>
+    <DocumentationFile>obj\$(MSBuildProjectName).xml</DocumentationFile>
+    <DevkitStyleCop>$(MSBuildThisFileDirectory)..\packages\StyleCop.Analyzers.1.3.180\analyzers\dotnet\cs\StyleCop.Analyzers.dll</DevkitStyleCop>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(DevkitDocumented)' == 'true'">
+    <Analyzer Include="$(DevkitStyleCop)" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <Target Name="DevkitRequireStyleCop" BeforeTargets="CoreCompile"
+          Condition="'$(DevkitDocumented)' == 'true' and !Exists('$(DevkitStyleCop)')">
+    <Error Text="StyleCop.Analyzers 1.3.180 is not restored. Add it to this project's packages.config with developmentDependency=&quot;true&quot; and restore (dotnet.docs)." />
+  </Target>
+
 </Project>

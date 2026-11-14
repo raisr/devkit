@@ -10,4 +10,16 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <!-- Every production project - everything outside src/Tests/ - writes its
+       documentation file and runs StyleCop.Analyzers for SA1600 alone
+       (dotnet.docs). .editorconfig switches every other StyleCop rule off. -->
+  <PropertyGroup Condition="!$(MSBuildProjectDirectory.StartsWith('$(MSBuildThisFileDirectory)Tests'))">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(GenerateDocumentationFile)' == 'true'">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.3.180" PrivateAssets="all" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
 </Project>

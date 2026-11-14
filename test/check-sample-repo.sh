@@ -132,6 +132,12 @@ check_blocks .gitattributes
 assert_grep '# >>> devkit:core >>>'          .gitignore     "core block installed"
 assert_grep '# >>> devkit:shared/dotnet >>>' .gitignore     "shared/dotnet block installed"
 assert_grep '# >>> devkit:shared/dotnet >>>' .editorconfig  "shared/dotnet editorconfig block installed"
+
+# dotnet.docs: SA1600 is the one StyleCop rule on, and the analyzer reads its
+# settings from src/stylecop.json, which Directory.Build.props points at.
+assert_grep 'dotnet_diagnostic.SA1600.severity = warning' .editorconfig "SA1600 switched on"
+assert_grep '"documentPrivateElements": true' src/stylecop.json "stylecop.json documents private elements"
+assert_grep 'Include="StyleCop.Analyzers"' src/Directory.Build.props "Directory.Build.props references StyleCop.Analyzers"
 assert_grep '# >>> devkit:core >>>'          .gitattributes "core gitattributes block installed"
 
 # --- what the project owns must survive --------------------------------------
