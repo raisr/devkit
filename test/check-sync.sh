@@ -12,7 +12,8 @@
 #
 # The clone is committed state, so an uncommitted change in the working tree is
 # invisible here. That is deliberate: a consumer syncs against what was pushed,
-# never against somebody's desk.
+# never against somebody's desk. collect.sh itself is the exception - it runs
+# from the working tree, because it is the script under test.
 #
 # WHAT THIS CANNOT CHECK: the judgement. collect.sh decides nothing by design -
 # it prints `upstream` and `installed`, and the agent reads devkit.lock.json
@@ -72,8 +73,11 @@ cp "${REPO}/.editorconfig"  "${PRISTINE}/.editorconfig"
 
 # --- reading the report ------------------------------------------------------
 
+# The script under test is the one in the working tree, not the copy bootstrap
+# installed from the clone: that copy is committed state, so a change to
+# collect.sh would only be tested once it was already committed.
 collect() {
-  ( cd "${REPO}" && bash .claude/skills/devkit-sync/collect.sh "${UPSTREAM}" ) \
+  ( cd "${REPO}" && bash "${DEVKIT_ROOT}/project/core/skills/devkit-sync/collect.sh" "${UPSTREAM}" ) \
     > "${COLLECTED}" 2>"${OUT}/collect.err"
 }
 
@@ -253,6 +257,26 @@ assert_eq "$(field "${row}" 3)" "orphan" \
 row="$(row_target '.claude/skills/implement-feature/preflight.sh' orphan)"
 assert_eq "$(field "${row}" 3)" "orphan" \
   "so is a file the devkit shipped once and dropped"
+
+head2 "a pack file inside another pack's directory"
+
+# A stack may put a managed file into a directory the core pack ships whole.
+# That file is installed by its own manifest line, so it is reported there and
+# not a second time as an orphan of the directory around it.
+INSIDE=".claude/skills/implement-feature/checks/dotnet.md"
+printf 'A check shipped by the shared .NET pack.\n' \
+  > "${UPSTREAM}/project/shared/dotnet/inside.md"
+printf 'inside.md|%s|managed\n' "${INSIDE}" \
+  >> "${UPSTREAM}/project/shared/dotnet/manifest.list"
+upstream_commit "a file inside a dir target"
+mkdir -p "$(dirname "${REPO}/${INSIDE}")"
+cp "${UPSTREAM}/project/shared/dotnet/inside.md" "${REPO}/${INSIDE}"
+collect
+row="$(row_from shared/dotnet/inside.md)"
+assert_eq "$(field "${row}" 3)" "managed" "the file is reported under its own manifest line"
+assert_eq "$(row_target "${INSIDE}" orphan)" "" "and not as an orphan of the skills directory"
+rm -f "${REPO}/${INSIDE}"
+upstream_reset
 
 # ============================================================================
 

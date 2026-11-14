@@ -98,8 +98,9 @@ prints: an untouched file; a change upstream with the repository clean; a local
 edit with upstream clean; both sides changed; a block target whose marker was
 deleted; a template that moved on upstream; a template that is gone; a template
 the project moved, first without and then with its lock entry updated, next to
-a managed file whose lock `path` was edited the same way and must not move; and
-the two kinds of orphan.
+a managed file whose lock `path` was edited the same way and must not move; the
+two kinds of orphan; and a managed file one pack puts into a directory another
+pack ships whole, which is installed and must not be reported as an orphan.
 
 Every special value is asserted against its own baseline first — that an intact
 block reports a hash and not `no-marker`, that a present template reports
@@ -108,6 +109,9 @@ just as happily against a `collect.sh` that printed those words for everything.
 
 The clone is of committed state, so an uncommitted change in the working tree is
 invisible to it. That is deliberate: a consumer syncs against what was pushed.
+The one exception is `collect.sh` itself, which runs from the working tree —
+otherwise a change to the script under test would only be tested once it was
+already committed.
 
 ## What the markdown check asserts
 
