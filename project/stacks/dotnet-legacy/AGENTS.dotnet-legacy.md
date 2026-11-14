@@ -33,6 +33,13 @@ itself always wins over it.
   sets it for itself is a deviation and needs a reason.
 - There is no version number in `Directory.Build.props`: an old-style project
   takes it from `Properties/AssemblyInfo.cs`.
+- The documentation file and the analyzer that `dotnet.docs` needs are set in
+  `Directory.Build.props` for every project outside `src/Tests/`. A
+  `packages.config` project cannot take a package from there, so **each
+  production project lists StyleCop.Analyzers in its own `packages.config`**,
+  with `developmentDependency="true"`, at the version `Directory.Build.props`
+  names. The build fails on a production project whose package is not
+  restored.
 
 **`LangVersion` is `7.3`, not `latest`.** It is the highest version Microsoft
 supports on .NET Framework. The compiler will accept later syntax, but several
