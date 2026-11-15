@@ -40,7 +40,9 @@ and a difference between two fixtures means a real difference.
 the resolved default branch, the config keys, the solution path, balanced and
 non-duplicated block markers, devkit blocks sitting *above* the project's own
 lines with `root = true` still in the preamble, an `@`-import for every managed
-rule file with no Markdown link among them, the four skills, that neither the
+rule file with no Markdown link among them, the five skills, that
+`review-feature` names no forge command, that the .NET review checks arrive with
+either .NET stack and not with `markdown`, that neither the
 dropped file nor the project's own skill was deleted, that
 `docs/architecture.md` arrives with its placeholder filled in and listed in
 `docs/README.md`, and that a second bootstrap run changes nothing — an edited
@@ -98,8 +100,9 @@ prints: an untouched file; a change upstream with the repository clean; a local
 edit with upstream clean; both sides changed; a block target whose marker was
 deleted; a template that moved on upstream; a template that is gone; a template
 the project moved, first without and then with its lock entry updated, next to
-a managed file whose lock `path` was edited the same way and must not move; and
-the two kinds of orphan.
+a managed file whose lock `path` was edited the same way and must not move; the
+two kinds of orphan; and a managed file one pack puts into a directory another
+pack ships whole, which is installed and must not be reported as an orphan.
 
 Every special value is asserted against its own baseline first — that an intact
 block reports a hash and not `no-marker`, that a present template reports
@@ -108,6 +111,9 @@ just as happily against a `collect.sh` that printed those words for everything.
 
 The clone is of committed state, so an uncommitted change in the working tree is
 invisible to it. That is deliberate: a consumer syncs against what was pushed.
+The one exception is `collect.sh` itself, which runs from the working tree —
+otherwise a change to the script under test would only be tested once it was
+already committed.
 
 ## What the markdown check asserts
 

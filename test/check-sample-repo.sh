@@ -277,10 +277,22 @@ fi
 # --- skills ------------------------------------------------------------------
 
 head2 "skills"
-for s in commit-message create-issue devkit-sync implement-feature; do
+for s in commit-message create-issue devkit-sync implement-feature review-feature; do
   [ -f "${REPO}/.claude/skills/${s}/SKILL.md" ] \
     && pass "skill ${s} installed" || fail "skill ${s} missing"
 done
+
+# The review reads every file in its checks/ directory, so the core checks have
+# to arrive there through the skills dir entry, not only the SKILL.md.
+[ -f "${REPO}/.claude/skills/review-feature/checks/core.md" ] \
+  && pass "the core review checks are installed" \
+  || fail "review-feature/checks/core.md missing"
+# Skills call forge_* only (AGENTS.md, Forge adapters).
+if grep -rqE '\b(gh|glab)\b' "${REPO}/.claude/skills/review-feature"; then
+  fail "review-feature names a forge command directly"
+else
+  pass "review-feature names no forge command directly"
+fi
 
 # A dir target is copied into, never emptied. Bootstrap reports what the devkit
 # no longer ships, but deleting is the project's decision - so both of these
@@ -291,6 +303,50 @@ done
 [ -f "${REPO}/.claude/skills/house-style/SKILL.md" ] \
   && pass "the project's own skill survives" \
   || fail "bootstrap deleted a skill the project wrote itself"
+
+# --- review checks per stack -------------------------------------------------
+#
+# A stack contributes its review checks as a managed file inside the
+# review-feature directory the core pack ships whole. Each stack gets its own
+# repository here, because the sample repository above carries only one stack
+# and a check that is missing from the others would go unnoticed.
+
+head2 "review checks per stack"
+
+REVIEW_OUT="$(mktemp -d)"
+DOTNET_CHECKS=".claude/skills/review-feature/checks/dotnet.md"
+# A phrase that is only in the .NET checks, not in the core ones.
+DOTNET_MARK="DesignTimeBuild"
+
+# review_repo <stack> -> a fresh sample repo bootstrapped with that stack
+review_repo() {
+  local r
+  r="$(bash "${TEST_DIR}/build-sample-repo.sh" --out "${REVIEW_OUT}/$1" 2>/dev/null)" || return 1
+  bash "${DEVKIT_ROOT}/project/bootstrap.sh" --repo "${r}" --forge "${DEVKIT_FORGE}" \
+    --stack "$1" --workflow light > /dev/null 2>&1 || return 1
+  printf '%s\n' "${r}"
+}
+
+for stack in dotnet-core dotnet-legacy; do
+  r="$(review_repo "${stack}")"
+  if [ -n "${r}" ] && grep -qF "${DOTNET_MARK}" "${r}/${DOTNET_CHECKS}" 2>/dev/null; then
+    pass "--stack ${stack}: the review reads the .NET checks"
+  else
+    fail "--stack ${stack}: ${DOTNET_CHECKS} missing or without the .NET checks"
+  fi
+done
+
+r="$(review_repo markdown)"
+if [ -z "${r}" ]; then
+  fail "--stack markdown: bootstrap failed"
+elif [ ! -f "${r}/.claude/skills/review-feature/SKILL.md" ]; then
+  fail "--stack markdown: review-feature missing"
+elif grep -rqF "${DOTNET_MARK}" "${r}/.claude/skills/review-feature"; then
+  fail "--stack markdown: the review carries .NET checks"
+else
+  pass "--stack markdown: the same skill, without the .NET checks"
+fi
+rm -rf "${REVIEW_OUT}"
 
 # --- a second run changes nothing -------------------------------------------
 

@@ -130,6 +130,11 @@ forge_pr_view() {
     --jq '"#\(.iid) state=\(.state) draft=\(.draft) review=\(.detailed_merge_status)\n\(.web_url)"'
 }
 
+# forge_pr_body <branch or number> -> raw description
+forge_pr_body() {
+  glab mr view "$1" --output json --jq .description
+}
+
 # forge_pr_comments <number> -> the human comments, one block each. System
 # notes are left out, and so are comments on a diff line, which
 # forge_pr_line_comments reports - the same split the GitHub adapter makes.

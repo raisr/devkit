@@ -9,3 +9,6 @@ AGENTS.dotnet.md|AGENTS.dotnet.md|managed
 editorconfig.block|.editorconfig|block:devkit:shared/dotnet
 gitignore.block|.gitignore|block:devkit:shared/dotnet
 stylecop.json|src/stylecop.json|managed
+
+# Read by the review-feature skill, next to the checks the core pack ships.
+review.md|.claude/skills/review-feature/checks/dotnet.md|managed

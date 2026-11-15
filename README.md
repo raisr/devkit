@@ -95,9 +95,9 @@ manifest entry or the forge contract has gone out of step.
 - The core, shared .NET, `dotnet-core` and GitHub rule documents are written and
   in use. The `markdown` pack is written and its gates are asserted, but no
   repository has been converted with it yet.
-- The four skills have run against a live project — ticket, branch, bootstrap,
-  gates, commit and pull request, through `.devkit/forge.sh` rather than around
-  it.
+- Four of the five skills have run against a live project — ticket, branch,
+  bootstrap, gates, commit and pull request, through `.devkit/forge.sh` rather
+  than around it. `review-feature` is new and has not yet.
 - The GitLab adapter and the `dotnet-legacy` pack have each run against a
   sample repository on GitLab — an ASP.NET Core application, and an ASP.NET MVC
   application on .NET Framework 4.8 created from the Visual Studio templates.
